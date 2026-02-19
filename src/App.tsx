@@ -3,6 +3,7 @@ import { IRefPhaserGame, PhaserGame } from './PhaserGame';
 import { MainMenu } from './game/scenes/MainMenu';
 import { EventBus } from './game/EventBus';
 import { GESTURE_EVENT, GESTURE_SERVER_URL, type GesturePayload } from './game/gesture/GestureClient';
+import { MainMenuScene, GameScene, GameOverScene, GameUI } from './jsxScenes';
 
 function App()
 {
@@ -113,45 +114,19 @@ function App()
             <div className="game-overlay">
                 <PhaserGame ref={phaserRef} currentActiveScene={currentScene} />
                 <div className="scene-text-overlay" aria-live="polite">
-                    {currentSceneKey === 'MainMenu' && (
-                        <p className="scene-text scene-text--main-menu">
-                            Main Menu<br />(Thumbs Up to start)
-                        </p>
-                    )}
-                    {currentSceneKey === 'Game' && (
-                        <>
-                            <p className="scene-text scene-text--game-title">
-                                Make something fun!<br />and share it with us:<br />support@phaser.io
-                            </p>
-                            <p className="scene-text scene-text--game-gesture">
-                                Gesture: {lastGesture ? `${lastGesture.gesture} (${(lastGesture.score * 100).toFixed(0)}%)` : '—'}
-                            </p>
-                        </>
-                    )}
-                    {currentSceneKey === 'GameOver' && (
-                        <p className="scene-text scene-text--game-over">Game Over</p>
-                    )}
+                    {currentSceneKey === 'MainMenu' && <MainMenuScene />}
+                    {currentSceneKey === 'Game' && <GameScene lastGesture={lastGesture} />}
+                    {currentSceneKey === 'GameOver' && <GameOverScene />}
                 </div>
             </div>
-            <div className="game-ui">
-                <div className="last-gesture-badge">
-                    {lastGesture
-                        ? `${lastGesture.gesture} (${(lastGesture.score * 100).toFixed(0)}%)`
-                        : '—'}
-                </div>
-                <div>
-                    <button className="button" onClick={changeScene}>Change Scene</button>
-                </div>
-                <div>
-                    <button disabled={canMoveSprite} className="button" onClick={moveSprite}>Toggle Movement</button>
-                </div>
-                <div className="spritePosition">Sprite Position:
-                    <pre>{`{\n  x: ${spritePosition.x}\n  y: ${spritePosition.y}\n}`}</pre>
-                </div>
-                <div>
-                    <button className="button" onClick={addSprite}>Add New Sprite</button>
-                </div>
-            </div>
+            <GameUI
+                lastGesture={lastGesture}
+                canMoveSprite={canMoveSprite}
+                spritePosition={spritePosition}
+                onChangeScene={changeScene}
+                onMoveSprite={moveSprite}
+                onAddSprite={addSprite}
+            />
         </div>
     );
 }
