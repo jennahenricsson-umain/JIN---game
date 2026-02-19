@@ -86,7 +86,11 @@ function App()
         }
     }
 
-
+    // Event emitted from the PhaserGame component
+    const currentScene = (scene: Phaser.Scene) => {
+        setCurrentSceneKey(scene.scene.key);
+        setCanMoveSprite(scene.scene.key !== 'MainMenu');
+    };
 
     const videoUrl = `${GESTURE_SERVER_URL.replace(/\/$/, '')}/video`;
 
@@ -106,7 +110,29 @@ function App()
                     </div>
                 )}
             </div>
-
+            <div className="game-overlay">
+                <PhaserGame ref={phaserRef} currentActiveScene={currentScene} />
+                <div className="scene-text-overlay" aria-live="polite">
+                    {currentSceneKey === 'MainMenu' && (
+                        <p className="scene-text scene-text--main-menu">
+                            Main Menu<br />(Thumbs Up to start)
+                        </p>
+                    )}
+                    {currentSceneKey === 'Game' && (
+                        <>
+                            <p className="scene-text scene-text--game-title">
+                                Make something fun!<br />and share it with us:<br />support@phaser.io
+                            </p>
+                            <p className="scene-text scene-text--game-gesture">
+                                Gesture: {lastGesture ? `${lastGesture.gesture} (${(lastGesture.score * 100).toFixed(0)}%)` : '—'}
+                            </p>
+                        </>
+                    )}
+                    {currentSceneKey === 'GameOver' && (
+                        <p className="scene-text scene-text--game-over">Game Over</p>
+                    )}
+                </div>
+            </div>
             <div className="game-ui">
                 <div className="last-gesture-badge">
                     {lastGesture
