@@ -37,12 +37,6 @@ while cap.isOpened():
     mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=frame)
     recognizer.recognize_async(mp_image, frame_timestamp_ms)
 
-    if latest_result and latest_result.gestures:
-        for gesture in latest_result.gestures:
-            for category in gesture:
-                cv2.putText(frame, f"{category.category_name}: {category.score:.2f}", 
-                           (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-
     cv2.imshow("Gesture Recognition", frame)
     if cv2.waitKey(5) & 0xFF == 27:
         break

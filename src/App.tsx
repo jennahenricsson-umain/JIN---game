@@ -3,11 +3,14 @@ import { IRefPhaserGame, PhaserGame } from './PhaserGame';
 import { MainMenu } from './game/scenes/MainMenu';
 import { EventBus } from './game/EventBus';
 import { GESTURE_EVENT, GESTURE_SERVER_URL, type GesturePayload } from './game/gesture/GestureClient';
+import { MainMenuScene, GameScene, GameOverScene, GameUI } from './jsxScenes';
 
 function App()
 {
     // The sprite can only be moved in the MainMenu Scene
     const [canMoveSprite, setCanMoveSprite] = useState(true);
+    // Current Phaser scene key so we can render scene text in JSX
+    const [currentSceneKey, setCurrentSceneKey] = useState<string | null>(null);
 
     //  References to the PhaserGame component (game and scene are exposed)
     const phaserRef = useRef<IRefPhaserGame | null>(null);
@@ -86,52 +89,46 @@ function App()
 
     // Event emitted from the PhaserGame component
     const currentScene = (scene: Phaser.Scene) => {
-
+        setCurrentSceneKey(scene.scene.key);
         setCanMoveSprite(scene.scene.key !== 'MainMenu');
-        
-    }
+    };
 
     const videoUrl = `${GESTURE_SERVER_URL.replace(/\/$/, '')}/video`;
 
     return (
         <div id="app">
-            <PhaserGame ref={phaserRef} currentActiveScene={currentScene} />
-            <div className="camera-preview">
-                <div className="camera-preview-header">Camera (gesture feedback)</div>
+            <div className="camera-background" aria-hidden="true">
                 <img
                     src={videoUrl}
-                    alt="Camera feed"
-                    className="camera-feed"
+                    alt="Video Feed from Camera"
+                    className="camera-background-feed"
                     onError={() => setCameraError(true)}
                     onLoad={() => setCameraError(false)}
                 />
                 {cameraError && (
-                    <div className="camera-error">
-                        Start the gesture server: <code>cd &quot;gesture base&quot; &amp;&amp; python server.py</code>
+                    <div className="camera-error-overlay">
+                        Start the gesture server: <code>cd gesture_base &amp;&amp; python3 server.py</code>
                     </div>
                 )}
-                <div className="last-gesture">
-                    {lastGesture
-                        ? `${lastGesture.gesture} (${(lastGesture.score * 100).toFixed(0)}%)`
-                        : '—'}
+            </div>
+            <div className="game-overlay">
+                <PhaserGame ref={phaserRef} currentActiveScene={currentScene} />
+                <div className="scene-text-overlay" aria-live="polite">
+                    {currentSceneKey === 'MainMenu' && <MainMenuScene />}
+                    {currentSceneKey === 'Game' && <GameScene lastGesture={lastGesture} />}
+                    {currentSceneKey === 'GameOver' && <GameOverScene />}
                 </div>
             </div>
-            <div>
-                <div>
-                    <button className="button" onClick={changeScene}>Change Scene</button>
-                </div>
-                <div>
-                    <button disabled={canMoveSprite} className="button" onClick={moveSprite}>Toggle Movement</button>
-                </div>
-                <div className="spritePosition">Sprite Position:
-                    <pre>{`{\n  x: ${spritePosition.x}\n  y: ${spritePosition.y}\n}`}</pre>
-                </div>
-                <div>
-                    <button className="button" onClick={addSprite}>Add New Sprite</button>
-                </div>
-            </div>
+            <GameUI
+                lastGesture={lastGesture}
+                canMoveSprite={canMoveSprite}
+                spritePosition={spritePosition}
+                onChangeScene={changeScene}
+                onMoveSprite={moveSprite}
+                onAddSprite={addSprite}
+            />
         </div>
-    )
+    );
 }
 
 export default App
