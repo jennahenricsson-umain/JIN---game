@@ -56,6 +56,19 @@ We have provided a default project structure to get you started. This is as foll
 | `public/style.css`            | Some simple CSS rules to help with page layout.                            |
 | `public/assets`               | Contains the static assets used by the game.                               |
 
+## Project Structure - viktiga filer enligt Jenna
+
+| Path                          | Description                                                                 |
+|-------------------------------|-----------------------------------------------------------------------------|
+| `src/App.tsx`                 | The main React component. All other react components are imported here.     |
+| `src/jsxScenes`               | Here we create all text, divs, buttons and styling for our scenes.          |
+| `src/jsxScenes/GameUI`        | A sidebar with UI components, could be removed later but amazing for testing.|
+| `src/PhaserGame.tsx`          | The React component that initializes the Phaser Game and acts as a bridge between React and Phaser. |
+| `src/game/scenes/`            | Here we write everything gamy. The folder where Phaser Scenes are located.  |
+| `src/game/EventBus.ts`        | Sends events between React and Phaser.                                      |
+| `public/style.css`            | For page layout and styling (can be used for both phaser and react)         |
+| `public/assets`               | Here we input all static assets like sprites, logos and images.             |
+
 ## React Bridge
 
 The `PhaserGame.tsx` component is the bridge between React and Phaser. It initializes the Phaser game and passes events between the two.
@@ -176,24 +189,6 @@ After you run the `npm run build` command, your code will be built into a single
 
 In order to deploy your game, you will need to upload *all* of the contents of the `dist` folder to a public facing web server.
 
-## Customizing the Template
-
-### Vite
-
-If you want to customize your build, such as adding plugin (i.e. for loading CSS or fonts), you can modify the `vite/config.*.mjs` file for cross-project changes, or you can modify and/or create new configuration files and target them in specific npm tasks inside of `package.json`. Please see the [Vite documentation](https://vitejs.dev/) for more information.
-
-## About log.js
-
-If you inspect our node scripts you will see there is a file called `log.js`. This file makes a single silent API call to a domain called `gryzor.co`. This domain is owned by Phaser Studio Inc. The domain name is a homage to one of our favorite retro games.
-
-We send the following 3 pieces of data to this API: The name of the template being used (vue, react, etc). If the build was 'dev' or 'prod' and finally the version of Phaser being used.
-
-At no point is any personal data collected or sent. We don't know about your project files, device, browser or anything else. Feel free to inspect the `log.js` file to confirm this.
-
-Why do we do this? Because being open source means we have no visible metrics about which of our templates are being used. We work hard to maintain a large and diverse set of templates for Phaser developers and this is our small anonymous way to determine if that work is actually paying off, or not. In short, it helps us ensure we're building the tools for you.
-
-However, if you don't want to send any data, you can use these commands instead:
-
 Dev:
 
 ```bash
@@ -244,8 +239,10 @@ The game can be controlled with hand gestures via a Python backend. The gesture 
    Download a `gesture_recognizer.task` from [Google MediaPipe](https://developers.google.com/mediapipe/solutions/vision/gesture_recognizer) and put it in the `gesture base` folder.
 3. **Start the gesture server** (from the `gesture base` folder):
    ```bash
-   cd "gesture base"
+   cd gesture_base
    python server.py
+   OR if on MAC
+   python3 server.py
    ```
    The server runs at `http://localhost:5001` and exposes:
    - `GET /gesture` – JSON `{ "gesture": "Thumbs_Up", "score": 0.95 }` (used by the game)
@@ -254,9 +251,6 @@ The game can be controlled with hand gestures via a Python backend. The gesture 
    ```bash
    npm run dev
    ```
-   The game polls the gesture server and reacts in the **Game** scene:
-   - **Thumbs Up** (confidence ≥ 70%) – adds a star
-   - **Thumbs Down** (confidence ≥ 70%) – goes to Game Over
 
 To use a different server URL, set the env variable `VITE_GESTURE_SERVER` (e.g. in `.env`: `VITE_GESTURE_SERVER=http://192.168.1.10:5001`).
 

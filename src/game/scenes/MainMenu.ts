@@ -16,7 +16,7 @@ export class MainMenu extends Scene
 
     create ()
     {
-        this.logo = this.add.image(512, 300, 'logo').setDepth(100);
+        this.logo = this.add.image(this.scale.width / 2, this.scale.height / 2, 'logo').setDepth(100); // center the logo
 
         EventBus.on(GESTURE_EVENT, this.gestureListener);
         EventBus.emit('current-scene-ready', this);
