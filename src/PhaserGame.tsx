@@ -1,6 +1,7 @@
 import { forwardRef, useEffect, useLayoutEffect, useRef } from 'react';
 import StartGame from './game/main';
 import { EventBus } from './game/EventBus';
+import { stopGestureClient } from './game/gesture/GestureClient';
 
 export interface IRefPhaserGame
 {
@@ -36,6 +37,7 @@ export const PhaserGame = forwardRef<IRefPhaserGame, IProps>(function PhaserGame
 
         return () =>
         {
+            stopGestureClient();
             if (game.current)
             {
                 game.current.destroy(true);

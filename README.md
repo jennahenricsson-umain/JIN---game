@@ -228,6 +228,38 @@ After:
 
 Either of these will stop `log.js` from running. If you do decide to do this, please could you at least join our Discord and tell us which template you're using! Or send us a quick email. Either will be super-helpful, thank you.
 
+## Gesture recognition (JIN game)
+
+The game can be controlled with hand gestures via a Python backend. The gesture code lives in `gesture base/`.
+
+### Running gesture recognition with the game
+
+1. **Install Python dependencies** (in the project root or `gesture base/`):
+   ```bash
+   pip install flask flask-cors opencv-python mediapipe
+   OR if on MAC
+   pip3 install flask flask-cors opencv-python mediapipe
+   ```
+2. **Place the MediaPipe gesture model** in `gesture base/`:  
+   Download a `gesture_recognizer.task` from [Google MediaPipe](https://developers.google.com/mediapipe/solutions/vision/gesture_recognizer) and put it in the `gesture base` folder.
+3. **Start the gesture server** (from the `gesture base` folder):
+   ```bash
+   cd "gesture base"
+   python server.py
+   ```
+   The server runs at `http://localhost:5001` and exposes:
+   - `GET /gesture` – JSON `{ "gesture": "Thumbs_Up", "score": 0.95 }` (used by the game)
+   - `GET /video` – optional MJPEG preview stream
+4. **Start the game** (from the project root):
+   ```bash
+   npm run dev
+   ```
+   The game polls the gesture server and reacts in the **Game** scene:
+   - **Thumbs Up** (confidence ≥ 70%) – adds a star
+   - **Thumbs Down** (confidence ≥ 70%) – goes to Game Over
+
+To use a different server URL, set the env variable `VITE_GESTURE_SERVER` (e.g. in `.env`: `VITE_GESTURE_SERVER=http://192.168.1.10:5001`).
+
 ## Join the Phaser Community!
 
 We love to see what developers like you create with Phaser! It really motivates us to keep improving. So please join our community and show-off your work 😄
