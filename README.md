@@ -1,3 +1,45 @@
+## Gesture recognition (JIN game)
+
+The game can be controlled with hand gestures via a Python backend. The gesture code lives in `gesture base/`. Game logics are implemented with the game engine Phaser and UI components are rendered with react. 
+
+### SETUP
+
+1. **Install Python dependencies** (in the project root or `gesture base/`):
+   ```bash
+   pip install flask flask-cors opencv-python mediapipe
+   OR if on MAC
+   pip3 install flask flask-cors opencv-python mediapipe
+   ```
+2. **Place the MediaPipe gesture model** in `gesture base/`:  
+   Download a `gesture_recognizer.task` from [Google MediaPipe](https://developers.google.com/mediapipe/solutions/vision/gesture_recognizer) and put it in the `gesture base` folder.
+3. **Start the gesture server** (from the `gesture base` folder):
+   ```bash
+   cd gesture_base
+   python server.py
+   OR if on MAC
+   python3 server.py
+   ```
+   The server runs at `http://localhost:5001` and exposes:
+   - `GET /gesture` – JSON `{ "gesture": "Thumbs_Up", "score": 0.95 }` (used by the game)
+   - `GET /video` – optional MJPEG preview stream
+4. **Start the game** (from the project root):
+   ```bash
+   npm run dev
+   ```
+## Project Structure - Jennas idea of the files we will work in the most
+
+| Path                          | Description                                                                 |
+|-------------------------------|-----------------------------------------------------------------------------|
+| `src/App.tsx`                 | The main React component. All other react components are imported here.     |
+|**`src/jsxScenes/..`**         | Here we create all text, divs, buttons and styling for our scenes.          |
+| `src/jsxScenes/GameUI.tsx`    | A sidebar with UI components, could be removed later but amazing for testing.|
+| **`src/game/scenes/..`**      | Here we write everything gamy ex. moving objects, kollisions. Phaser code for scenes. |
+| `public/style.css`            | For page layout and styling (can be used for both phaser and react)         |
+| `public/assets`               | Here we input all static assets like sprites, logos and images.             |
+
+Bold paths are what we will use the most to create scenes, their prictures and functionality. Although you might need to change in a few other files as well when states/reactive components are implemented.
+The template paths and descriptions are further down!
+
 # Phaser React TypeScript Template
 
 This is a Phaser 3 project template that uses the React framework and Vite for bundling. It includes a bridge for React to Phaser game communication, hot-reloading for quick development workflow and scripts to generate production-ready builds.
@@ -55,19 +97,6 @@ We have provided a default project structure to get you started. This is as foll
 | `src/game/scenes/`            | The folder where Phaser Scenes are located.                                |
 | `public/style.css`            | Some simple CSS rules to help with page layout.                            |
 | `public/assets`               | Contains the static assets used by the game.                               |
-
-## Project Structure - viktiga filer enligt Jenna
-
-| Path                          | Description                                                                 |
-|-------------------------------|-----------------------------------------------------------------------------|
-| `src/App.tsx`                 | The main React component. All other react components are imported here.     |
-| `src/jsxScenes`               | Here we create all text, divs, buttons and styling for our scenes.          |
-| `src/jsxScenes/GameUI`        | A sidebar with UI components, could be removed later but amazing for testing.|
-| `src/PhaserGame.tsx`          | The React component that initializes the Phaser Game and acts as a bridge between React and Phaser. |
-| `src/game/scenes/`            | Here we write everything gamy. The folder where Phaser Scenes are located.  |
-| `src/game/EventBus.ts`        | Sends events between React and Phaser.                                      |
-| `public/style.css`            | For page layout and styling (can be used for both phaser and react)         |
-| `public/assets`               | Here we input all static assets like sprites, logos and images.             |
 
 ## React Bridge
 
@@ -252,7 +281,6 @@ The game can be controlled with hand gestures via a Python backend. The gesture 
    npm run dev
    ```
 
-To use a different server URL, set the env variable `VITE_GESTURE_SERVER` (e.g. in `.env`: `VITE_GESTURE_SERVER=http://192.168.1.10:5001`).
 
 ## Join the Phaser Community!
 
@@ -270,3 +298,4 @@ Created by [Phaser Studio](mailto:support@phaser.io). Powered by coffee, anime, 
 The Phaser logo and characters are &copy; 2011 - 2025 Phaser Studio Inc.
 
 All rights reserved.
+
