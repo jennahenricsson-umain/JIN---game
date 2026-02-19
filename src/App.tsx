@@ -95,28 +95,29 @@ function App()
 
     return (
         <div id="app">
-            <PhaserGame ref={phaserRef} currentActiveScene={currentScene} />
-            <div className="camera-preview">
-                <div className="camera-preview-header">Camera (gesture feedback)</div>
+            <div className="camera-background" aria-hidden="true">
                 <img
                     src={videoUrl}
-                    alt="Camera feed"
-                    className="camera-feed"
+                    alt=""
+                    className="camera-background-feed"
                     onError={() => setCameraError(true)}
                     onLoad={() => setCameraError(false)}
                 />
                 {cameraError && (
-                    <div className="camera-error">
-                        Start the gesture server: <code>cd &quot;gesture base&quot; &amp;&amp; python server.py</code>
+                    <div className="camera-error-overlay">
+                        Start the gesture server: <code>cd gesture_base &amp;&amp; python3 server.py</code>
                     </div>
                 )}
-                <div className="last-gesture">
+            </div>
+            <div className="game-overlay">
+                <PhaserGame ref={phaserRef} currentActiveScene={currentScene} />
+            </div>
+            <div className="game-ui">
+                <div className="last-gesture-badge">
                     {lastGesture
                         ? `${lastGesture.gesture} (${(lastGesture.score * 100).toFixed(0)}%)`
                         : '—'}
                 </div>
-            </div>
-            <div>
                 <div>
                     <button className="button" onClick={changeScene}>Change Scene</button>
                 </div>
@@ -131,7 +132,7 @@ function App()
                 </div>
             </div>
         </div>
-    )
+    );
 }
 
 export default App

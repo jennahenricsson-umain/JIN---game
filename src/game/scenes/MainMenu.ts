@@ -9,6 +9,7 @@ export class MainMenu extends Scene
     logo: GameObjects.Image;
     title: GameObjects.Text;
     logoTween: Phaser.Tweens.Tween | null;
+    video: GameObjects.Video;
     private gestureListener = (payload: GesturePayload) => this.onGesture(payload);
 
     constructor ()
@@ -20,6 +21,8 @@ export class MainMenu extends Scene
     {
         this.background = this.add.image(512, 384, 'background');
 
+        this.video = this.add.video(512, 384, 'video');
+
         this.logo = this.add.image(512, 300, 'logo').setDepth(100);
 
         this.title = this.add.text(512, 460, 'Main Menu\n(Thumbs Up to start)', {
@@ -29,6 +32,8 @@ export class MainMenu extends Scene
         }).setOrigin(0.5).setDepth(100);
 
         EventBus.on(GESTURE_EVENT, this.gestureListener);
+        console.log(this.video);
+        console.log(GESTURE_EVENT);
         EventBus.emit('current-scene-ready', this);
     }
 
