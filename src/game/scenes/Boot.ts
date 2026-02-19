@@ -1,4 +1,5 @@
 import { Scene } from 'phaser';
+import { startGestureClient } from '../gesture/GestureClient';
 
 export class Boot extends Scene
 {
@@ -17,6 +18,7 @@ export class Boot extends Scene
 
     create ()
     {
+        startGestureClient();
         this.scene.start('Preloader');
     }
 }

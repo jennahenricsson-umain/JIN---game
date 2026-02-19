@@ -1,6 +1,8 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { IRefPhaserGame, PhaserGame } from './PhaserGame';
 import { MainMenu } from './game/scenes/MainMenu';
+import { EventBus } from './game/EventBus';
+import { GESTURE_EVENT, GESTURE_SERVER_URL, type GesturePayload } from './game/gesture/GestureClient';
 
 function App()
 {
@@ -10,6 +12,15 @@ function App()
     //  References to the PhaserGame component (game and scene are exposed)
     const phaserRef = useRef<IRefPhaserGame | null>(null);
     const [spritePosition, setSpritePosition] = useState({ x: 0, y: 0 });
+
+    // Camera preview + last gesture for feedback
+    const [lastGesture, setLastGesture] = useState<GesturePayload | null>(null);
+    const [cameraError, setCameraError] = useState(false);
+    useEffect(() => {
+        const onGesture = (payload: GesturePayload) => setLastGesture(payload);
+        EventBus.on(GESTURE_EVENT, onGesture);
+        return () => { EventBus.removeListener(GESTURE_EVENT, onGesture); };
+    }, []);
 
     const changeScene = () => {
 
@@ -80,9 +91,31 @@ function App()
         
     }
 
+    const videoUrl = `${GESTURE_SERVER_URL.replace(/\/$/, '')}/video`;
+
     return (
         <div id="app">
             <PhaserGame ref={phaserRef} currentActiveScene={currentScene} />
+            <div className="camera-preview">
+                <div className="camera-preview-header">Camera (gesture feedback)</div>
+                <img
+                    src={videoUrl}
+                    alt="Camera feed"
+                    className="camera-feed"
+                    onError={() => setCameraError(true)}
+                    onLoad={() => setCameraError(false)}
+                />
+                {cameraError && (
+                    <div className="camera-error">
+                        Start the gesture server: <code>cd &quot;gesture base&quot; &amp;&amp; python server.py</code>
+                    </div>
+                )}
+                <div className="last-gesture">
+                    {lastGesture
+                        ? `${lastGesture.gesture} (${(lastGesture.score * 100).toFixed(0)}%)`
+                        : '—'}
+                </div>
+            </div>
             <div>
                 <div>
                     <button className="button" onClick={changeScene}>Change Scene</button>
