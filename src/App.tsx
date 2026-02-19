@@ -8,6 +8,8 @@ function App()
 {
     // The sprite can only be moved in the MainMenu Scene
     const [canMoveSprite, setCanMoveSprite] = useState(true);
+    // Current Phaser scene key so we can render scene text in JSX
+    const [currentSceneKey, setCurrentSceneKey] = useState<string | null>(null);
 
     //  References to the PhaserGame component (game and scene are exposed)
     const phaserRef = useRef<IRefPhaserGame | null>(null);
@@ -84,12 +86,7 @@ function App()
         }
     }
 
-    // Event emitted from the PhaserGame component
-    const currentScene = (scene: Phaser.Scene) => {
 
-        setCanMoveSprite(scene.scene.key !== 'MainMenu');
-        
-    }
 
     const videoUrl = `${GESTURE_SERVER_URL.replace(/\/$/, '')}/video`;
 
@@ -98,7 +95,7 @@ function App()
             <div className="camera-background" aria-hidden="true">
                 <img
                     src={videoUrl}
-                    alt=""
+                    alt="Video Feed from Camera"
                     className="camera-background-feed"
                     onError={() => setCameraError(true)}
                     onLoad={() => setCameraError(false)}
@@ -109,9 +106,7 @@ function App()
                     </div>
                 )}
             </div>
-            <div className="game-overlay">
-                <PhaserGame ref={phaserRef} currentActiveScene={currentScene} />
-            </div>
+
             <div className="game-ui">
                 <div className="last-gesture-badge">
                     {lastGesture

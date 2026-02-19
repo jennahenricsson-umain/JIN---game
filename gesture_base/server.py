@@ -73,13 +73,6 @@ def generate_frames():
         with _frame_lock:
             frame = latest_frame.copy() if latest_frame is not None else None
         if frame is not None:
-            if latest_result and latest_result.gestures:
-"""                 for gesture_list in latest_result.gestures:
-                    for category in gesture_list:
-                        cv2.putText(
-                            frame, f"{category.category_name}: {category.score:.2f}",
-                            (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-                    break """
             ret, buffer = cv2.imencode('.jpg', frame)
             if ret:
                 yield (b'--frame\r\n'
