@@ -1,4 +1,4 @@
-## Gesture recognition (JIN game)
+## Gesture recognition - JIN game 
 
 The game can be controlled with hand gestures via a Python backend. The gesture code lives in `gesture base/`. Game logics are implemented with the game engine Phaser and UI components are rendered with react. 
 
@@ -298,4 +298,5 @@ Created by [Phaser Studio](mailto:support@phaser.io). Powered by coffee, anime, 
 The Phaser logo and characters are &copy; 2011 - 2025 Phaser Studio Inc.
 
 All rights reserved.
+
 
