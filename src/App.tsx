@@ -7,14 +7,11 @@ import { MainMenuScene, GameScene, GameOverScene, GameUI } from './jsxScenes';
 
 function App()
 {
-    // The sprite can only be moved in the MainMenu Scene
-    const [canMoveSprite, setCanMoveSprite] = useState(true);
     // Current Phaser scene key so we can render scene text in JSX
     const [currentSceneKey, setCurrentSceneKey] = useState<string | null>(null);
 
     //  References to the PhaserGame component (game and scene are exposed)
     const phaserRef = useRef<IRefPhaserGame | null>(null);
-    const [spritePosition, setSpritePosition] = useState({ x: 0, y: 0 });
 
     // Camera preview + last gesture for feedback
     const [lastGesture, setLastGesture] = useState<GesturePayload | null>(null);
@@ -36,26 +33,6 @@ function App()
                 scene.changeScene();
             }
         }
-    }
-
-    const moveSprite = () => {
-
-        if(phaserRef.current)
-        {
-
-            const scene = phaserRef.current.scene as MainMenu;
-
-            if (scene && scene.scene.key === 'MainMenu')
-            {
-                // Get the update logo position
-                scene.moveLogo(({ x, y }) => {
-
-                    setSpritePosition({ x, y });
-
-                });
-            }
-        }
-
     }
 
     const addSprite = () => {
@@ -90,7 +67,6 @@ function App()
     // Event emitted from the PhaserGame component
     const currentScene = (scene: Phaser.Scene) => {
         setCurrentSceneKey(scene.scene.key);
-        setCanMoveSprite(scene.scene.key !== 'MainMenu');
     };
 
     const videoUrl = `${GESTURE_SERVER_URL.replace(/\/$/, '')}/video`;
@@ -121,10 +97,7 @@ function App()
             </div>
             <GameUI
                 lastGesture={lastGesture}
-                canMoveSprite={canMoveSprite}
-                spritePosition={spritePosition}
                 onChangeScene={changeScene}
-                onMoveSprite={moveSprite}
                 onAddSprite={addSprite}
             />
         </div>
