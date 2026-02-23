@@ -8,7 +8,7 @@ export function GameScene({ lastGesture }: GameSceneProps) {
   return (
     <>
       <p className="scene-text scene-text--game-title">
-        Make something fun!<br />and share it with us:<br />support@phaser.io
+        Do a peace sign for Victory!<br />Thumbs up to remove stars<br />and Thumbs down to end the game.
       </p>
       <p className="scene-text scene-text--game-gesture">
         Gesture: {lastGesture ? `${lastGesture.gesture} (${(lastGesture.score * 100).toFixed(0)}%)` : '—'}
