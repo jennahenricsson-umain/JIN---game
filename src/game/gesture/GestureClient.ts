@@ -11,6 +11,7 @@ export const GESTURE_SERVER_URL =
 export interface GesturePayload {
   gesture: string;
   score: number;
+  landmark: { x: number; y: number; z: number };
 }
 
 export const GESTURE_EVENT = 'gesture-recognized';

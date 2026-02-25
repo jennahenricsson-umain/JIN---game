@@ -58,12 +58,18 @@ def gesture():
     global latest_result
     out = {"gesture": "None", "score": 0.0}
     if latest_result and latest_result.gestures:
+        print("Latest gesture result:", latest_result)
         for gesture_list in latest_result.gestures:
+            print("  Gesture list:", gesture_list)
             for category in gesture_list:
                 out["gesture"] = category.category_name
                 out["score"] = round(float(category.score), 4)
-                break
-            break
+                
+        for hand_landmarks in latest_result.hand_landmarks:
+            array = []
+            for landmark in hand_landmarks:
+                array.append({"x": round(1-landmark.x, 7), "y": round(landmark.y, 7), "z": round(landmark.z, 7)})
+            out["landmark"] = array
     return jsonify(out)
 
 
