@@ -11,6 +11,8 @@ export const GESTURE_SERVER_URL =
 export interface GesturePayload {
   gesture: string;
   score: number;
+  x: number;  // normalized 0-1 (0 = left, 1 = right)
+  y: number;  // normalized 0-1 (0 = top, 1 = bottom)
 }
 
 export const GESTURE_EVENT = 'gesture-recognized';
@@ -37,7 +39,7 @@ export function startGestureClient(serverUrl: string = GESTURE_SERVER_URL): void
   };
 
   poll();
-  pollIntervalId = setInterval(poll, 100);
+  pollIntervalId = setInterval(poll, 50); // Poll every 50ms (20 times/sec)
 }
 
 export function stopGestureClient(): void {

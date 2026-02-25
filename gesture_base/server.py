@@ -37,6 +37,12 @@ def capture_and_recognize_loop():
     """Runs in background: capture webcam frames and run gesture recognition."""
     global latest_result, latest_frame
     cap = cv2.VideoCapture(0)
+    
+    # Lower resolution for faster processing
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 320)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 240)
+    cap.set(cv2.CAP_PROP_FPS, 60)
+    
     frame_timestamp_ms = 0
     if not cap.isOpened():
         return
@@ -44,7 +50,7 @@ def capture_and_recognize_loop():
         ret, frame = cap.read()
         if not ret:
             break
-        frame_timestamp_ms += 33
+        frame_timestamp_ms += 16  # ~60 FPS (1000ms / 60 = 16ms per frame)
         mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=frame)
         recognizer.recognize_async(mp_image, frame_timestamp_ms)
         with _frame_lock:
@@ -54,9 +60,9 @@ def capture_and_recognize_loop():
 
 @app.route('/gesture')
 def gesture():
-    """JSON endpoint for the game: current gesture name and confidence score."""
+    """JSON endpoint for the game: current gesture name, confidence score, and hand position."""
     global latest_result
-    out = {"gesture": "None", "score": 0.0}
+    out = {"gesture": "None", "score": 0.0, "x": 0.5, "y": 0.5}
     if latest_result and latest_result.gestures:
         for gesture_list in latest_result.gestures:
             for category in gesture_list:
@@ -64,6 +70,14 @@ def gesture():
                 out["score"] = round(float(category.score), 4)
                 break
             break
+        # Get hand position (normalized 0-1, where 0,0 is top-left)
+        if latest_result.hand_landmarks:
+            for hand_landmark_list in latest_result.hand_landmarks:
+                # Use wrist (landmark 0) as hand position
+                wrist = hand_landmark_list[0]
+                out["x"] = round(float(1.0 - wrist.x), 4)  # Flip X to un-mirror
+                out["y"] = round(float(wrist.y), 4)
+                break
     return jsonify(out)
 
 
