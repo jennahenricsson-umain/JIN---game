@@ -19,6 +19,9 @@ export class MainMenu extends Scene
         this.logo = this.add.image(this.scale.width / 2, this.scale.height / 2, 'logo').setScale(0.1).setDepth(100); // i mitten
 
         EventBus.on(GESTURE_EVENT, this.gestureListener);
+        this.events.once('shutdown', () => {
+            EventBus.removeListener(GESTURE_EVENT, this.gestureListener);
+        });
         EventBus.emit('current-scene-ready', this);
     }
 
@@ -26,10 +29,6 @@ export class MainMenu extends Scene
         if (payload.gesture === 'Thumb_Up' && payload.score >= 0.7) {
             this.changeScene();
         }
-    }
-
-    shutdown(): void {
-        EventBus.removeListener(GESTURE_EVENT, this.gestureListener);
     }
     
     changeScene ()

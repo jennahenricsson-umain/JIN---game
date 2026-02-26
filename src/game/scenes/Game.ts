@@ -9,7 +9,6 @@ export class Game extends Scene
     private peaceX: number;
     private peaceY: number;
     private gestureListener = (payload: GesturePayload) => this.onGesture(payload);
-    private gameListener = (payload: GesturePayload) => this.onGame(payload);
 
     constructor ()
     {
@@ -19,7 +18,6 @@ export class Game extends Scene
     create ()
     {
         EventBus.on(GESTURE_EVENT, this.gestureListener);
-        EventBus.on(GESTURE_EVENT, this.gameListener);
         EventBus.emit('current-scene-ready', this);
 
         this.peaceX = Phaser.Math.Between(64, this.scale.width - 64);
@@ -27,13 +25,6 @@ export class Game extends Scene
         this.image = this.add.image(this.peaceX, this.peaceY, 'peace').setDepth(100);
         this.gesturepoints = this.add.graphics({ fillStyle: { color: 0x8803fc } }).setDepth(50);
     }   
-
-    private onGame(payload: GesturePayload): void {
-        if (payload.gesture === 'Victory' && payload.score >= 0.7) {
-            null;
-        }
-    }
-
 
     private onGesture(payload: GesturePayload): void {
         const handX = payload.landmark[9].x * this.scale.width; // Random punkt mitt på handen, borde bytas till något meddelvärde
