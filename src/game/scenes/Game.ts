@@ -19,9 +19,8 @@ export class Game extends Scene
     handIndicator: Phaser.GameObjects.Circle;
     private gestureListener = (payload: GesturePayload) => this.onGesture(payload);
     private currentTarget: GestureTarget | null = null;
-    //private score = 0;
     private startTime = 0;
-    private readonly MATCH_DISTANCE = 100; //detta var 150 innan
+    private readonly MATCH_DISTANCE = 150; //detta var 150 innan
     private lastMatchTime = 0;
     private readonly MATCH_COOLDOWN = 500; // ms between matches
     private readonly SEQUENCE = [
@@ -50,7 +49,7 @@ export class Game extends Scene
         this.background = this.add.image(512, 384, 'background');
         this.background.setAlpha(0.3);
 
-        this.scoreText = this.add.text(20, 20, 'Score: 0', {
+        this.scoreText = this.add.text(20, 20, `Progress: ${this.sequenceIndex + 1}/${this.SEQUENCE.length}`, {
             fontFamily: 'Arial Black', fontSize: 32, color: '#ffffff',
             stroke: '#000000', strokeThickness: 4
         }).setDepth(100);
@@ -124,22 +123,33 @@ export class Game extends Scene
             this.currentTarget.x, this.currentTarget.y
         );
         
+        const gestureMatch = payload.gesture === this.currentTarget.gesture;
+        const scoreOk = payload.score >= 0.55;  // Lowered from 0.7 to 0.6
+        const distanceOk = distance < this.MATCH_DISTANCE;
+        
         this.gestureText.setText(
             `Target: ${this.currentTarget.gesture}\n` +
             `Detected: ${payload.gesture} (${(payload.score * 100).toFixed(0)}%)\n` +
-            `Distance: ${distance.toFixed(0)}px / ${this.MATCH_DISTANCE}px`
+            `Dist: ${distance.toFixed(0)}/${this.MATCH_DISTANCE} | G:${gestureMatch} S:${scoreOk} D:${distanceOk}`
         );
 
         // Must match BOTH gesture and position
-        if (payload.gesture === this.currentTarget.gesture && 
-            payload.score >= 0.7 && 
-            distance < this.MATCH_DISTANCE) {
+        if (gestureMatch && scoreOk && distanceOk) {
             const now = Date.now();
-            // Check cooldown
-            if (now - this.lastMatchTime < this.MATCH_COOLDOWN) return;
+            const timeSince = now - this.lastMatchTime;
             
+            console.log('MATCH!', { timeSince, cooldown: this.MATCH_COOLDOWN });
+            
+            // Check cooldown
+            if (timeSince < this.MATCH_COOLDOWN) {
+                console.log('Blocked by cooldown');
+                return;
+            }
+            
+            console.log('SUCCESS!');
             this.lastMatchTime = now;
             this.sequenceIndex++;
+            this.scoreText.setText(`Progress: ${this.sequenceIndex + 1}/${this.SEQUENCE.length}`);
             this.cameras.main.flash(200, 0, 255, 0);
             this.spawnTarget();
         }
