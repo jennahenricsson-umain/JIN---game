@@ -2,7 +2,7 @@ import { useRef, useState, useEffect } from 'react';
 import { IRefPhaserGame, PhaserGame } from './PhaserGame';
 import { MainMenu } from './game/scenes/MainMenu';
 import { EventBus } from './game/EventBus';
-import { GESTURE_EVENT, GESTURE_SERVER_URL, type GesturePayload } from './game/gesture/GestureClient';
+import { GESTURE_EVENT, CAMERA_READY_EVENT, type GesturePayload } from './game/gesture/GestureClient';
 import { MainMenuScene, GameScene, GameOverScene, GameUI } from './jsxScenes';
 
 function App()
@@ -15,11 +15,20 @@ function App()
 
     // Camera preview + last gesture for feedback
     const [lastGesture, setLastGesture] = useState<GesturePayload | null>(null);
-    const [cameraError, setCameraError] = useState(false);
+    const cameraVideoRef = useRef<HTMLVideoElement>(null);
     useEffect(() => {
         const onGesture = (payload: GesturePayload) => setLastGesture(payload);
         EventBus.on(GESTURE_EVENT, onGesture);
-        return () => { EventBus.removeListener(GESTURE_EVENT, onGesture); };
+        const onCameraReady = (stream: MediaStream) => {
+            if (cameraVideoRef.current) {
+                cameraVideoRef.current.srcObject = stream;
+            }
+        };
+        EventBus.on(CAMERA_READY_EVENT, onCameraReady);
+        return () => {
+            EventBus.removeListener(GESTURE_EVENT, onGesture);
+            EventBus.removeListener(CAMERA_READY_EVENT, onCameraReady);
+        };
     }, []);
 
     const changeScene = () => {
@@ -69,23 +78,16 @@ function App()
         setCurrentSceneKey(scene.scene.key);
     };
 
-    const videoUrl = `${GESTURE_SERVER_URL.replace(/\/$/, '')}/video`;
-
     return (
         <div id="app">
             <div className="camera-background" aria-hidden="true">
-                <img
-                    src={videoUrl}
-                    alt="Video Feed from Camera"
+                <video
+                    ref={cameraVideoRef}
                     className="camera-background-feed"
-                    onError={() => setCameraError(true)}
-                    onLoad={() => setCameraError(false)}
+                    autoPlay
+                    playsInline
+                    muted
                 />
-                {cameraError && (
-                    <div className="camera-error-overlay">
-                        Start the gesture server: <code>cd gesture_base &amp;&amp; python3 server.py</code>
-                    </div>
-                )}
             </div>
             <div className="game-overlay">
                 <PhaserGame ref={phaserRef} currentActiveScene={currentScene} />
