@@ -16,6 +16,7 @@ function App()
     // Camera preview + last gesture for feedback
     const [lastGesture, setLastGesture] = useState<GesturePayload | null>(null);
     const [counter, setCounter] = useState(0);
+    const [timer, setTimer] = useState<number | null>(null);
     const cameraVideoRef = useRef<HTMLVideoElement>(null);
     useEffect(() => {
         const onGesture = (payload: GesturePayload) => setLastGesture(payload);
@@ -27,11 +28,14 @@ function App()
         };
         EventBus.on(CAMERA_READY_EVENT, onCameraReady);
         const onCounterUpdated = (value: number) => setCounter(value);
+        const onTimerUpdated = (elapsed: number) => setTimer(elapsed);
         EventBus.on('counter-updated', onCounterUpdated);
+        EventBus.on('timer-updated', onTimerUpdated);
         return () => {
             EventBus.removeListener(GESTURE_EVENT, onGesture);
             EventBus.removeListener(CAMERA_READY_EVENT, onCameraReady);
             EventBus.removeListener('counter-updated', onCounterUpdated);
+            EventBus.removeListener('timer-updated', onTimerUpdated);
         };
     }, []);
 
@@ -97,7 +101,7 @@ function App()
                 <PhaserGame ref={phaserRef} currentActiveScene={currentScene} />
                 <div className="scene-text-overlay" aria-live="polite">
                     {currentSceneKey === 'MainMenu' && <MainMenuScene />}
-                    {currentSceneKey === 'Game' && <GameScene lastGesture={lastGesture} counter={counter} />}
+                    {currentSceneKey === 'Game' && <GameScene lastGesture={lastGesture} counter={counter} timer={timer} />}
                     {currentSceneKey === 'GameOver' && <GameOverScene />}
                 </div>
             </div>

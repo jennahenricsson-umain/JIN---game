@@ -7,6 +7,7 @@ export class Game extends Scene
     image: GameObjects.Image;
     gesturepoints: GameObjects.Graphics;
     counter: number = 0;
+    timer: Phaser.Time.TimerEvent;
     private peaceX: number;
     private peaceY: number;
     private gestureListener = (payload: GesturePayload) => this.onGesture(payload);
@@ -25,12 +26,22 @@ export class Game extends Scene
         this.peaceY = this.scale.height / 2;
         this.image = this.add.image(this.peaceX, this.peaceY, 'peace').setDepth(100);
         this.gesturepoints = this.add.graphics({ fillStyle: { color: 0x8803fc } }).setDepth(50);
+        this.timer = this.time.addEvent({
+            delay: 5000, // ms
+            loop: false,
+            repeat: 0,
+            startAt: 0,
+            timeScale: 1,
+        });
     }   
 
     private onGesture(payload: GesturePayload): void {
         const handX = payload.landmark[9].x * this.scale.width; // Random punkt mitt på handen, borde bytas till något meddelvärde
         const handY = payload.landmark[9].y * this.scale.height;
         this.gesturepoints.clear();
+
+        var elapsed = this.timer.getElapsed();
+        EventBus.emit('timer-updated', elapsed);
 
         for (const landmark of payload.landmark) {
             const x = landmark.x * this.scale.width;
@@ -39,8 +50,18 @@ export class Game extends Scene
         }
 
         if (payload.gesture === 'Victory' && payload.score >= 0.7 && Phaser.Math.Distance.Between(handX, handY, this.peaceX, this.peaceY) < 50) {
+            this.timer.reset({
+                delay: 10000, // ms
+                loop: false,
+                repeat: 0,
+                startAt: 0,
+                timeScale: 1,
+                paused: false,
+                });
+
             this.counter += 1;
             EventBus.emit('counter-updated', this.counter);
+
             const x = Phaser.Math.Between(64, this.scale.width - 64);
             const y = Phaser.Math.Between(64, this.scale.height - 64);
             const star = this.add.sprite(x, y, 'star').setDepth(50);
