@@ -91,7 +91,7 @@ body {
 
 .scene-text--game-title {
     font-size: clamp(18px, 3.7vw, 38px);
-    top: 50%;
+    top: 40%;
     transform: translate(-50%, -50%);
     line-height: 1.4;
 }
@@ -105,6 +105,11 @@ body {
     font-size: clamp(36px, 6.2vw, 64px);
     top: 50%;
     transform: translate(-50%, -50%);
+}
+
+.scene-text--game-score{
+    font-size: clamp(16px, 2.3vw, 24px);
+    bottom: 10%;
 }
 
 #game-container {
