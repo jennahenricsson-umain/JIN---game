@@ -1,41 +1,42 @@
-## Gesture recognition - JIN game 
+## Gesture recognition - JIN game
 
-The game can be controlled with hand gestures via a Python backend. The gesture code lives in `gesture base/`. Game logics are implemented with the game engine Phaser and UI components are rendered with react. 
+The game can be controlled with hand gestures via a Python backend. The gesture code lives in `gesture base/`. Game logics are implemented with the game engine Phaser and UI components are rendered with react.
 
 ### SETUP
 
 1. **Install Python dependencies** (in the project root or `gesture base/`):
-   ```bash
-   pip install flask flask-cors opencv-python mediapipe
-   OR if on MAC
-   pip3 install flask flask-cors opencv-python mediapipe
-   ```
+    ```bash
+    pip install flask flask-cors opencv-python mediapipe
+    OR if on MAC
+    pip3 install flask flask-cors opencv-python mediapipe
+    ```
 2. **Place the MediaPipe gesture model** in `gesture base/`:  
    Download a `gesture_recognizer.task` from [Google MediaPipe](https://developers.google.com/mediapipe/solutions/vision/gesture_recognizer) and put it in the `gesture base` folder.
 3. **Start the gesture server** (from the `gesture base` folder):
-   ```bash
-   cd gesture_base
-   python server.py
-   OR if on MAC
-   python3 server.py
-   ```
-   The server runs at `http://localhost:5001` and exposes:
-   - `GET /gesture` – JSON `{ "gesture": "Thumbs_Up", "score": 0.95 }` (used by the game)
-   - `GET /video` – optional MJPEG preview stream
+    ```bash
+    cd gesture_base
+    python server.py
+    OR if on MAC
+    python3 server.py
+    ```
+    The server runs at `http://localhost:5001` and exposes:
+    - `GET /gesture` – JSON `{ "gesture": "Thumbs_Up", "score": 0.95 }` (used by the game)
+    - `GET /video` – optional MJPEG preview stream
 4. **Start the game** (from the project root):
-   ```bash
-   npm run dev
-   ```
+    ```bash
+    npm run dev
+    ```
+
 ## Project Structure - Jennas idea of the files we will work in the most
 
-| Path                          | Description                                                                 |
-|-------------------------------|-----------------------------------------------------------------------------|
-| `src/App.tsx`                 | The main React component. All other react components are imported here.     |
-|**`src/jsxScenes/..`**         | Here we create all text, divs, buttons and styling for our scenes.          |
-| `src/jsxScenes/GameUI.tsx`    | A sidebar with UI components, could be removed later but amazing for testing.|
-| **`src/game/scenes/..`**      | Here we write everything gamy ex. moving objects, kollisions. Phaser code for scenes. |
-| `public/style.css`            | For page layout and styling (can be used for both phaser and react)         |
-| `public/assets`               | Here we input all static assets like sprites, logos and images.             |
+| Path                       | Description                                                                           |
+| -------------------------- | ------------------------------------------------------------------------------------- |
+| `src/App.tsx`              | The main React component. All other react components are imported here.               |
+| **`src/jsxScenes/..`**     | Here we create all text, divs, buttons and styling for our scenes.                    |
+| `src/jsxScenes/GameUI.tsx` | A sidebar with UI components, could be removed later but amazing for testing.         |
+| **`src/game/scenes/..`**   | Here we write everything gamy ex. moving objects, kollisions. Phaser code for scenes. |
+| `public/style.css`         | For page layout and styling (can be used for both phaser and react)                   |
+| `public/assets`            | Here we input all static assets like sprites, logos and images.                       |
 
 Bold paths are what we will use the most to create scenes, their prictures and functionality. Although you might need to change in a few other files as well when states/reactive components are implemented.
 The template paths and descriptions are further down!
@@ -63,12 +64,12 @@ This template has been updated for:
 
 ## Available Commands
 
-| Command | Description |
-|---------|-------------|
-| `npm install` | Install project dependencies |
-| `npm run dev` | Launch a development web server |
-| `npm run build` | Create a production build in the `dist` folder |
-| `npm run dev-nolog` | Launch a development web server without sending anonymous data (see "About log.js" below) |
+| Command               | Description                                                                                              |
+| --------------------- | -------------------------------------------------------------------------------------------------------- |
+| `npm install`         | Install project dependencies                                                                             |
+| `npm run dev`         | Launch a development web server                                                                          |
+| `npm run build`       | Create a production build in the `dist` folder                                                           |
+| `npm run dev-nolog`   | Launch a development web server without sending anonymous data (see "About log.js" below)                |
 | `npm run build-nolog` | Create a production build in the `dist` folder without sending anonymous data (see "About log.js" below) |
 
 ## Writing Code
@@ -83,20 +84,20 @@ Once the server is running you can edit any of the files in the `src` folder. Vi
 
 We have provided a default project structure to get you started. This is as follows:
 
-| Path                          | Description                                                                 |
-|-------------------------------|-----------------------------------------------------------------------------|
-| `index.html`                  | A basic HTML page to contain the game.                                     |
-| `src`                         | Contains the React client source code.                                     |
-| `src/main.tsx`                | The main **React** entry point. This bootstraps the React application.      |
-| `src/PhaserGame.tsx`          | The React component that initializes the Phaser Game and acts as a bridge between React and Phaser. |
-| `src/vite-env.d.ts`           | Global TypeScript declarations, providing type information.                |
-| `src/App.tsx`                 | The main React component.                                                  |
-| `src/game/EventBus.ts`        | A simple event bus to communicate between React and Phaser.                |
-| `src/game`                    | Contains the game source code.                                             |
-| `src/game/main.tsx`           | The main **game** entry point. This contains the game configuration and starts the game. |
-| `src/game/scenes/`            | The folder where Phaser Scenes are located.                                |
-| `public/style.css`            | Some simple CSS rules to help with page layout.                            |
-| `public/assets`               | Contains the static assets used by the game.                               |
+| Path                   | Description                                                                                         |
+| ---------------------- | --------------------------------------------------------------------------------------------------- |
+| `index.html`           | A basic HTML page to contain the game.                                                              |
+| `src`                  | Contains the React client source code.                                                              |
+| `src/main.tsx`         | The main **React** entry point. This bootstraps the React application.                              |
+| `src/PhaserGame.tsx`   | The React component that initializes the Phaser Game and acts as a bridge between React and Phaser. |
+| `src/vite-env.d.ts`    | Global TypeScript declarations, providing type information.                                         |
+| `src/App.tsx`          | The main React component.                                                                           |
+| `src/game/EventBus.ts` | A simple event bus to communicate between React and Phaser.                                         |
+| `src/game`             | Contains the game source code.                                                                      |
+| `src/game/main.tsx`    | The main **game** entry point. This contains the game configuration and starts the game.            |
+| `src/game/scenes/`     | The folder where Phaser Scenes are located.                                                         |
+| `public/style.css`     | Some simple CSS rules to help with page layout.                                                     |
+| `public/assets`        | Contains the static assets used by the game.                                                        |
 
 ## React Bridge
 
@@ -106,14 +107,14 @@ To communicate between React and Phaser, you can use the **EventBus.js** file. T
 
 ```js
 // In React
-import { EventBus } from './EventBus';
+import { EventBus } from "./EventBus";
 
 // Emit an event
-EventBus.emit('event-name', data);
+EventBus.emit("event-name", data);
 
 // In Phaser
 // Listen for an event
-EventBus.on('event-name', (data) => {
+EventBus.on("event-name", (data) => {
     // Do something with the data
 });
 ```
@@ -130,21 +131,17 @@ You can get the current Phaser Scene from the component event `"current-active-s
 
 **Important**: When you add a new Scene to your game, make sure you expose to React by emitting the `"current-scene-ready"` event via the `EventBus`, like this:
 
-
 ```ts
-class MyScene extends Phaser.Scene
-{
-    constructor ()
-    {
-        super('MyScene');
+class MyScene extends Phaser.Scene {
+    constructor() {
+        super("MyScene");
     }
 
-    create ()
-    {
+    create() {
         // Your Game Objects and logic here
 
         // At the end of create method:
-        EventBus.emit('current-scene-ready', this);
+        EventBus.emit("current-scene-ready", this);
     }
 }
 ```
@@ -165,7 +162,7 @@ const ReactComponent = () => {
     const phaserRef = useRef<IRefPhaserGame>(); // you can access to this ref from phaserRef.current
 
     const onCurrentActiveScene = (scene: Phaser.Scene) => {
-    
+
         // This is invoked
 
     }
@@ -192,21 +189,21 @@ Vite supports loading assets via JavaScript module `import` statements.
 This template provides support for both embedding assets and also loading them from a static folder. To embed an asset, you can import it at the top of the JavaScript file you are using it in:
 
 ```js
-import logoImg from './assets/logo.png'
+import logoImg from "./assets/logo.png";
 ```
 
 To load static files such as audio files, videos, etc place them into the `public/assets` folder. Then you can use this path in the Loader calls within Phaser:
 
 ```js
-preload ()
+preload();
 {
     //  This is an example of an imported bundled image.
     //  Remember to import it at the top of this file
-    this.load.image('logo', logoImg);
+    this.load.image("logo", logoImg);
 
     //  This is an example of loading a static image
     //  from the public/assets folder:
-    this.load.image('background', 'assets/bg.png');
+    this.load.image("background", "assets/bg.png");
 }
 ```
 
@@ -216,7 +213,7 @@ When you issue the `npm run build` command, all static assets are automatically 
 
 After you run the `npm run build` command, your code will be built into a single bundle and saved to the `dist` folder, along with any other assets your project imported, or stored in the public assets folder.
 
-In order to deploy your game, you will need to upload *all* of the contents of the `dist` folder to a public facing web server.
+In order to deploy your game, you will need to upload _all_ of the contents of the `dist` folder to a public facing web server.
 
 Dev:
 
@@ -259,28 +256,27 @@ The game can be controlled with hand gestures via a Python backend. The gesture 
 ### Running gesture recognition with the game
 
 1. **Install Python dependencies** (in the project root or `gesture base/`):
-   ```bash
-   pip install flask flask-cors opencv-python mediapipe
-   OR if on MAC
-   pip3 install flask flask-cors opencv-python mediapipe
-   ```
+    ```bash
+    pip install flask flask-cors opencv-python mediapipe
+    OR if on MAC
+    pip3 install flask flask-cors opencv-python mediapipe
+    ```
 2. **Place the MediaPipe gesture model** in `gesture base/`:  
    Download a `gesture_recognizer.task` from [Google MediaPipe](https://developers.google.com/mediapipe/solutions/vision/gesture_recognizer) and put it in the `gesture base` folder.
 3. **Start the gesture server** (from the `gesture base` folder):
-   ```bash
-   cd gesture_base
-   python server.py
-   OR if on MAC
-   python3 server.py
-   ```
-   The server runs at `http://localhost:5001` and exposes:
-   - `GET /gesture` – JSON `{ "gesture": "Thumbs_Up", "score": 0.95 }` (used by the game)
-   - `GET /video` – optional MJPEG preview stream
+    ```bash
+    cd gesture_base
+    python server.py
+    OR if on MAC
+    python3 server.py
+    ```
+    The server runs at `http://localhost:5001` and exposes:
+    - `GET /gesture` – JSON `{ "gesture": "Thumbs_Up", "score": 0.95 }` (used by the game)
+    - `GET /video` – optional MJPEG preview stream
 4. **Start the game** (from the project root):
-   ```bash
-   npm run dev
-   ```
-
+    ```bash
+    npm run dev
+    ```
 
 ## Join the Phaser Community!
 
@@ -298,5 +294,3 @@ Created by [Phaser Studio](mailto:support@phaser.io). Powered by coffee, anime, 
 The Phaser logo and characters are &copy; 2011 - 2025 Phaser Studio Inc.
 
 All rights reserved.
-
-

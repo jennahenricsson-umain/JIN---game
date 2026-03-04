@@ -1,39 +1,40 @@
-import { EventBus } from '../EventBus';
-import { GameObjects, Scene } from 'phaser';
-import { GESTURE_EVENT, type GesturePayload } from '../gesture/GestureClient';
+import { EventBus } from "../EventBus";
+import { GameObjects, Scene } from "phaser";
+import { GESTURE_EVENT, type GesturePayload } from "../gesture/GestureClient";
 
-export class Game extends Scene
-{
+export class Game extends Scene {
     image: GameObjects.Image;
     gesturepoints: GameObjects.Graphics;
     private peaceX: number;
     private peaceY: number;
-    private gestureListener = (payload: GesturePayload) => this.onGesture(payload);
+    private gestureListener = (payload: GesturePayload) =>
+        this.onGesture(payload);
     private gameListener = (payload: GesturePayload) => this.onGame(payload);
 
-    constructor ()
-    {
-        super('Game');
+    constructor() {
+        super("Game");
     }
 
-    create ()
-    {
+    create() {
         EventBus.on(GESTURE_EVENT, this.gestureListener);
         EventBus.on(GESTURE_EVENT, this.gameListener);
-        EventBus.emit('current-scene-ready', this);
+        EventBus.emit("current-scene-ready", this);
 
         this.peaceX = Phaser.Math.Between(64, this.scale.width - 64);
         this.peaceY = Phaser.Math.Between(64, this.scale.height - 64);
-        this.image = this.add.image(this.peaceX, this.peaceY, 'peace').setDepth(100);
-        this.gesturepoints = this.add.graphics({ fillStyle: { color: 0x8803fc } }).setDepth(50);
-    }   
+        this.image = this.add
+            .image(this.peaceX, this.peaceY, "peace")
+            .setDepth(100);
+        this.gesturepoints = this.add
+            .graphics({ fillStyle: { color: 0x8803fc } })
+            .setDepth(50);
+    }
 
     private onGame(payload: GesturePayload): void {
-        if (payload.gesture === 'Victory' && payload.score >= 0.7) {
+        if (payload.gesture === "Victory" && payload.score >= 0.7) {
             null;
         }
     }
-
 
     private onGesture(payload: GesturePayload): void {
         const handX = payload.landmark[9].x * this.scale.width; // Random punkt mitt på handen, borde bytas till något meddelvärde
@@ -46,26 +47,39 @@ export class Game extends Scene
             this.gesturepoints.fillCircle(x, y, 5);
         }
 
-        if (payload.gesture === 'Victory' && payload.score >= 0.7 && Phaser.Math.Distance.Between(handX, handY, this.peaceX, this.peaceY) < 50) {
+        if (
+            payload.gesture === "Victory" &&
+            payload.score >= 0.7 &&
+            Phaser.Math.Distance.Between(
+                handX,
+                handY,
+                this.peaceX,
+                this.peaceY,
+            ) < 50
+        ) {
             const x = Phaser.Math.Between(64, this.scale.width - 64);
             const y = Phaser.Math.Between(64, this.scale.height - 64);
-            const star = this.add.sprite(x, y, 'star').setDepth(50);
-            this.tweens.add({ targets: star, duration: 500 + Math.random() * 1000, alpha: 0, yoyo: true, repeat: -1 });
+            const star = this.add.sprite(x, y, "star").setDepth(50);
+            this.tweens.add({
+                targets: star,
+                duration: 500 + Math.random() * 1000,
+                alpha: 0,
+                yoyo: true,
+                repeat: -1,
+            });
             this.image.destroy();
         }
-        if (payload.gesture === 'Thumb_Down' && payload.score >= 0.7) {
-            this.scene.start('GameOver');
+        if (payload.gesture === "Thumb_Down" && payload.score >= 0.7) {
+            this.scene.start("GameOver");
         }
     }
-
-
 
     shutdown(): void {
         EventBus.removeListener(GESTURE_EVENT, this.gestureListener);
     }
 
-    changeScene ()
-    {
-        this.scene.start('GameOver');
+    changeScene() {
+        this.scene.start("GameOver");
     }
 }
+
