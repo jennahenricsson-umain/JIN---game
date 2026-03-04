@@ -10,6 +10,7 @@ type Scene = 'mainmenu' | 'game' | 'gameover';
 
 function App() {
     const [scene, setScene] = useState<Scene>('mainmenu');
+    const [finalScore, setFinalScore] = useState(0);
     const [lastGesture, setLastGesture] = useState<GesturePayload | null>(null);
     const cameraVideoRef = useRef<HTMLVideoElement>(null);
 
@@ -51,8 +52,8 @@ function App() {
 
             <div className="game-overlay">
                 {scene === 'mainmenu' && <MainMenu onStart={() => setScene('game')} />}
-                {scene === 'game' && <Game onEnd={() => setScene('gameover')} />}
-                {scene === 'gameover' && <GameOver onRestart={() => setScene('mainmenu')} />}
+                {scene === 'game' && <Game onEnd={(score) => { setFinalScore(score); setScene('gameover'); }} />}
+                {scene === 'gameover' && <GameOver score={finalScore} onRestart={() => setScene('mainmenu')} />}
             </div>
 
             <GameUI

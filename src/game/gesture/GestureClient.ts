@@ -30,7 +30,7 @@ export async function startGestureClient(): Promise<void> {
         delegate: 'GPU',
       },
       runningMode: 'VIDEO',
-      numHands: 1,
+      numHands: 2,
     });
 
     const stream = await navigator.mediaDevices.getUserMedia({ video: true });
