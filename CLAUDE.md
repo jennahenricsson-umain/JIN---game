@@ -16,36 +16,29 @@ Linting is configured via ESLint but there is no lint script in package.json —
 
 ## Architecture
 
-The game is built on two parallel layers that communicate exclusively through a global EventBus (`src/game/EventBus.ts`, a Phaser `Events.EventEmitter` instance):
-
-- **Phaser layer** (`src/game/scenes/`) — game logic, sprites, physics, tweens
-- **React layer** (`src/jsxScenes/`, `src/App.tsx`) — text overlays, HUD, UI state
-
-### Scene flow
+The game is pure React + TypeScript. There is no game engine — game logic lives directly in React components.
 
 ```
-Boot → Preloader → MainMenu → Game → GameOver → MainMenu (loop)
+App.tsx
+├── Starts/stops GestureClient on mount/unmount
+├── Attaches camera stream to <video> background
+└── Renders one scene at a time based on `scene` state:
+    ├── <MainMenu onStart />
+    ├── <Game onEnd />
+    └── <GameOver onRestart />
 ```
 
-Assets loaded in `Preloader.ts` from `public/assets/`: `star.png`, `Umain-logotype-white.png`, `peace-white.png`.
+Scene transitions are plain prop callbacks (`onStart`, `onEnd`, `onRestart`). No routing library needed.
 
-### Phaser ↔ React communication
+### Key files
 
-**Phaser → React:** Phaser scenes emit events on `EventBus`. `App.tsx` listens and stores values in `useState`. Props flow down to JSX scene components.
-
-```ts
-// In a Phaser scene:
-EventBus.emit('some-event', value);
-
-// In App.tsx:
-const [value, setValue] = useState(...);
-EventBus.on('some-event', (v) => setValue(v));
-// Pass as prop to the JSX scene component
-```
-
-Current events: `gesture-recognized`, `camera-stream-ready`, `current-scene-ready`, `counter-updated`, `timer-updated`.
-
-**React → Phaser:** `PhaserGame.tsx` exposes the current Phaser scene instance via a `forwardRef`. `App.tsx` holds this ref and can call methods directly on the scene object.
+| File | Role |
+|------|------|
+| `src/App.tsx` | Scene switcher + camera/gesture setup |
+| `src/scenes/` | One file per scene, each is a self-contained React component |
+| `src/GameUI.tsx` | Debug toolbar (always visible, for testing without gestures) |
+| `src/game/gesture/GestureClient.ts` | MediaPipe integration |
+| `src/game/EventBus.ts` | Minimal event bus — only used for gesture and camera events |
 
 ### Gesture system
 
@@ -56,32 +49,43 @@ Current events: `gesture-recognized`, `camera-stream-ready`, `current-scene-read
 4. Emits `GESTURE_EVENT` with `GesturePayload { gesture, score, landmark[] }` each frame a gesture is detected
 5. Emits `CAMERA_READY_EVENT` with the `MediaStream` once the camera is ready
 
-`startGestureClient()` is called in `Boot.ts`. `stopGestureClient()` is called in `PhaserGame.tsx` on unmount.
+`startGestureClient()` is called in `App.tsx` on mount. `stopGestureClient()` is called on unmount.
 
-Landmark coordinates are normalized (0–1), with x-flipped (`1 - lm.x`) to match the mirrored camera background. Multiply by `this.scale.width/height` to get pixel positions. Landmark `[9]` (middle finger MCP) is used as the hand's representative position in `Game.ts`.
+Landmark coordinates are normalized (0–1), with x-flipped (`1 - lm.x`) to match the mirrored camera background. Multiply by `window.innerWidth/Height` to get pixel positions. Landmark `[9]` (middle finger MCP) is used as the hand's representative position.
 
 Confidence threshold for all active gestures is `>= 0.7`.
 
-### Scene gesture listener pattern
+### Gesture listener pattern in scenes
 
-Phaser does **not** automatically call a user-defined `shutdown()` method. Always clean up EventBus listeners by hooking into the Phaser scene event system in `create()`:
-
-```ts
-EventBus.on(GESTURE_EVENT, this.gestureListener);
-this.events.once('shutdown', () => {
-    EventBus.removeListener(GESTURE_EVENT, this.gestureListener);
-});
-```
-
-The `gestureListener` must be defined as a class field arrow function (not a method) so the reference is stable for `removeListener`:
+Register listeners in `useEffect` and always return a cleanup function:
 
 ```ts
-private gestureListener = (payload: GesturePayload) => this.onGesture(payload);
+useEffect(() => {
+    const handler = (raw: unknown) => {
+        const { gesture, score } = raw as GesturePayload;
+        if (gesture === 'Thumb_Up' && score >= 0.7) doSomething();
+    };
+    EventBus.on(GESTURE_EVENT, handler);
+    return () => EventBus.removeListener(GESTURE_EVENT, handler);
+}, [doSomething]);
 ```
 
-### Adding a new Phaser scene
+### Canvas landmark drawing
 
-1. Create the scene class in `src/game/scenes/`, emit `'current-scene-ready'` in `create()`
-2. Register it in `src/game/main.ts` scene array
-3. Create a matching TSX component in `src/jsxScenes/`, export from `src/jsxScenes/index.ts`
-4. Render it conditionally in `App.tsx` based on `currentSceneKey`
+`Game.tsx` uses a `<canvas>` that covers the full screen. It is drawn imperatively via a ref on every gesture frame — not via React state. The canvas pixel dimensions must match the display size:
+
+```ts
+const sync = () => {
+    if (canvasRef.current) {
+        canvasRef.current.width = window.innerWidth;
+        canvasRef.current.height = window.innerHeight;
+    }
+};
+```
+
+### Adding a new scene
+
+1. Create `src/scenes/MyScene.tsx` as a React component with an `onNext: () => void` prop
+2. Add `'myscene'` to the `Scene` type in `App.tsx`
+3. Render it in `App.tsx` with `{scene === 'myscene' && <MyScene onNext={...} />}`
+4. Point the previous scene's callback to `() => setScene('myscene')`

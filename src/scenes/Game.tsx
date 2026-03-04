@@ -3,7 +3,7 @@ import { EventBus } from '../game/EventBus';
 import { GESTURE_EVENT, type GesturePayload } from '../game/gesture/GestureClient';
 
 interface GameProps {
-    onEnd: () => void;
+    onEnd: (finalScore: number) => void;
 }
 
 interface Star {
@@ -18,35 +18,34 @@ function randomBetween(min: number, max: number): number {
 }
 
 export function Game({ onEnd }: GameProps) {
-    const margin = 64;
-    const W = window.innerWidth;
-    const H = window.innerHeight;
-
     const [counter, setCounter] = useState(0);
     const [elapsed, setElapsed] = useState(0);
-    const [peacePos, setPeacePos] = useState({ x: W / 2, y: H / 2 });
+    const [peacePos, setPeacePos] = useState({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
     const [stars, setStars] = useState<Star[]>([]);
     const [lastGesture, setLastGesture] = useState<GesturePayload | null>(null);
 
-    // Ref mirrors peacePos so the gesture handler always reads the latest value
-    // without needing to re-register on every position change
     const peacePosRef = useRef(peacePos);
     const matchStartRef = useRef(Date.now());
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const starIdRef = useRef(0);
+    const counterRef = useRef(0);
+    const gestureRef = useRef<GesturePayload | null>(null);
+    const onEndRef = useRef(onEnd);
+    useEffect(() => { onEndRef.current = onEnd; });
 
+    // Gesture handler: store latest payload + draw landmarks on canvas
     const handleGesture = useCallback((raw: unknown) => {
         const payload = raw as GesturePayload;
-        const { gesture, score, landmark } = payload;
+        gestureRef.current = payload;
+        setLastGesture(payload);
 
-        // Draw hand landmarks
         const canvas = canvasRef.current;
         if (canvas) {
             const ctx = canvas.getContext('2d');
             if (ctx) {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 ctx.fillStyle = '#8803fc';
-                for (const lm of landmark) {
+                for (const lm of payload.landmark) {
                     const x = lm.x * canvas.width;
                     const y = lm.y * canvas.height;
                     ctx.beginPath();
@@ -55,38 +54,62 @@ export function Game({ onEnd }: GameProps) {
                 }
             }
         }
-
-        setLastGesture(payload);
-        setElapsed(Date.now() - matchStartRef.current);
-
-        const handX = landmark[9].x * W;
-        const handY = landmark[9].y * H;
-        const { x: peaceX, y: peaceY } = peacePosRef.current;
-
-        if (gesture === 'Victory' && score >= 0.7 && Math.hypot(handX - peaceX, handY - peaceY) < 50) {
-            matchStartRef.current = Date.now();
-            setCounter(c => c + 1);
-
-            // Spawn star at old peace position
-            const id = ++starIdRef.current;
-            const duration = 500 + Math.random() * 1000;
-            setStars(prev => [...prev, { id, x: peaceX, y: peaceY, duration }]);
-
-            // Move peace to a new random position
-            const newPos = { x: randomBetween(margin, W - margin), y: randomBetween(margin, H - margin) };
-            peacePosRef.current = newPos;
-            setPeacePos(newPos);
-        }
-
-        if (gesture === 'Thumb_Down' && score >= 0.7) {
-            onEnd();
-        }
-    }, [W, H, onEnd]);
+    }, []);
 
     useEffect(() => {
         EventBus.on(GESTURE_EVENT, handleGesture);
         return () => EventBus.removeListener(GESTURE_EVENT, handleGesture);
     }, [handleGesture]);
+
+    // Game loop: runs at a fixed rate independent of gesture events
+    useEffect(() => {
+        const tick = () => {
+            const margin = 64;
+            const W = window.innerWidth;
+            const H = window.innerHeight;
+            const now = Date.now();
+            const el = now - matchStartRef.current;
+            setElapsed(el);
+
+            if (el >= 10000) {
+                onEndRef.current(counterRef.current);
+                return;
+            }
+
+            const payload = gestureRef.current;
+            if (!payload) return;
+
+            const { gesture, score, landmark } = payload;
+
+            if (gesture === 'Thumb_Down' && score >= 0.7) {
+                onEndRef.current(counterRef.current);
+                return;
+            }
+
+            if (gesture === 'Victory' && score >= 0.7) {
+                const handX = landmark[9].x * W;
+                const handY = landmark[9].y * H;
+                const { x: peaceX, y: peaceY } = peacePosRef.current;
+
+                if (Math.hypot(handX - peaceX, handY - peaceY) < 50) {
+                    matchStartRef.current = now;
+                    counterRef.current += 1;
+                    setCounter(counterRef.current);
+
+                    const id = ++starIdRef.current;
+                    const duration = 500 + Math.random() * 1000;
+                    setStars(prev => [...prev, { id, x: peaceX, y: peaceY, duration }]);
+
+                    const newPos = { x: randomBetween(margin, W - margin), y: randomBetween(margin, H - margin) };
+                    peacePosRef.current = newPos;
+                    setPeacePos(newPos);
+                }
+            }
+        };
+
+        const id = setInterval(tick, 100);
+        return () => clearInterval(id);
+    }, []); // no deps — reads everything via refs
 
     // Keep canvas pixel dimensions in sync with window size
     useEffect(() => {
