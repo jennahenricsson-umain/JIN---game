@@ -1,78 +1,94 @@
-import { useRef, useState, useEffect } from "react";
-import { IRefPhaserGame, PhaserGame } from "./PhaserGame";
-import { MainMenu } from "./game/scenes/MainMenu";
+import { useRef, useState, useEffect, useCallback } from "react";
 import { EventBus } from "./game/EventBus";
 import {
+    startGestureClient,
+    stopGestureClient,
     GESTURE_EVENT,
     CAMERA_READY_EVENT,
     type GesturePayload,
 } from "./game/gesture/GestureClient";
-import { MainMenuScene, GameScene, GameOverScene, GameUI } from "./jsxScenes";
+import { MainMenu } from "./scenes/MainMenu";
+import { Game } from "./scenes/Game";
+import { GameOver } from "./scenes/GameOver";
+import { GameUI } from "./GameUI";
+
+type Scene = "mainmenu" | "game" | "gameover";
 
 function App() {
-    // Current Phaser scene key so we can render scene text in JSX
-    const [currentSceneKey, setCurrentSceneKey] = useState<string | null>(null);
-
-    //  References to the PhaserGame component (game and scene are exposed)
-    const phaserRef = useRef<IRefPhaserGame | null>(null);
-
-    // Camera preview + last gesture for feedback
+    const [scene, setScene] = useState<Scene>("mainmenu");
+    const [finalScore, setFinalScore] = useState(0);
     const [lastGesture, setLastGesture] = useState<GesturePayload | null>(null);
     const cameraVideoRef = useRef<HTMLVideoElement>(null);
+
     useEffect(() => {
-        const onGesture = (payload: GesturePayload) => setLastGesture(payload);
-        EventBus.on(GESTURE_EVENT, onGesture);
-        const onCameraReady = (stream: MediaStream) => {
-            if (cameraVideoRef.current) {
-                cameraVideoRef.current.srcObject = stream;
-            }
+        startGestureClient();
+        const onGesture = (payload: unknown) =>
+            setLastGesture(payload as GesturePayload);
+        const onCameraReady = (stream: unknown) => {
+            if (cameraVideoRef.current)
+                cameraVideoRef.current.srcObject = stream as MediaStream;
         };
+        EventBus.on(GESTURE_EVENT, onGesture);
         EventBus.on(CAMERA_READY_EVENT, onCameraReady);
         return () => {
+            stopGestureClient();
             EventBus.removeListener(GESTURE_EVENT, onGesture);
             EventBus.removeListener(CAMERA_READY_EVENT, onCameraReady);
         };
     }, []);
 
-    const changeScene = () => {
-        if (phaserRef.current) {
-            const scene = phaserRef.current.scene as MainMenu;
+    // GameUI callbacks — advance or restart via button clicks
+    const handleChangeScene = useCallback(() => {
+        setScene((s) =>
+            s === "mainmenu" ? "game" : s === "game" ? "gameover" : "mainmenu",
+        );
+    }, []);
 
-            if (scene) {
-                scene.changeScene();
-            }
-        }
-    };
+    const handleAddSprite = useCallback(() => {
+        // Kept as a no-op placeholder; no Phaser to spawn sprites into
+    }, []);
 
-    const addSprite = () => {
-        if (phaserRef.current) {
-            const scene = phaserRef.current.scene;
-
-            if (scene) {
-                // Add more stars
-                const x = Phaser.Math.Between(64, scene.scale.width - 64);
-                const y = Phaser.Math.Between(64, scene.scale.height - 64);
-
-                //  `add.sprite` is a Phaser GameObjectFactory method and it returns a Sprite Game Object instance
-                const star = scene.add.sprite(x, y, "star");
-
-                //  ... which you can then act upon. Here we create a Phaser Tween to fade the star sprite in and out.
-                //  You could, of course, do this from within the Phaser Scene code, but this is just an example
-                //  showing that Phaser objects and systems can be acted upon from outside of Phaser itself.
-                scene.add.tween({
-                    targets: star,
-                    duration: 500 + Math.random() * 1000,
-                    alpha: 0,
-                    yoyo: true,
-                    repeat: -1,
-                });
-            }
-        }
-    };
-
-    // Event emitted from the PhaserGame component
-    const currentScene = (scene: Phaser.Scene) => {
-        setCurrentSceneKey(scene.scene.key);
+    //The light grey border points around the screen, from Issys sketch
+    const renderPoints = () => {
+        return (
+            <div className="pointer-events-none">
+                <img
+                    className="absolute top-4 left-4 size-4"
+                    src="/assets/Ellipse.svg"
+                    alt="Points Icon"
+                />
+                <img
+                    className="absolute top-4 size-4"
+                    src="/assets/Ellipse.svg"
+                    alt="Points Icon"
+                />
+                <img
+                    className="absolute top-4 right-4 size-4"
+                    src="/assets/Ellipse.svg"
+                    alt="Points Icon"
+                />
+                <img
+                    className="absolute bottom-4 size-4"
+                    src="/assets/Ellipse.svg"
+                    alt="Points Icon"
+                />
+                <img
+                    className="absolute left-4 size-4"
+                    src="/assets/Ellipse.svg"
+                    alt="Points Icon"
+                />
+                <img
+                    className="absolute right-4 size-4"
+                    src="/assets/Ellipse.svg"
+                    alt="Points Icon"
+                />
+                <img
+                    className="absolute left-4 bottom-4 size-4"
+                    src="/assets/Ellipse.svg"
+                    alt="Points Icon"
+                />
+            </div>
+        );
     };
 
     return (
@@ -86,20 +102,32 @@ function App() {
                     muted
                 />
             </div>
+
             <div className="game-overlay">
-                <PhaserGame ref={phaserRef} currentActiveScene={currentScene} />
-                <div className="scene-text-overlay" aria-live="polite">
-                    {currentSceneKey === "MainMenu" && <MainMenuScene />}
-                    {currentSceneKey === "Game" && (
-                        <GameScene lastGesture={lastGesture} />
-                    )}
-                    {currentSceneKey === "GameOver" && <GameOverScene />}
-                </div>
+                {renderPoints()}
+                {scene === "mainmenu" && (
+                    <MainMenu onStart={() => setScene("game")} />
+                )}
+                {scene === "game" && (
+                    <Game
+                        onEnd={(score) => {
+                            setFinalScore(score);
+                            setScene("gameover");
+                        }}
+                    />
+                )}
+                {scene === "gameover" && (
+                    <GameOver
+                        score={finalScore}
+                        onRestart={() => setScene("mainmenu")}
+                    />
+                )}
             </div>
+
             <GameUI
                 lastGesture={lastGesture}
-                onChangeScene={changeScene}
-                onAddSprite={addSprite}
+                onChangeScene={handleChangeScene}
+                onAddSprite={handleAddSprite}
             />
         </div>
     );

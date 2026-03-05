@@ -94,7 +94,7 @@ body {
 
 .scene-text--game-title {
     font-size: clamp(18px, 3.7vw, 38px);
-    top: 50%;
+    top: 40%;
     transform: translate(-50%, -50%);
     line-height: 1.4;
 }
@@ -110,8 +110,74 @@ body {
     transform: translate(-50%, -50%);
 }
 
-#game-container {
-    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1);
+.scene-text--game-score{
+    font-size: clamp(16px, 2.3vw, 24px);
+    bottom: 10%;
+}
+
+/* Scene containers */
+.scene {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+/* Landmark canvas overlay */
+.landmark-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    pointer-events: none;
+}
+
+/* Peace target image */
+.peace-target {
+    position: absolute;
+    width: 80px;
+    height: 80px;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+}
+
+/* Star collectible */
+.star {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    animation: starFade var(--duration) ease-in-out forwards;
+}
+
+@keyframes starFade {
+    0%   { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+/* Main menu logo */
+.main-menu-logo {
+    position: absolute;
+    top: 45%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    max-width: 40vw;
+    max-height: 30vh;
+    object-fit: contain;
+    pointer-events: none;
+}
+
+/* Game over hint text */
+.scene-text--game-over-hint {
+    font-size: clamp(14px, 2vw, 22px);
+    top: 60%;
+}
+
+/* Timer */
+.scene-text--game-timer {
+    font-size: clamp(16px, 2.3vw, 24px);
+    bottom: 4%;
 }
 
 .game-ui {
