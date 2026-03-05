@@ -88,14 +88,15 @@ export function Game({ onEnd }: GameProps) {
     // Game loop: runs at a fixed rate independent of gesture events
     useEffect(() => {
         const tick = () => {
-            const margin = 64;
+            const margin = 120;
             const W = window.innerWidth;
             const H = window.innerHeight;
             const now = Date.now();
             const el = now - matchStartRef.current;
             setElapsed(el);
 
-            if (el >= 10000) {
+            // End game after 10 seconds BUT it goes down by a second for every successful sign
+            if (el / 1000 >= (10 - counterRef.current)) {
                 onEndRef.current(counterRef.current);
                 return;
             }
@@ -118,7 +119,7 @@ export function Game({ onEnd }: GameProps) {
                 );
                 const { x: peaceX, y: peaceY } = peacePosRef.current;
 
-                if (Math.hypot(handX - peaceX, handY - peaceY) < 50) {
+                if (Math.hypot(handX - peaceX, handY - peaceY) < 100) {
                     matchStartRef.current = now;
                     counterRef.current += 1;
                     setCounter(counterRef.current);
@@ -160,13 +161,15 @@ export function Game({ onEnd }: GameProps) {
     const removeStar = (id: number) =>
         setStars((prev) => prev.filter((s) => s.id !== id));
 
+    
+
     return (
         <div className="scene scene--game">
             <canvas ref={canvasRef} className="landmark-canvas" />
 
             <img
-                src="/assets/peace-white.png"
-                className="peace-target"
+                src="/assets/victory_JIN.png"
+                className="peace-target animate-wiggle"
                 style={{ left: peacePos.x, top: peacePos.y }}
                 alt=""
             />
@@ -196,7 +199,7 @@ export function Game({ onEnd }: GameProps) {
                 Score: {counter}
             </p>
             <p className="scene-text scene-text--game-timer">
-                Time: {(elapsed / 1000).toFixed(1)}s
+                Time: {((10 - counterRef.current) - elapsed / 1000).toFixed(1)}s
             </p>
         </div>
     );
