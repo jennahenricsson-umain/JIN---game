@@ -2,7 +2,7 @@ import type { GesturePayload } from "./game/gesture/GestureClient";
 
 // Overlay UI component
 // Bara till för testning
-// Lär raderas sen/
+// Lär raderas sen
 
 interface GameUIProps {
     lastGesture: GesturePayload | null;
