@@ -1,5 +1,9 @@
 import type { GesturePayload } from './game/gesture/GestureClient';
 
+// Overlay UI component
+// Bara till för testning 
+// Lär raderas sen/ 
+
 interface GameUIProps {
     lastGesture: GesturePayload | null;
     onChangeScene: () => void;
@@ -7,6 +11,7 @@ interface GameUIProps {
 }
 
 export function GameUI({ lastGesture, onChangeScene, onAddSprite }: GameUIProps) {
+
     return (
         <div className="game-ui">
             <div className="last-gesture-badge">

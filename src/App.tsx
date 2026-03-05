@@ -38,6 +38,23 @@ function App() {
         // Kept as a no-op placeholder; no Phaser to spawn sprites into
     }, []);
 
+    //The light grey border points around the screen, from Issys sketch
+    const renderPoints = () => {
+    return (
+        <div className="pointer-events-none">
+            <img className="absolute top-4 left-4 size-4" src="/assets/Ellipse.svg" alt="Points Icon" />
+            <img className="absolute top-4 size-4" src="/assets/Ellipse.svg" alt="Points Icon" />
+            <img className="absolute top-4 right-4 size-4" src="/assets/Ellipse.svg" alt="Points Icon" />
+            <img className="absolute bottom-4 size-4" src="/assets/Ellipse.svg" alt="Points Icon" />
+            <img className="absolute left-4 size-4" src="/assets/Ellipse.svg" alt="Points Icon" />
+            <img className="absolute right-4 size-4" src="/assets/Ellipse.svg" alt="Points Icon" />
+            <img className="absolute left-4 bottom-4 size-4" src="/assets/Ellipse.svg" alt="Points Icon" />
+    </div>
+    
+    )
+}
+
+
     return (
         <div id="app">
             <div className="camera-background" aria-hidden="true">
@@ -51,6 +68,7 @@ function App() {
             </div>
 
             <div className="game-overlay">
+                {renderPoints()}
                 {scene === 'mainmenu' && <MainMenu onStart={() => setScene('game')} />}
                 {scene === 'game' && <Game onEnd={(score) => { setFinalScore(score); setScene('gameover'); }} />}
                 {scene === 'gameover' && <GameOver score={finalScore} onRestart={() => setScene('mainmenu')} />}

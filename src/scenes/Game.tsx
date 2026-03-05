@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { EventBus } from '../game/EventBus';
-import { GESTURE_EVENT, type GesturePayload } from '../game/gesture/GestureClient';
+import { GESTURE_EVENT, getVideoSize, type GesturePayload } from '../game/gesture/GestureClient';
 
 interface GameProps {
     onEnd: (finalScore: number) => void;
@@ -15,6 +15,21 @@ interface Star {
 
 function randomBetween(min: number, max: number): number {
     return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+// Convert a normalized landmark coordinate (0–1) to screen pixels,
+// applying the same object-fit: cover transform the video element uses.
+function landmarkToScreen(nx: number, ny: number): { x: number; y: number } {
+    const { width: videoW, height: videoH } = getVideoSize();
+    const screenW = window.innerWidth;
+    const screenH = window.innerHeight;
+    const scale = Math.max(screenW / videoW, screenH / videoH);
+    const offsetX = (videoW * scale - screenW) / 2;
+    const offsetY = (videoH * scale - screenH) / 2;
+    return {
+        x: nx * videoW * scale - offsetX,
+        y: ny * videoH * scale - offsetY,
+    };
 }
 
 export function Game({ onEnd }: GameProps) {
@@ -46,8 +61,8 @@ export function Game({ onEnd }: GameProps) {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 ctx.fillStyle = '#8803fc';
                 for (const lm of payload.landmark) {
-                    const x = lm.x * canvas.width;
-                    const y = lm.y * canvas.height;
+                    // Use cover-corrected screen coordinates so dots align with video
+                    const { x, y } = landmarkToScreen(lm.x, lm.y);
                     ctx.beginPath();
                     ctx.arc(x, y, 5, 0, Math.PI * 2);
                     ctx.fill();
@@ -87,8 +102,8 @@ export function Game({ onEnd }: GameProps) {
             }
 
             if (gesture === 'Victory' && score >= 0.7) {
-                const handX = landmark[9].x * W;
-                const handY = landmark[9].y * H;
+                // Use the same cover-corrected position for hit detection
+                const { x: handX, y: handY } = landmarkToScreen(landmark[9].x, landmark[9].y);
                 const { x: peaceX, y: peaceY } = peacePosRef.current;
 
                 if (Math.hypot(handX - peaceX, handY - peaceY) < 50) {
@@ -111,7 +126,7 @@ export function Game({ onEnd }: GameProps) {
         return () => clearInterval(id);
     }, []); // no deps — reads everything via refs
 
-    // Keep canvas pixel dimensions in sync with window size
+    // Keep canvas pixel dimensions in sync with screen size
     useEffect(() => {
         const sync = () => {
             if (canvasRef.current) {
