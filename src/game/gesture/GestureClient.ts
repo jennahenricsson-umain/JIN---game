@@ -97,3 +97,10 @@ export function stopGestureClient(): void {
 export function isGestureClientRunning(): boolean {
   return isRunning;
 }
+
+export function getVideoSize(): { width: number; height: number } {
+  return {
+    width: videoElement?.videoWidth ?? window.innerWidth,
+    height: videoElement?.videoHeight ?? window.innerHeight,
+  };
+}
