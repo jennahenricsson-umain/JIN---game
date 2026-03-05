@@ -96,7 +96,7 @@ function App() {
             <div className="camera-background" aria-hidden="true">
                 <video
                     ref={cameraVideoRef}
-                    className="camera-background-feed"
+                    className="camera-background-feed grayscale contrast-150"
                     autoPlay
                     playsInline
                     muted

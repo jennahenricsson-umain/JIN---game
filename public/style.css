@@ -1,3 +1,4 @@
+
 body {
     margin: 0;
     padding: 0;
@@ -135,10 +136,11 @@ body {
 /* Peace target image */
 .peace-target {
     position: absolute;
-    width: 80px;
-    height: 80px;
+    width: 150px;
+    height: 150px;
     transform: translate(-50%, -50%);
     pointer-events: none;
+    opacity: 0.7;
 }
 
 /* Star collectible */
@@ -151,13 +153,17 @@ body {
     animation: starFade var(--duration) ease-in-out forwards;
 }
 
-@keyframes starFade {
-    0% {
-        opacity: 1;
-    }
+@theme {
+  --animate-wiggle: wiggle 1s ease-in-out infinite;
+  @keyframes wiggle {
+    0%,
     100% {
-        opacity: 0;
+      transform: rotate(-3deg);
     }
+    50% {
+      transform: rotate(3deg);
+    }
+  }
 }
 
 /* Main menu logo */
