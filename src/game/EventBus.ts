@@ -9,7 +9,7 @@ export const EventBus = {
     },
 
     emit(event: string, ...args: unknown[]): void {
-        _listeners.get(event)?.forEach(fn => fn(...args));
+        _listeners.get(event)?.forEach((fn) => fn(...args));
     },
 
     removeListener(event: string, fn: Listener): void {
