@@ -32,17 +32,18 @@ Scene transitions are plain prop callbacks (`onStart`, `onEnd`, `onRestart`). No
 
 ### Key files
 
-| File | Role |
-|------|------|
-| `src/App.tsx` | Scene switcher + camera/gesture setup |
-| `src/scenes/` | One file per scene, each is a self-contained React component |
-| `src/GameUI.tsx` | Debug toolbar (always visible, for testing without gestures) |
-| `src/game/gesture/GestureClient.ts` | MediaPipe integration |
-| `src/game/EventBus.ts` | Minimal event bus — only used for gesture and camera events |
+| File                                | Role                                                         |
+| ----------------------------------- | ------------------------------------------------------------ |
+| `src/App.tsx`                       | Scene switcher + camera/gesture setup                        |
+| `src/scenes/`                       | One file per scene, each is a self-contained React component |
+| `src/GameUI.tsx`                    | Debug toolbar (always visible, for testing without gestures) |
+| `src/game/gesture/GestureClient.ts` | MediaPipe integration                                        |
+| `src/game/EventBus.ts`              | Minimal event bus — only used for gesture and camera events  |
 
 ### Gesture system
 
 `GestureClient.ts` runs MediaPipe in the browser (no server). It:
+
 1. Loads the model from `public/gesture_recognizer.task`
 2. Accesses the webcam
 3. Runs a `requestAnimationFrame` loop calling `recognizeForVideo`
@@ -63,7 +64,7 @@ Register listeners in `useEffect` and always return a cleanup function:
 useEffect(() => {
     const handler = (raw: unknown) => {
         const { gesture, score } = raw as GesturePayload;
-        if (gesture === 'Thumb_Up' && score >= 0.7) doSomething();
+        if (gesture === "Thumb_Up" && score >= 0.7) doSomething();
     };
     EventBus.on(GESTURE_EVENT, handler);
     return () => EventBus.removeListener(GESTURE_EVENT, handler);

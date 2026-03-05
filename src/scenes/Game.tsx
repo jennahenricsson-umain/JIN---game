@@ -1,6 +1,10 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { EventBus } from '../game/EventBus';
-import { GESTURE_EVENT, getVideoSize, type GesturePayload } from '../game/gesture/GestureClient';
+import { useCallback, useEffect, useRef, useState } from "react";
+import { EventBus } from "../game/EventBus";
+import {
+    GESTURE_EVENT,
+    getVideoSize,
+    type GesturePayload,
+} from "../game/gesture/GestureClient";
 
 interface GameProps {
     onEnd: (finalScore: number) => void;
@@ -35,7 +39,10 @@ function landmarkToScreen(nx: number, ny: number): { x: number; y: number } {
 export function Game({ onEnd }: GameProps) {
     const [counter, setCounter] = useState(0);
     const [elapsed, setElapsed] = useState(0);
-    const [peacePos, setPeacePos] = useState({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
+    const [peacePos, setPeacePos] = useState({
+        x: window.innerWidth / 2,
+        y: window.innerHeight / 2,
+    });
     const [stars, setStars] = useState<Star[]>([]);
     const [lastGesture, setLastGesture] = useState<GesturePayload | null>(null);
 
@@ -46,7 +53,9 @@ export function Game({ onEnd }: GameProps) {
     const counterRef = useRef(0);
     const gestureRef = useRef<GesturePayload | null>(null);
     const onEndRef = useRef(onEnd);
-    useEffect(() => { onEndRef.current = onEnd; });
+    useEffect(() => {
+        onEndRef.current = onEnd;
+    });
 
     // Gesture handler: store latest payload + draw landmarks on canvas
     const handleGesture = useCallback((raw: unknown) => {
@@ -56,10 +65,10 @@ export function Game({ onEnd }: GameProps) {
 
         const canvas = canvasRef.current;
         if (canvas) {
-            const ctx = canvas.getContext('2d');
+            const ctx = canvas.getContext("2d");
             if (ctx) {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-                ctx.fillStyle = '#8803fc';
+                ctx.fillStyle = "#8803fc";
                 for (const lm of payload.landmark) {
                     // Use cover-corrected screen coordinates so dots align with video
                     const { x, y } = landmarkToScreen(lm.x, lm.y);
@@ -96,14 +105,17 @@ export function Game({ onEnd }: GameProps) {
 
             const { gesture, score, landmark } = payload;
 
-            if (gesture === 'Thumb_Down' && score >= 0.7) {
+            if (gesture === "Thumb_Down" && score >= 0.7) {
                 onEndRef.current(counterRef.current);
                 return;
             }
 
-            if (gesture === 'Victory' && score >= 0.7) {
+            if (gesture === "Victory" && score >= 0.7) {
                 // Use the same cover-corrected position for hit detection
-                const { x: handX, y: handY } = landmarkToScreen(landmark[9].x, landmark[9].y);
+                const { x: handX, y: handY } = landmarkToScreen(
+                    landmark[9].x,
+                    landmark[9].y,
+                );
                 const { x: peaceX, y: peaceY } = peacePosRef.current;
 
                 if (Math.hypot(handX - peaceX, handY - peaceY) < 50) {
@@ -113,9 +125,15 @@ export function Game({ onEnd }: GameProps) {
 
                     const id = ++starIdRef.current;
                     const duration = 500 + Math.random() * 1000;
-                    setStars(prev => [...prev, { id, x: peaceX, y: peaceY, duration }]);
+                    setStars((prev) => [
+                        ...prev,
+                        { id, x: peaceX, y: peaceY, duration },
+                    ]);
 
-                    const newPos = { x: randomBetween(margin, W - margin), y: randomBetween(margin, H - margin) };
+                    const newPos = {
+                        x: randomBetween(margin, W - margin),
+                        y: randomBetween(margin, H - margin),
+                    };
                     peacePosRef.current = newPos;
                     setPeacePos(newPos);
                 }
@@ -135,11 +153,12 @@ export function Game({ onEnd }: GameProps) {
             }
         };
         sync();
-        window.addEventListener('resize', sync);
-        return () => window.removeEventListener('resize', sync);
+        window.addEventListener("resize", sync);
+        return () => window.removeEventListener("resize", sync);
     }, []);
 
-    const removeStar = (id: number) => setStars(prev => prev.filter(s => s.id !== id));
+    const removeStar = (id: number) =>
+        setStars((prev) => prev.filter((s) => s.id !== id));
 
     return (
         <div className="scene scene--game">
@@ -152,7 +171,7 @@ export function Game({ onEnd }: GameProps) {
                 alt=""
             />
 
-            {stars.map(star => (
+            {stars.map((star) => (
                 <img
                     key={star.id}
                     src="/assets/star.png"
@@ -160,7 +179,7 @@ export function Game({ onEnd }: GameProps) {
                     style={{
                         left: star.x,
                         top: star.y,
-                        ['--duration' as string]: `${star.duration}ms`,
+                        ["--duration" as string]: `${star.duration}ms`,
                     }}
                     alt=""
                     onAnimationEnd={() => removeStar(star.id)}
@@ -168,7 +187,10 @@ export function Game({ onEnd }: GameProps) {
             ))}
 
             <p className="scene-text scene-text--game-gesture">
-                Gesture: {lastGesture ? `${lastGesture.gesture} (${(lastGesture.score * 100).toFixed(0)}%)` : '—'}
+                Gesture:{" "}
+                {lastGesture
+                    ? `${lastGesture.gesture} (${(lastGesture.score * 100).toFixed(0)}%)`
+                    : "—"}
             </p>
             <p className="scene-text scene-text--game-score">
                 Score: {counter}

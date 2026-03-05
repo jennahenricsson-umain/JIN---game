@@ -110,7 +110,7 @@ body {
     transform: translate(-50%, -50%);
 }
 
-.scene-text--game-score{
+.scene-text--game-score {
     font-size: clamp(16px, 2.3vw, 24px);
     bottom: 10%;
 }
@@ -152,8 +152,12 @@ body {
 }
 
 @keyframes starFade {
-    0%   { opacity: 1; }
-    100% { opacity: 0; }
+    0% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
 }
 
 /* Main menu logo */
