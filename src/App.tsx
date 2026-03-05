@@ -45,7 +45,7 @@ function App() {
     }, []);
 
     const handleAddSprite = useCallback(() => {
-        // Kept as a no-op placeholder; no Phaser to spawn sprites into
+        // no-op
     }, []);
 
     //The light grey border points around the screen, from Issys sketch
