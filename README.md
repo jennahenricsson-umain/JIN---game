@@ -5,10 +5,11 @@ Hand gesture-controlled game. Runs entirely in the browser via MediaPipe.
 ## Run
 
 ```bash
-python3 -m http.server 8080
+npm install
+npm run dev
 ```
 
-Open `http://localhost:8080`
+Open `http://localhost:5173`
 
 ## Structure
 

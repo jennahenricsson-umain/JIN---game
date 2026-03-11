@@ -56,7 +56,7 @@
         }
 
         .scene-text--main-menu {
-            font-size: clamp(20px, 3.7vw, 38px);
+            font-size: clamp(30px, 3.7vw, 60px);
             top: 60%;
             line-height: 1.3;
         }
@@ -79,7 +79,6 @@
         .scene-text--game-over {
             font-size: clamp(36px, 6.2vw, 64px);
             top: 50%;
-            transform: translate(-50%, -50%);
         }
 
         .scene-text--game-over-hint {
@@ -100,8 +99,8 @@
 
         .peace-target {
             position: absolute;
-            width: 150px;
-            height: 150px;
+            width: 200px;
+            height: 200px;
             transform: translate(-50%, -50%);
             pointer-events: none;
             opacity: 0.7;
@@ -125,8 +124,8 @@
         }
 
         @keyframes starFade {
-            0% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-            100% { opacity: 0; transform: translate(-50%, -50%) scale(2); }
+            0% { opacity: 1; transform: translate(-50%, -50%) scale(2); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(5); }
         }
 
         .landmark-canvas {
@@ -152,6 +151,7 @@
         </div>
         <canvas id="landmarks" class="landmark-canvas"></canvas>
         <div class="game-overlay" id="overlay"></div>
+        <div class="game-overlay" id="particles"></div>
         <img src="public/assets/Ellipse.svg" class="corner-dot" style="top: 16px; left: 16px;">
         <img src="public/assets/Ellipse.svg" class="corner-dot" style="top: 16px; left: 50%; transform: translateX(-50%);">
         <img src="public/assets/Ellipse.svg" class="corner-dot" style="top: 16px; right: 16px;">
