@@ -1,16 +1,167 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <link rel="icon" type="image/png" href="/favicon_JIN.png" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <link rel="stylesheet" href="/style.css" />
-        <title>JIN</title>
-    </head>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JIN - Gesture Game</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            color: rgba(255, 255, 255, 0.87);
+            background-color: #000000;
+            font-family: Arial, Helvetica, sans-serif;
+            overflow: hidden;
+        }
 
-    <body>
-        <div id="root"></div>
-        <script type="module" src="/src/main.tsx"></script>
-    </body>
+        #app {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .camera-background {
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            background: #000;
+        }
+
+        .camera-background-feed {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transform: scaleX(-1);
+            filter: grayscale(100%) contrast(150%);
+        }
+
+        .game-overlay {
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .scene-text {
+            margin: 0;
+            font-family: Arial Black, Arial, sans-serif;
+            color: #fff;
+            -webkit-text-stroke: 1px #000;
+            text-align: center;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .scene-text--main-menu {
+            font-size: clamp(20px, 3.7vw, 38px);
+            top: 60%;
+            line-height: 1.3;
+        }
+
+        .scene-text--game-gesture {
+            font-size: clamp(16px, 2.3vw, 24px);
+            top: 15%;
+        }
+
+        .scene-text--game-score {
+            font-size: clamp(16px, 2.3vw, 24px);
+            bottom: 10%;
+        }
+
+        .scene-text--game-timer {
+            font-size: clamp(16px, 2.3vw, 24px);
+            bottom: 4%;
+        }
+
+        .scene-text--game-over {
+            font-size: clamp(36px, 6.2vw, 64px);
+            top: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .scene-text--game-over-hint {
+            font-size: clamp(14px, 2vw, 22px);
+            top: 60%;
+        }
+
+        .main-menu-logo {
+            position: absolute;
+            top: 45%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            max-width: 40vw;
+            max-height: 30vh;
+            object-fit: contain;
+            pointer-events: none;
+        }
+
+        .peace-target {
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            opacity: 0.7;
+            animation: wiggle 2s ease-in-out infinite;
+        }
+
+        @keyframes wiggle {
+            0%, 100% { transform: translate(-50%, -50%) rotate(-6deg); }
+            25% { transform: translate(-50%, -50%) scale(1.30); }
+            50% { transform: translate(-50%, -50%) rotate(6deg); }
+            75% { transform: translate(-50%, -50%) scale(1.30); }
+        }
+
+        .star {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            animation: starFade var(--duration) ease-in-out forwards;
+        }
+
+        @keyframes starFade {
+            0% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(2); }
+        }
+
+        .landmark-canvas {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .corner-dot {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="camera-background">
+            <video id="video" class="camera-background-feed" autoplay playsinline muted></video>
+        </div>
+        <canvas id="landmarks" class="landmark-canvas"></canvas>
+        <div class="game-overlay" id="overlay"></div>
+        <img src="public/assets/Ellipse.svg" class="corner-dot" style="top: 16px; left: 16px;">
+        <img src="public/assets/Ellipse.svg" class="corner-dot" style="top: 16px; left: 50%; transform: translateX(-50%);">
+        <img src="public/assets/Ellipse.svg" class="corner-dot" style="top: 16px; right: 16px;">
+        <img src="public/assets/Ellipse.svg" class="corner-dot" style="top: 50%; left: 16px; transform: translateY(-50%);">
+        <img src="public/assets/Ellipse.svg" class="corner-dot" style="top: 50%; right: 16px; transform: translateY(-50%);">
+        <img src="public/assets/Ellipse.svg" class="corner-dot" style="bottom: 16px; left: 16px;">
+        <img src="public/assets/Ellipse.svg" class="corner-dot" style="bottom: 16px; left: 50%; transform: translateX(-50%);">
+        <img src="public/assets/Ellipse.svg" class="corner-dot" style="bottom: 16px; right: 16px;">
+    </div>
+
+    <script type="module" src="js/main.js"></script>
+</body>
 </html>
-
