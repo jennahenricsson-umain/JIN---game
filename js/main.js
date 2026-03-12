@@ -2,6 +2,7 @@ import { initGestures, detectGesture, getGesture, getHandPosition } from './gest
 import { renderMenu } from './scenes/menu.js';
 import { renderGame, spawnTarget, resetGame } from './scenes/gameplay.js';
 import { renderGameOver } from './scenes/gameover.js';
+import { saveScore } from './firebase.js';
 import { renderOnboarding, spawnFixedTarget } from './scenes/onboarding.js';
 
 const video = document.getElementById('video');
@@ -51,6 +52,8 @@ function render() {
         score = result.newScore;
         if (result.shouldEnd) {
             gameState = 'over';
+            const duration = Math.floor((Date.now() - gameStartTime) / 1000);
+            saveScore(score, duration);
             particles.innerHTML = '';
             resetGame();
         }

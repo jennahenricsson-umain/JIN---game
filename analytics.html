@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JIN Analytics Dashboard</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background: #1a1a1a;
+            color: #fff;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 { text-align: center; }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background: #2a2a2a;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #444;
+        }
+        .stat-card h3 {
+            margin: 0 0 10px 0;
+            color: #4CAF50;
+        }
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+        }
+        .leaderboard {
+            background: #2a2a2a;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .leaderboard table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .leaderboard th, .leaderboard td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #444;
+        }
+        .leaderboard th {
+            color: #4CAF50;
+        }
+        .sessions {
+            background: #2a2a2a;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .session-item {
+            padding: 10px;
+            margin: 5px 0;
+            background: #333;
+            border-radius: 4px;
+            border-left: 3px solid #4CAF50;
+        }
+        .session-item.inactive {
+            border-left-color: #888;
+            opacity: 0.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 JIN Analytics Dashboard</h1>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Total Games</h3>
+                <div class="stat-value" id="totalGames">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Active Sessions</h3>
+                <div class="stat-value" id="activeSessions">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Avg Score</h3>
+                <div class="stat-value" id="avgScore">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Avg Duration</h3>
+                <div class="stat-value" id="avgDuration">0s</div>
+            </div>
+        </div>
+
+        <div class="leaderboard">
+            <h2>🏆 Top Scores</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Score</th>
+                        <th>Duration</th>
+                        <th>Accuracy</th>
+                        <th>Time</th>
+                    </tr>
+                </thead>
+                <tbody id="leaderboardBody">
+                    <tr><td colspan="5">Loading...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="sessions">
+            <h2>📊 Recent Sessions</h2>
+            <div id="sessionsList">Loading...</div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { getDatabase, ref, onValue } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+
+        // Use same config as firebase.js
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // Listen to games
+        onValue(ref(db, 'games'), (snapshot) => {
+            const games = [];
+            snapshot.forEach((child) => {
+                games.push(child.val());
+            });
+
+            document.getElementById('totalGames').textContent = games.length;
+            
+            if (games.length > 0) {
+                const avgScore = (games.reduce((sum, g) => sum + g.score, 0) / games.length).toFixed(1);
+                const avgDuration = (games.reduce((sum, g) => sum + g.duration, 0) / games.length).toFixed(1);
+                document.getElementById('avgScore').textContent = avgScore;
+                document.getElementById('avgDuration').textContent = avgDuration + 's';
+
+                // Leaderboard
+                const sorted = games.sort((a, b) => b.score - a.score).slice(0, 10);
+                const tbody = document.getElementById('leaderboardBody');
+                tbody.innerHTML = sorted.map((game, i) => `
+                    <tr>
+                        <td>${i + 1}</td>
+                        <td>${game.score}</td>
+                        <td>${game.duration}s</td>
+                        <td>${game.accuracy || 'N/A'}%</td>
+                        <td>${new Date(game.timestamp).toLocaleTimeString()}</td>
+                    </tr>
+                `).join('');
+            }
+        });
+
+        // Listen to sessions
+        onValue(ref(db, 'sessions'), (snapshot) => {
+            const sessions = [];
+            snapshot.forEach((child) => {
+                sessions.push({ id: child.key, ...child.val() });
+            });
+
+            const activeSessions = sessions.filter(s => s.active).length;
+            document.getElementById('activeSessions').textContent = activeSessions;
+
+            const sessionsList = document.getElementById('sessionsList');
+            sessionsList.innerHTML = sessions
+                .sort((a, b) => b.startTime - a.startTime)
+                .slice(0, 20)
+                .map(session => `
+                    <div class="session-item ${session.active ? '' : 'inactive'}">
+                        <strong>${session.active ? '🟢 Active' : '⚫ Ended'}</strong> | 
+                        Games: ${session.gamesPlayed} | 
+                        Total Score: ${session.totalScore} | 
+                        Started: ${new Date(session.startTime).toLocaleString()}
+                    </div>
+                `).join('');
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+{
+  "rules": {
+    "sessions": {
+      ".read": true,
+      ".write": true
+    },
+    "games": {
+      ".read": true,
+      ".write": true,
+      ".indexOn": ["score", "timestamp"]
+    },
+    "metrics": {
+      ".read": true,
+      ".write": true
+    }
+  }
+}
