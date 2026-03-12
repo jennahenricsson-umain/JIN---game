@@ -1,8 +1,8 @@
 import { initGestures, detectGesture, getGesture, getHandPosition } from './gestures.js';
 import { renderMenu } from './scenes/menu.js';
-import { renderGame, spawnTarget, resetGame } from './scenes/gameplay.js';
+import { renderGame, resetGame, enterGame } from './scenes/gameplay.js';
 import { renderGameOver } from './scenes/gameover.js';
-import { renderOnboarding, spawnFixedTarget } from './scenes/onboarding.js';
+import { renderOnboarding, resetOnboarding} from './scenes/onboarding.js';
 
 const video = document.getElementById('video');
 const canvas = document.getElementById('landmarks');
@@ -35,7 +35,8 @@ function render() {
     if (gameState === 'menu') {
         if (renderMenu(overlay, gesture, gestureScore)) {
             gameState = 'onboarding';
-            spawnFixedTarget(0);
+            resetOnboarding();
+            
         }
     } else if (gameState === 'onboarding') {
         const result = renderOnboarding(overlay, particles, gesture, gestureScore, handX, handY);
@@ -43,8 +44,7 @@ function render() {
             gameState = 'play';
             particles.innerHTML = '';
             score = 0;
-            resetGame();
-            spawnTarget();
+            enterGame(particles);
         }
     } else if (gameState === 'play') {
         const result = renderGame(overlay, particles, gesture, gestureScore, score, handX, handY);
@@ -56,7 +56,8 @@ function render() {
         }
     } else {
         if (renderGameOver(overlay, gesture, gestureScore, score)) {
-            gameState = 'menu';
+            gameState = 'onboarding';
+            resetOnboarding();
         }
     }
 

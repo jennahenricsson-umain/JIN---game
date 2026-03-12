@@ -10,6 +10,11 @@ export function spawnFixedTarget(index) {
     targetImage = `public/assets/${targetGesture}_JIN.png`;
 }
 
+export function resetOnboarding() {
+    onboardingState = 0;
+    spawnFixedTarget(0);
+}
+
 export function renderOnboarding(overlay, particles, gesture, confidence, handX, handY) {
 
     if (onboardingState === 3 || (gesture === 'Thumb_Down' && confidence >= 0.7)) {
@@ -19,6 +24,7 @@ export function renderOnboarding(overlay, particles, gesture, confidence, handX,
     overlay.innerHTML = `
         <img src="${targetImage}" class="peace-target" style="left: ${targetX}px; top: ${targetY}px;" alt="">
         <p class="scene-text scene-text--game-gesture">Gesture: ${gesture} (${(confidence * 100).toFixed(0)}%)</p>
+        <p class="scene-text scene-text--onboarding">Learn to play<br>${3 - onboardingState}</p>
     `;
 
     if (gesture === targetGesture && confidence >= 0.6) {
