@@ -3,6 +3,7 @@ let targetGesture = '';
 let targetImage = '';
 let lastMatchTime = 0;
 let gameStartTime = 0;
+let targetSprite = null;
 const timeLimit = 15; // seconds
 
 export function resetGame() {
@@ -10,12 +11,29 @@ export function resetGame() {
     gameStartTime = Date.now();
 }
 
-export function spawnTarget() {
+export function enterGame(particles) {
+    const startText = document.createElement('span');
+    startText.className = 'scene-text scene-text--game-start';
+    startText.textContent = 'START';
+    startText.style.setProperty('--duration', '1000ms');
+    startText.onanimationend = () => startText.remove();
+    particles.appendChild(startText);
+    resetGame();
+    spawnTarget(particles);
+}
+
+export function spawnTarget(particles) {
     const margin = 120;
     targetX = margin + Math.random() * (window.innerWidth - 2 * margin);
     targetY = margin + Math.random() * (window.innerHeight - 2 * margin);
     targetGesture = ['Victory', 'Thumb_Up', 'Pointing_Up', 'ILoveYou', 'Open_Palm', 'Closed_Fist'][Math.floor(Math.random() * 6)];
     targetImage = `public/assets/${targetGesture}_JIN.png`;
+    targetSprite = document.createElement('img');
+    targetSprite.src = targetImage;
+    targetSprite.className = 'peace-target';
+    targetSprite.style.left = targetX + 'px';
+    targetSprite.style.top = targetY + 'px';
+    particles.appendChild(targetSprite);
 }
 
 export function renderGame(overlay, particles, gesture, confidence, currentScore, handX, handY) {
@@ -27,7 +45,6 @@ export function renderGame(overlay, particles, gesture, confidence, currentScore
     }
 
     overlay.innerHTML = `
-        <img src="${targetImage}" class="peace-target" style="left: ${targetX}px; top: ${targetY}px;" alt="">
         <p class="scene-text scene-text--game-gesture">Gesture: ${gesture} (${(confidence * 100).toFixed(0)}%)</p>
         <p class="scene-text scene-text--game-score">Score: ${currentScore}</p>
         <p class="scene-text scene-text--game-over">${timeLeft <= 5 ? timeLeft.toFixed(0) : ''}</p>
@@ -38,9 +55,10 @@ export function renderGame(overlay, particles, gesture, confidence, currentScore
     if (gesture === targetGesture && confidence >= 0.7) {
         const dist = Math.hypot(handX - targetX, handY - targetY);
         if (dist < 100 && Date.now() - lastMatchTime > 500) {
+            targetSprite?.remove();
             newScore++;
             lastMatchTime = Date.now();
-            gameStartTime = Date.now(); // reset timer on score
+            gameStartTime = Date.now();
             const img = document.createElement('img');
             img.src = 'public/assets/star.png';
             img.className = 'star';
@@ -49,7 +67,7 @@ export function renderGame(overlay, particles, gesture, confidence, currentScore
             img.style.setProperty('--duration', (500 + Math.random() * 1000) + 'ms');
             img.onanimationend = () => img.remove();
             particles.appendChild(img);
-            spawnTarget();
+            spawnTarget(particles);
         }
     }
 
