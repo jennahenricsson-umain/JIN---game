@@ -2,11 +2,12 @@ let onboardingState = 0;
 let targetX = 0, targetY = window.innerHeight / 2 ;
 let targetGesture = '';
 let targetImage = '';
-let margin = 400;
+let margin = 250;
 
 export function spawnFixedTarget(index) {
-    targetX = window.innerWidth/2 + (index - 1) * margin;
-    targetGesture = ['Open_Palm', 'Thumb_Up', 'ILoveYou'][index];
+    const gestures = ['Open_Palm', 'Thumb_Up', 'ILoveYou'];
+    targetX = window.innerWidth/2 + index * margin;
+    targetGesture = gestures[index];
     targetImage = `public/assets/${targetGesture}_JIN.png`;
 }
 

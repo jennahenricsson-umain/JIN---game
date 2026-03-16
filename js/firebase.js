@@ -1,6 +1,6 @@
 // Firebase Realtime Database configuration
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-import { getDatabase, ref, push, set, update, onValue, query, orderByChild, limitToLast } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+import { getDatabase, ref, push, set, update, onValue, query, orderByChild, limitToLast, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 
 // Firebase config from Firebase Console
 const firebaseConfig = {
@@ -25,42 +25,53 @@ export function startSession() {
     const sessionsRef = ref(db, 'sessions');
     const newSessionRef = push(sessionsRef);
     currentSessionId = newSessionRef.key;
-    sessionStartTime = Date.now();
-    
+    sessionStartTime = Date.now(); 
+
     set(newSessionRef, {
-        startTime: sessionStartTime,
+        startTime: serverTimestamp(),
         userAgent: navigator.userAgent,
         screenSize: `${window.innerWidth}x${window.innerHeight}`,
         gamesPlayed: 0,
         totalScore: 0,
         active: true
+    })
+    .then(() => {
+        console.log(`New session started with ID: ${currentSessionId}`);
+    })
+    .catch((error) => {
+        console.error("Error starting new session:", error);
     });
-    
+
     return currentSessionId;
 }
 
 // Update session when game ends
-export function updateSession(gamesPlayed, totalScore) {
+export function updateSession(gamesPlayed, ) {
     if (!currentSessionId) return;
     
     const sessionRef = ref(db, `sessions/${currentSessionId}`);
     update(sessionRef, {
         gamesPlayed,
-        totalScore,
+        //totalScore,
         lastActivity: Date.now()
     });
+    
+
+
 }
 
 // End session
 export function endSession() {
     if (!currentSessionId) return;
     
+    const duration = Date.now() - sessionStartTime;
     const sessionRef = ref(db, `sessions/${currentSessionId}`);
     update(sessionRef, {
         endTime: Date.now(),
-        duration: Date.now() - sessionStartTime,
+        duration,
         active: false
     });
+    
 }
 
 // Save game score and metrics
