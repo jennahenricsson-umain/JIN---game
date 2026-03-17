@@ -13,6 +13,7 @@ const particles = document.getElementById('particles');
 
 let gameState = 'menu';
 let score = 0;
+let finalScore = 0;
 let gameStartTime = 0;
 let gamesPlayed = 0;
 let totalScore = 0;
@@ -40,7 +41,7 @@ function detect() {
 }
 
 function render() {
-    overlay.innerHTML = '';
+    if (gameState !== 'over') overlay.innerHTML = '';
     const { gesture, score: gestureScore } = getGesture();
     const { x: handX, y: handY } = getHandPosition();
 
@@ -93,11 +94,13 @@ function render() {
             trackMetric('game_ended', { score, duration, ...metrics });
             particles.innerHTML = '';
             resetGame();
+            finalScore = score;
         }
     } else {
-        if (renderGameOver(overlay, gesture, gestureScore, score)) {
+        if (renderGameOver(overlay, gesture, gestureScore, finalScore)) {
             gameState = 'onboarding';
-            resetOnboarding();
+            overlay.innerHTML = '';
+            spawnFixedTarget(0);
         }
     }
 

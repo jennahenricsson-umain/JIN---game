@@ -103,7 +103,7 @@ export function trackMetric(eventType, data) {
 }
 
 // Get top scores with real-time updates
-export function subscribeToTopScores(callback, limitCount = 10) {
+export function subscribeToTopScores(callback, limitCount = 5) {
     const scoresQuery = query(
         ref(db, 'games'),
         orderByChild('score'),
