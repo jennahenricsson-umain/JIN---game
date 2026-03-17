@@ -1,9 +1,9 @@
 import { initGestures, detectGesture, getGesture, getHandPosition } from './gestures.js';
 import { renderMenu } from './scenes/menu.js';
-import { renderGame, spawnTarget, resetGame } from './scenes/gameplay.js';
+import { renderGame, resetGame, enterGame } from './scenes/gameplay.js';
 import { renderGameOver } from './scenes/gameover.js';
+import { renderOnboarding, resetOnboarding } from './scenes/onboarding.js';
 import { startSession, updateSession, endSession, saveGame, trackMetric } from './firebase.js';
-import { renderOnboarding, spawnFixedTarget } from './scenes/onboarding.js';
 
 const video = document.getElementById('video');
 const canvas = document.getElementById('landmarks');
@@ -48,7 +48,7 @@ function render() {
     if (gameState === 'menu') {
         if (renderMenu(overlay, gesture, gestureScore)) {
             gameState = 'onboarding';
-            spawnFixedTarget(0);
+            resetOnboarding();
             trackMetric('onboarding_started', { timestamp: Date.now() });
         }
     } else if (gameState === 'onboarding') {
@@ -57,11 +57,7 @@ function render() {
             gameState = 'play';
             particles.innerHTML = '';
             score = 0;
-            gameStartTime = Date.now();
-            gestureAttempts = 0;
-            successfulMatches = 0;
-            resetGame();
-            spawnTarget();
+            enterGame(particles);
             trackMetric('game_started', { timestamp: Date.now() });
         }
     } else if (gameState === 'play') {
