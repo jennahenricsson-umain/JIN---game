@@ -90,7 +90,7 @@
 
         .scene-text--game-over {
             font-size: clamp(36px, 6.2vw, 64px);
-            top: 20%;
+            top: 15%;
         }
 
         .scene-text--game-over-hint {
@@ -98,6 +98,12 @@
             top: 30%;
         }
 
+        .scene-text--game-time-countdown {
+            font-size: clamp(48px, 8vw, 96px);
+            top: 50%;
+            transform: translate(-50%, -50%);
+            animation: countdownPulse 1s ease-in-out infinite;
+        }
         .scene-text--scoreboard {
             font-size: clamp(14px, 2vw, 20px);
             top: 50%;

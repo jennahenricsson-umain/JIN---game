@@ -100,7 +100,8 @@ function render() {
         if (renderGameOver(overlay, gesture, gestureScore, finalScore)) {
             gameState = 'onboarding';
             overlay.innerHTML = '';
-            spawnFixedTarget(0);
+            resetOnboarding();
+            trackMetric('onboarding_started', { timestamp: Date.now() });
         }
     }
 

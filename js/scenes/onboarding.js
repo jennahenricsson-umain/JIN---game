@@ -6,7 +6,7 @@ let margin = 250;
 
 export function spawnFixedTarget(index) {
     const gestures = ['Open_Palm', 'Thumb_Up', 'ILoveYou'];
-    targetX = window.innerWidth/2 + index * margin;
+    targetX = window.innerWidth/2 - margin + index * margin;
     targetGesture = gestures[index];
     targetImage = `public/assets/${targetGesture}_JIN.png`;
 }

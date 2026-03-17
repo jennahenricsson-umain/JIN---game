@@ -7,9 +7,9 @@ export function renderGameOver(overlay, gesture, score, finalScore) {
     if (!rendered) {
         rendered = true;
         overlay.innerHTML = `
-            <p class="scene-text scene-text--game-over">Game Over</p>
+            <p class="scene-text scene-text--game-over">Good Game!</p>
             <p class="scene-text scene-text--game-over-hint">(Thumbs Up to play again)</p>
-            <p class="scene-text scene-text--game-score">Score: ${finalScore}</p>
+            <p class="scene-text scene-text--game-score">Your score: ${finalScore}</p>
             <div class="scene-text scene-text--scoreboard" id="scoreboard">Loading scores...</div>
         `;
 
