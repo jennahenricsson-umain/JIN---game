@@ -45,7 +45,6 @@ export function renderGame(overlay, particles, gesture, confidence, currentScore
     }
 
     overlay.innerHTML = `
-        <p class="scene-text scene-text--game-gesture">Gesture: ${gesture} (${(confidence * 100).toFixed(0)}%)</p>
         <p class="scene-text scene-text--game-score">Score: ${currentScore}</p>
         <p class="scene-text scene-text--game-time-countdown">${timeLeft <= 5 ? timeLeft.toFixed(0) : ''}</p>
         <p class="scene-text scene-text--game-timer">Time: ${timeLeft.toFixed(1)}s</p>
