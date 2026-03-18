@@ -3,7 +3,7 @@ import { renderMenu } from './scenes/menu.js';
 import { renderGame, resetGame, enterGame } from './scenes/gameplay.js';
 import { renderGameOver } from './scenes/gameover.js';
 import { renderOnboarding, resetOnboarding } from './scenes/onboarding.js';
-import { startSession, updateSession, endSession, saveGame, trackMetric } from './firebase.js';
+import { startSession, updateSession, endSession, saveGame, trackMetric, sendDataToSheet } from './firebase.js';
 
 const video = document.getElementById('video');
 const canvas = document.getElementById('landmarks');
@@ -92,6 +92,7 @@ function render() {
             saveGame(score, duration, metrics);
             updateSession(gamesPlayed, totalScore);
             trackMetric('game_ended', { score, duration, ...metrics });
+            sendDataToSheet(`score:${score}`, duration);
             particles.innerHTML = '';
             resetGame();
             finalScore = score;

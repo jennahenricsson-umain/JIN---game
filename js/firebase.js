@@ -119,6 +119,21 @@ export function subscribeToTopScores(callback, limitCount = 5) {
     });
 }
 
+// Sync data to Google Sheet via Apps Script web app
+export function sendDataToSheet(customNote = "", duration = null) {
+    const webAppUrl = "https://script.google.com/macros/s/AKfycbwkKJ1zPnI2ObbqPWsKdmK2KFVBi-OQ6zbunEbyOVaQBtVCYjJXzQaocoW1qsKun4QK/exec";
+
+    fetch(webAppUrl, {
+        method: "POST",
+        mode: "no-cors",
+        cache: "no-cache",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: currentSessionId, customNote, duration })
+    })
+    .then(() => console.log("Data synced to Sheet!"))
+    .catch(err => console.error("Sync failed:", err));
+}
+
 // Get session stats
 export function getSessionStats(callback) {
     if (!currentSessionId) return;
