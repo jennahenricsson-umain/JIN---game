@@ -16,7 +16,7 @@ export function createGame(particlesEl, onScore, xMin, xMax) {
     let lastMatchTime = 0;
     let score         = 0;
 
-    const gestures = ['Victory', 'Thumb_Up', 'Pointing_Up', 'ILoveYou', 'Open_Palm', 'Closed_Fist'];
+    const gestures = ['Victory', 'Thumb_Up', 'Pointing_Up', 'ILoveYou', 'Closed_Fist'];
 
     function spawnTarget() {
         targetSprite?.remove();
@@ -54,7 +54,7 @@ export function createGame(particlesEl, onScore, xMin, xMax) {
                 targetSprite?.remove();
                 score++;
                 lastMatchTime = Date.now();
-                onScore(); // tell main.js to extend the shared timer
+                onScore(); 
 
                 const star = document.createElement('img');
                 star.src       = 'public/assets/star.png';

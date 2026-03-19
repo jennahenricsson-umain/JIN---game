@@ -255,10 +255,17 @@ function render() {
     // ── Game over ─────────────────────────────────────────────────────────────
     } else if (gameState === 'over') {
         const scoreArg2 = gameMode === 'multi' ? finalScore2 : null;
-        if (renderGameOver(overlay, g1, c1, finalScore1, scoreArg2)) {
+        const result = renderGameOver(overlay, g1, c1, finalScore1, scoreArg2);
+
+        if (result === 'onboarding') {
+            // Play again — keep the same gameMode
+            if (gameMode === 'multi') app.classList.add('multiplayer');
+            enterOnboarding();
+        } else if (result === 'menu') {
+            // Back to main menu — clean up multiplayer if needed
             if (gameMode === 'multi') disableMultiplayer();
             gameMode = 'single';
-            enterOnboarding();
+            gameState = 'menu';
         }
     }
 
