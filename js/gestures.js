@@ -1,16 +1,32 @@
 import { GestureRecognizer, FilesetResolver } from 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0/+esm';
 
-let recognizer;
+// Cached so enableMultiplayer() can reuse it without re-downloading the WASM
+let resolver;
+
+let recognizer1;  // Always active — used from startup through single-player and menu
+let recognizer2;  // Created only when the player picks multiplayer
+
 let video;
-let detectedGesture = '';
-let gestureScore = 0;
-let handX = 0;
-let handY = 0;
+let multiplayerMode = false;
+
+// Off-screen canvases fed to each recognizer in multiplayer — never in the DOM
+let cropCanvas1, cropCtx1;
+let cropCanvas2, cropCtx2;
+
+// Per-player state: index 0 = P1 (left screen), index 1 = P2 (right screen)
+let detectedGesture = ['', ''];
+let gestureScore    = [0, 0];
+let handX           = [0, 0];
+let handY           = [0, 0];
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
 
 export async function initGestures(videoElement) {
     video = videoElement;
-    const resolver = await FilesetResolver.forVisionTasks('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0/wasm');
-    recognizer = await GestureRecognizer.createFromOptions(resolver, {
+    resolver = await FilesetResolver.forVisionTasks(
+        'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0/wasm'
+    );
+    recognizer1 = await GestureRecognizer.createFromOptions(resolver, {
         baseOptions: { modelAssetPath: 'public/gesture_recognizer.task', delegate: 'GPU' },
         runningMode: 'VIDEO',
         numHands: 1,
@@ -18,49 +34,127 @@ export async function initGestures(videoElement) {
         minHandPresenceConfidence: 0.5,
         minTrackingConfidence: 0.4
     });
+    cropCanvas1 = document.createElement('canvas');
+    cropCtx1    = cropCanvas1.getContext('2d');
     video.srcObject = await navigator.mediaDevices.getUserMedia({ video: true });
 }
 
+// Called once when the player picks multiplayer. Creates R2 and switches
+// R1's input from the full video to its designated half-frame crop.
+export async function enableMultiplayer() {
+    if (recognizer2) return;
+    recognizer2 = await GestureRecognizer.createFromOptions(resolver, {
+        baseOptions: { modelAssetPath: 'public/gesture_recognizer.task', delegate: 'GPU' },
+        runningMode: 'VIDEO',
+        numHands: 1,
+        minHandDetectionConfidence: 0.5,
+        minHandPresenceConfidence: 0.5,
+        minTrackingConfidence: 0.4
+    });
+    cropCanvas2 = document.createElement('canvas');
+    cropCtx2    = cropCanvas2.getContext('2d');
+    multiplayerMode = true;
+}
+
+// Called when the player returns to single-player from the menu.
+// Destroys R2 and switches R1 back to full-video input.
+export function disableMultiplayer() {
+    if (recognizer2) { recognizer2.close(); recognizer2 = null; }
+    multiplayerMode = false;
+}
+
+// ─── Detection ────────────────────────────────────────────────────────────────
+
 export function detectGesture(canvas, ctx) {
-    if (video.readyState === 4) {
-        const result = recognizer.recognizeForVideo(video, Date.now());
-        const gestures = result.gestures[0];
-        const landmarks = result.landmarks[0];
+    if (video.readyState !== 4) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        if (gestures && gestures.length > 0) {
-            detectedGesture = gestures[0].categoryName;
-            gestureScore = gestures[0].score;
-        }
+    if (!multiplayerMode) {
+        // Single-player: run R1 on the full video — identical to original behaviour
+        runRecognizer(recognizer1, video, 0, ctx);
+    } else {
+        const vw = video.videoWidth;
+        const vh = video.videoHeight;
 
-        if (landmarks && landmarks.length > 9) {
-            const videoW = video.videoWidth;
-            const videoH = video.videoHeight;
-            const screenW = window.innerWidth;
-            const screenH = window.innerHeight;
-            const scale = Math.max(screenW / videoW, screenH / videoH);
-            const offsetX = (videoW * scale - screenW) / 2;
-            const offsetY = (videoH * scale - screenH) / 2;
+        // P1 gets the RIGHT half of the raw video.
+        // After the CSS mirror this maps to the LEFT half of the screen.
+        cropCanvas1.width  = vw / 2;
+        cropCanvas1.height = vh;
+        cropCtx1.drawImage(video, vw / 2, 0, vw / 2, vh,  0, 0, vw / 2, vh);
+        runRecognizer(recognizer1, cropCanvas1, 0, ctx);
 
-            handX = (1 - landmarks[9].x) * videoW * scale - offsetX;
-            handY = landmarks[9].y * videoH * scale - offsetY;
+        // P2 gets the LEFT half of the raw video → RIGHT half of the screen.
+        cropCanvas2.width  = vw / 2;
+        cropCanvas2.height = vh;
+        cropCtx2.drawImage(video, 0, 0, vw / 2, vh,  0, 0, vw / 2, vh);
+        runRecognizer(recognizer2, cropCanvas2, 1, ctx);
 
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = '#8803fc';
-            landmarks.forEach(lm => {
-                const x = (1 - lm.x) * videoW * scale - offsetX;
-                const y = lm.y * videoH * scale - offsetY;
-                ctx.beginPath();
-                ctx.arc(x, y, 5, 0, Math.PI * 2);
-                ctx.fill();
-            });
-        }
+        // Visual divider between the two player areas
+        ctx.save();
+        ctx.strokeStyle = 'rgba(255,255,255,0.35)';
+        ctx.lineWidth   = 2;
+        ctx.setLineDash([12, 8]);
+        ctx.beginPath();
+        ctx.moveTo(canvas.width / 2, 0);
+        ctx.lineTo(canvas.width / 2, canvas.height);
+        ctx.stroke();
+        ctx.restore();
     }
 }
 
-export function getGesture() {
-    return { gesture: detectedGesture, score: gestureScore };
+function runRecognizer(recognizer, input, playerIndex, ctx) {
+    const result    = recognizer.recognizeForVideo(input, Date.now());
+    const gestures  = result.gestures[0];
+    const landmarks = result.landmarks[0];
+
+    if (gestures?.length > 0) {
+        detectedGesture[playerIndex] = gestures[0].categoryName;
+        gestureScore[playerIndex]    = gestures[0].score;
+    } else {
+        detectedGesture[playerIndex] = '';
+        gestureScore[playerIndex]    = 0;
+    }
+
+    if (landmarks?.length > 9) {
+        const vw = video.videoWidth;
+        const vh = video.videoHeight;
+        const sw = window.innerWidth;
+        const sh = window.innerHeight;
+        const scale   = Math.max(sw / vw, sh / vh);
+        const offsetX = (vw * scale - sw) / 2;
+        const offsetY = (vh * scale - sh) / 2;
+
+        handX[playerIndex] = toScreenX(landmarks[9].x, playerIndex, vw, scale, offsetX);
+        handY[playerIndex] = landmarks[9].y * vh * scale - offsetY;
+
+        // P1 dots purple, P2 dots pink so players can distinguish their own hand
+        ctx.fillStyle = playerIndex === 0 ? '#8803fc' : '#fc0388';
+        landmarks.forEach(lm => {
+            const x = toScreenX(lm.x, playerIndex, vw, scale, offsetX);
+            const y = lm.y * vh * scale - offsetY;
+            ctx.beginPath();
+            ctx.arc(x, y, 5, 0, Math.PI * 2);
+            ctx.fill();
+        });
+    }
 }
 
-export function getHandPosition() {
-    return { x: handX, y: handY };
+// Maps a normalised landmark X to a screen pixel X.
+// The formula differs depending on whether the recognizer saw the full video
+// or one cropped half — see MULTIPLAYER_PLAN.md for the derivation.
+function toScreenX(lmX, playerIndex, vw, scale, offsetX) {
+    if (!multiplayerMode)   return (1 - lmX) * vw * scale - offsetX;
+    if (playerIndex === 0)  return (0.5 - 0.5 * lmX) * vw * scale - offsetX;
+    return (1 - 0.5 * lmX) * vw * scale - offsetX;
+}
+
+// ─── Getters ──────────────────────────────────────────────────────────────────
+
+// Default playerIndex=0 keeps every existing single-player call site unchanged
+export function getGesture(playerIndex = 0) {
+    return { gesture: detectedGesture[playerIndex], score: gestureScore[playerIndex] };
+}
+
+export function getHandPosition(playerIndex = 0) {
+    return { x: handX[playerIndex], y: handY[playerIndex] };
 }

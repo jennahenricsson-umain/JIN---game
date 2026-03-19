@@ -1,15 +1,21 @@
 import { subscribeToTopScores } from '../firebase.js';
 
 let unsubscribe = null;
-let rendered = false;
+let rendered    = false;
 
-export function renderGameOver(overlay, gesture, score, finalScore) {
+// finalScore2 is optional — pass it in multiplayer to show both scores
+export function renderGameOver(overlay, gesture, confidence, finalScore, finalScore2 = null) {
     if (!rendered) {
         rendered = true;
+
+        const scoreDisplay = finalScore2 !== null
+            ? `P1: ${finalScore} &nbsp;|&nbsp; P2: ${finalScore2}`
+            : `Your score: ${finalScore}`;
+
         overlay.innerHTML = `
             <p class="scene-text scene-text--game-over">Good Game!</p>
             <p class="scene-text scene-text--game-over-hint">(Thumbs Up to play again)</p>
-            <p class="scene-text scene-text--game-score">Your score: ${finalScore}</p>
+            <p class="scene-text scene-text--game-score">${scoreDisplay}</p>
             <div class="scene-text scene-text--scoreboard" id="scoreboard">Loading scores...</div>
         `;
 
@@ -21,7 +27,7 @@ export function renderGameOver(overlay, gesture, score, finalScore) {
         });
     }
 
-    if (gesture === 'Thumb_Up' && score >= 0.7) {
+    if (gesture === 'Thumb_Up' && confidence >= 0.7) {
         if (unsubscribe) { unsubscribe(); unsubscribe = null; }
         rendered = false;
         overlay.innerHTML = '';
