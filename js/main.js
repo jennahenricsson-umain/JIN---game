@@ -42,17 +42,17 @@ function detect() {
 
 function render() {
     if (gameState !== 'over') overlay.innerHTML = '';
-    const { gesture, score: gestureScore } = getGesture();
-    const { x: handX, y: handY } = getHandPosition();
+    const { gesture, score: gestureScore, gesture2, score2: gestureScore2, handedness, handedness2 } = getGesture();
+    const { x: handX, y: handY, x2: handX2, y2: handY2 } = getHandPosition();
 
     if (gameState === 'menu') {
-        if (renderMenu(overlay, gesture, gestureScore)) {
+        if (renderMenu(overlay, gesture, gesture2, gestureScore, gestureScore2)) {
             gameState = 'onboarding';
             resetOnboarding();
             trackMetric('onboarding_started', { timestamp: Date.now() });
         }
     } else if (gameState === 'onboarding') {
-        const result = renderOnboarding(overlay, particles, gesture, gestureScore, handX, handY);
+        const result = renderOnboarding(overlay, particles, gesture, gesture2, gestureScore, gestureScore2, handX, handY, handX2, handY2, handedness, handedness2);
         if (result.shouldEnd) {
             gameState = 'play';
             particles.innerHTML = '';
@@ -65,7 +65,7 @@ function render() {
             gestureAttempts++;
         }
         
-        const result = renderGame(overlay, particles, gesture, gestureScore, score, handX, handY);
+        const result = renderGame(overlay, particles, gesture, gesture2, gestureScore, gestureScore2, score, handX, handY, handX2, handY2, handedness, handedness2);
         
         if (result.newScore > score) {
             successfulMatches++;
@@ -97,7 +97,7 @@ function render() {
             finalScore = score;
         }
     } else {
-        if (renderGameOver(overlay, gesture, gestureScore, finalScore)) {
+        if (renderGameOver(overlay, gesture, gesture2, gestureScore, gestureScore2, finalScore)) {
             gameState = 'onboarding';
             overlay.innerHTML = '';
             resetOnboarding();
