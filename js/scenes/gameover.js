@@ -4,7 +4,7 @@ let unsubscribe = null;
 let rendered    = false;
 
 // finalScore2 is optional — pass it in multiplayer to show both scores
-export function renderGameOver(overlay, gesture, confidence, finalScore, finalScore2 = null) {
+export function renderGameOver(overlay, gesture, gesture2, confidence, confidence2, finalScore, finalScore2 = null) {
     if (!rendered) {
         rendered = true;
 
@@ -27,12 +27,12 @@ export function renderGameOver(overlay, gesture, confidence, finalScore, finalSc
         });
     }
 
-    if (gesture === 'Open_Palm' && confidence >= 0.7) {
+    if ((gesture === 'Open_Palm' && confidence >= 0.7)||(gesture2 === 'Open_Palm' && confidence2 >= 0.7)) {
         rendered = false;
         overlay.innerHTML = '';
         return 'onboarding';
     }
-    else if (gesture === 'Thumb_Down' && confidence >= 0.7) {
+    else if ((gesture === 'Thumb_Down' && confidence >= 0.7)||(gesture2 === 'Thumb_Down' && confidence2 >= 0.7) ) {
         if (unsubscribe) { unsubscribe(); unsubscribe = null; }
         rendered = false;
         overlay.innerHTML = '';

@@ -13,11 +13,14 @@ let multiplayerMode = false;
 let cropCanvas1, cropCtx1;
 let cropCanvas2, cropCtx2;
 
-// Per-player state: index 0 = P1 (left screen), index 1 = P2 (right screen)
-let detectedGesture = ['', ''];
-let gestureScore    = [0, 0];
-let handX           = [0, 0];
-let handY           = [0, 0];
+// Per-player, per-hand state: [playerIndex][handIndex]
+// playerIndex 0 = P1 (left screen), 1 = P2 (right screen)
+// handIndex   0 = first detected hand, 1 = second detected hand
+const detectedGesture = [['', ''], ['', '']];
+const gestureScore    = [[0, 0],   [0, 0]];
+const handX           = [[0, 0],   [0, 0]];
+const handY           = [[0, 0],   [0, 0]];
+const handedness      = [['', ''], ['', '']];  // 'Left' or 'Right'
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
 
@@ -29,7 +32,7 @@ export async function initGestures(videoElement) {
     recognizer1 = await GestureRecognizer.createFromOptions(resolver, {
         baseOptions: { modelAssetPath: 'public/gesture_recognizer.task', delegate: 'GPU' },
         runningMode: 'VIDEO',
-        numHands: 2,
+        numHands: 2,  // two hands per player
         minHandDetectionConfidence: 0.5,
         minHandPresenceConfidence: 0.5,
         minTrackingConfidence: 0.4
@@ -46,7 +49,7 @@ export async function enableMultiplayer() {
     recognizer2 = await GestureRecognizer.createFromOptions(resolver, {
         baseOptions: { modelAssetPath: 'public/gesture_recognizer.task', delegate: 'GPU' },
         runningMode: 'VIDEO',
-        numHands: 1,
+        numHands: 2,  // two hands per player
         minHandDetectionConfidence: 0.5,
         minHandPresenceConfidence: 0.5,
         minTrackingConfidence: 0.4
@@ -103,39 +106,46 @@ export function detectGesture(canvas, ctx) {
 }
 
 function runRecognizer(recognizer, input, playerIndex, ctx) {
-    const result    = recognizer.recognizeForVideo(input, Date.now());
-    const gestures  = result.gestures[0];
-    const landmarks = result.landmarks[0];
+    const result = recognizer.recognizeForVideo(input, Date.now());
 
-    if (gestures?.length > 0) {
-        detectedGesture[playerIndex] = gestures[0].categoryName;
-        gestureScore[playerIndex]    = gestures[0].score;
-    } else {
-        detectedGesture[playerIndex] = '';
-        gestureScore[playerIndex]    = 0;
-    }
+    const vw      = video.videoWidth;
+    const vh      = video.videoHeight;
+    const sw      = window.innerWidth;
+    const sh      = window.innerHeight;
+    const scale   = Math.max(sw / vw, sh / vh);
+    const offsetX = (vw * scale - sw) / 2;
+    const offsetY = (vh * scale - sh) / 2;
 
-    if (landmarks?.length > 9) {
-        const vw = video.videoWidth;
-        const vh = video.videoHeight;
-        const sw = window.innerWidth;
-        const sh = window.innerHeight;
-        const scale   = Math.max(sw / vw, sh / vh);
-        const offsetX = (vw * scale - sw) / 2;
-        const offsetY = (vh * scale - sh) / 2;
+    // Loop through both hand slots (handIndex 0 and 1)
+    for (let handIndex = 0; handIndex < 2; handIndex++) {
+        const gestures   = result.gestures[handIndex];
+        const landmarks  = result.landmarks[handIndex];
+        const handResult = result.handednesses[handIndex];
 
-        handX[playerIndex] = toScreenX(landmarks[9].x, playerIndex, vw, scale, offsetX);
-        handY[playerIndex] = landmarks[9].y * vh * scale - offsetY;
+        if (gestures?.length > 0) {
+            detectedGesture[playerIndex][handIndex] = gestures[0].categoryName;
+            gestureScore[playerIndex][handIndex]    = gestures[0].score;
+        } else {
+            detectedGesture[playerIndex][handIndex] = '';
+            gestureScore[playerIndex][handIndex]    = 0;
+        }
 
-        // P1 dots purple, P2 dots pink so players can distinguish their own hand
-        ctx.fillStyle = playerIndex === 0 ? '#8803fc' : '#fc0388';
-        landmarks.forEach(lm => {
-            const x = toScreenX(lm.x, playerIndex, vw, scale, offsetX);
-            const y = lm.y * vh * scale - offsetY;
-            ctx.beginPath();
-            ctx.arc(x, y, 5, 0, Math.PI * 2);
-            ctx.fill();
-        });
+        handedness[playerIndex][handIndex] = handResult?.[0]?.categoryName ?? '';
+
+        if (landmarks?.length > 9) {
+            handX[playerIndex][handIndex] = toScreenX(landmarks[9].x, playerIndex, vw, scale, offsetX);
+            handY[playerIndex][handIndex] = landmarks[9].y * vh * scale - offsetY;
+
+            // P1 dots purple, P2 dots pink so players can distinguish their own hands
+            ctx.fillStyle = playerIndex === 0 ? '#8803fc' : '#fc0388';
+            landmarks.forEach(lm => {
+                const x = toScreenX(lm.x, playerIndex, vw, scale, offsetX);
+                const y = lm.y * vh * scale - offsetY;
+                ctx.beginPath();
+                ctx.arc(x, y, 5, 0, Math.PI * 2);
+                ctx.fill();
+            });
+        }
     }
 }
 
@@ -150,11 +160,16 @@ function toScreenX(lmX, playerIndex, vw, scale, offsetX) {
 
 // ─── Getters ──────────────────────────────────────────────────────────────────
 
-// Default playerIndex=0 keeps every existing single-player call site unchanged
-export function getGesture(playerIndex = 0) {
-    return { gesture: detectedGesture[playerIndex], score: gestureScore[playerIndex] };
+// Defaults (playerIndex=0, handIndex=0) keep all existing call sites unchanged.
+// To access a player's second hand: getGesture(0, 1) / getHandPosition(0, 1)
+export function getGesture(playerIndex = 0, handIndex = 0) {
+    return {
+        gesture:    detectedGesture[playerIndex][handIndex],
+        score:      gestureScore[playerIndex][handIndex],
+        handedness: handedness[playerIndex][handIndex]
+    };
 }
 
-export function getHandPosition(playerIndex = 0) {
-    return { x: handX[playerIndex], y: handY[playerIndex] };
+export function getHandPosition(playerIndex = 0, handIndex = 0) {
+    return { x: handX[playerIndex][handIndex], y: handY[playerIndex][handIndex] };
 }

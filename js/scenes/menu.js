@@ -1,4 +1,4 @@
-export function renderMenu(overlay, gesture, confidence, handX) {
+export function renderMenu(overlay, gesture, gesture2, confidence, confidence2, handX1, handX2) {
     overlay.innerHTML = `
         <img src="public/assets/Umain-logotype-white.png" class="main-menu-logo" alt="Logo">
         <p class="scene-text scene-text--main-menu" style="left: 25%;">
@@ -10,7 +10,11 @@ export function renderMenu(overlay, gesture, confidence, handX) {
     `;
 
     if (gesture === 'Open_Palm' && confidence >= 0.7) {
-        return handX < window.innerWidth / 2 ? 'single' : 'multi';
+        return handX1 < window.innerWidth / 2 ? 'single' : 'multi';
+    }
+
+    if (gesture2 === 'Open_Palm' && confidence2 >= 0.7) {
+        return handX2 < window.innerWidth / 2 ? 'single' : 'multi';
     }
 
     return null;

@@ -9,10 +9,12 @@
 // The factory has no knowledge of game mode — it just runs within its bounds.
 export function createGame(particlesEl, onScore, xMin, xMax) {
     const margin = 120;
+    const confidenceThreshold = 0.6;
     let targetX       = 0;
     let targetY       = 0;
     let targetGesture = '';
     let targetSprite  = null;
+    let targethandedness = '';
     let lastMatchTime = 0;
     let score         = 0;
 
@@ -23,6 +25,7 @@ export function createGame(particlesEl, onScore, xMin, xMax) {
         targetX       = xMin + Math.random() * (xMax - xMin);
         targetY       = margin + Math.random() * (window.innerHeight - 2 * margin);
         targetGesture = gestures[Math.floor(Math.random() * gestures.length)];
+        targethandedness = Math.random() < 0.5 ? 'Left' : 'Right';
 
         targetSprite           = document.createElement('img');
         targetSprite.src       = `public/assets/${targetGesture}_JIN.png`;
@@ -47,10 +50,12 @@ export function createGame(particlesEl, onScore, xMin, xMax) {
 
     // Called every frame. Checks for a gesture match and returns the current
     // score. Does NOT write to any overlay — main.js handles rendering.
-    function tick(gesture, confidence, hx, hy) {
-        if (gesture === targetGesture && confidence >= 0.7) {
-            const dist = Math.hypot(hx - targetX, hy - targetY);
-            if (dist < 100 && Date.now() - lastMatchTime > 500) {
+    function tick(gesture, gesture2, confidence, confidence2, handedness, handedness2, hx1, hy1, hx2, hy2) {
+        const hand1Match = gesture  === targetGesture && confidence  >= confidenceThreshold && handedness  !== targethandedness;
+        const hand2Match = gesture2 === targetGesture && confidence2 >= confidenceThreshold && handedness2 !== targethandedness;
+        const dist = hand1Match ? Math.hypot(hx1 - targetX, hy1 - targetY)
+                   : hand2Match ? Math.hypot(hx2 - targetX, hy2 - targetY) : Infinity;
+        if ((hand1Match || hand2Match) && dist < 100 && Date.now() - lastMatchTime > 500) {
                 targetSprite?.remove();
                 score++;
                 lastMatchTime = Date.now();
@@ -66,9 +71,8 @@ export function createGame(particlesEl, onScore, xMin, xMax) {
                 particlesEl.appendChild(star);
 
                 spawnTarget();
-            }
         }
-        return { score };
+        return { score, targethandedness };
     }
 
     function reset() {
