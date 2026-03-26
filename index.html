@@ -183,6 +183,60 @@
             height: 16px;
             pointer-events: none;
         }
+
+        /* ── Multiplayer overlays ──────────────────────────────────────────── */
+
+        /* Hidden until .multiplayer is added to #app */
+        #overlay-p1, #particles-p1,
+        #overlay-p2, #particles-p2,
+        #shared-overlay {
+            display: none;
+        }
+
+        /* Player overlays are full-size positioned layers, just like #overlay.
+           Content inside them is positioned at screen-absolute coordinates that
+           naturally fall within the correct half — no clipping needed. */
+        #overlay-p1, #particles-p1,
+        #overlay-p2, #particles-p2 {
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* Shared overlay sits above both player layers — used for timer */
+        #shared-overlay {
+            position: absolute;
+            inset: 0;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        /* When multiplayer is active, hide the single-player divs and
+           reveal the per-player and shared ones */
+        .multiplayer #overlay,
+        .multiplayer #particles {
+            display: none;
+        }
+
+        .multiplayer #overlay-p1,
+        .multiplayer #particles-p1,
+        .multiplayer #overlay-p2,
+        .multiplayer #particles-p2,
+        .multiplayer #shared-overlay {
+            display: block;
+        }
+
+        /* Re-centre scene-text to each player's screen half */
+        .multiplayer #overlay-p1 .scene-text,
+        .multiplayer #particles-p1 .scene-text {
+            left: 25%;
+        }
+
+        .multiplayer #overlay-p2 .scene-text,
+        .multiplayer #particles-p2 .scene-text {
+            left: 75%;
+        }
     </style>
 </head>
 <body>
@@ -191,8 +245,16 @@
             <video id="video" class="camera-background-feed" autoplay playsinline muted></video>
         </div>
         <canvas id="landmarks" class="landmark-canvas"></canvas>
+        <!-- Single-player overlays (default) -->
         <div class="game-overlay" id="overlay"></div>
         <div class="game-overlay" id="particles"></div>
+        <!-- Per-player overlays — shown only in multiplayer mode -->
+        <div id="overlay-p1"></div>
+        <div id="particles-p1"></div>
+        <div id="overlay-p2"></div>
+        <div id="particles-p2"></div>
+        <!-- Shared overlay — timer and game-over in multiplayer -->
+        <div id="shared-overlay"></div>
         <img src="public/assets/Ellipse.svg" class="corner-dot" style="top: 16px; left: 16px;">
         <img src="public/assets/Ellipse.svg" class="corner-dot" style="top: 16px; left: 50%; transform: translateX(-50%);">
         <img src="public/assets/Ellipse.svg" class="corner-dot" style="top: 16px; right: 16px;">

@@ -1,77 +1,83 @@
-let targetX = 0, targetY = 0;
-let targetGesture = '';
-let targetHandedness = '';
-let targetImage = '';
-let lastMatchTime = 0;
-let gameStartTime = 0;
-let targetSprite = null;
-const timeLimit = 15; // seconds
-
-export function resetGame() {
-    lastMatchTime = 0;
-    gameStartTime = Date.now();
-}
-
-export function enterGame(particles) {
-    const startText = document.createElement('span');
-    startText.className = 'scene-text scene-text--game-start';
-    startText.textContent = 'START';
-    startText.style.setProperty('--duration', '1000ms');
-    startText.onanimationend = () => startText.remove();
-    particles.appendChild(startText);
-    resetGame();
-    spawnTarget(particles);
-}
-
-export function spawnTarget(particles) {
+// Creates a self-contained game instance.
+//
+//   particlesEl  — the div this instance appends targets and stars into
+//   onScore      — callback fired on each successful match; main.js uses this
+//                  to extend the shared timer
+//   xMin / xMax  — horizontal spawn bounds in screen pixels; main.js passes
+//                  either the full screen or one half depending on the mode
+//
+// The factory has no knowledge of game mode — it just runs within its bounds.
+export function createGame(particlesEl, onScore, xMin, xMax) {
     const margin = 120;
-    targetX = margin + Math.random() * (window.innerWidth - 2 * margin);
-    targetY = margin + Math.random() * (window.innerHeight - 2 * margin);
-    targetGesture = ['Victory', 'Pointing_Up', 'ILoveYou', 'Thumb_Up', 'Closed_Fist'][Math.floor(Math.random() * 5)];
-    targetHandedness = Math.random() < 0.5 ? 'Right' : 'Left';
-    targetImage = `public/assets/${targetGesture}_JIN.png`;
-    targetSprite = document.createElement('img');
-    targetSprite.src = targetImage;
-    targetSprite.className = 'peace-target';
-    targetSprite.style.left = targetX + 'px';
-    targetSprite.style.top = targetY + 'px';
-    particles.appendChild(targetSprite);
-}
+    let targetX       = 0;
+    let targetY       = 0;
+    let targetGesture = '';
+    let targetSprite  = null;
+    let lastMatchTime = 0;
+    let score         = 0;
 
-export function renderGame(overlay, particles, gesture, gesture2, confidence, confidence2, currentScore, handX, handY, handX2, handY2, handedness, handedness2) {
-    const elapsed = (Date.now() - gameStartTime) / 1000;
-    const timeLeft = Math.max(0, (timeLimit - currentScore) - elapsed);
+    const gestures = ['Victory', 'Thumb_Up', 'Pointing_Up', 'ILoveYou', 'Closed_Fist'];
 
-    if (timeLeft === 0 || (gesture === 'Thumb_Down' && confidence >= 0.7) || (gesture2 === 'Thumb_Down' && confidence2 >= 0.7)) {
-        return { shouldEnd: true, newScore: currentScore };
+    function spawnTarget() {
+        targetSprite?.remove();
+        targetX       = xMin + Math.random() * (xMax - xMin);
+        targetY       = margin + Math.random() * (window.innerHeight - 2 * margin);
+        targetGesture = gestures[Math.floor(Math.random() * gestures.length)];
+
+        targetSprite           = document.createElement('img');
+        targetSprite.src       = `public/assets/${targetGesture}_JIN.png`;
+        targetSprite.className = 'peace-target';
+        targetSprite.style.left = targetX + 'px';
+        targetSprite.style.top  = targetY + 'px';
+        particlesEl.appendChild(targetSprite);
     }
 
-    overlay.innerHTML = `
-        <p class="scene-text scene-text--game-score">Score: ${currentScore}</p>
-        <p class="scene-text scene-text--game-time-countdown">${timeLeft <= 5 ? timeLeft.toFixed(0) : ''}</p>
-        <p class="scene-text scene-text--game-timer">Time: ${timeLeft.toFixed(1)}s and HAND: ${targetHandedness}</p>
-    `;
+    // Call once to show the START animation and spawn the first target
+    function enter() {
+        score         = 0;
+        lastMatchTime = 0;
+        const startText = document.createElement('span');
+        startText.className = 'scene-text scene-text--game-start';
+        startText.textContent = 'START';
+        startText.style.setProperty('--duration', '1000ms');
+        startText.onanimationend = () => startText.remove();
+        particlesEl.appendChild(startText);
+        spawnTarget();
+    }
 
-    let newScore = currentScore;
-    if ((gesture === targetGesture && confidence >= 0.7) || (gesture2 === targetGesture && confidence2 >= 0.7)) {
-        const dist = Math.hypot(handX - targetX, handY - targetY);
-        const dist2 = Math.hypot(handX2 - targetX, handY2 - targetY);
-        if (((dist < 100 && handedness !== targetHandedness) || (dist2 < 100 && handedness2 === targetHandedness)) && Date.now() - lastMatchTime > 500) {
-            targetSprite?.remove();
-            newScore++;
-            lastMatchTime = Date.now();
-            gameStartTime = Date.now();
-            const img = document.createElement('img');
-            img.src = 'public/assets/star.png';
-            img.className = 'star';
-            img.style.left = targetX + 'px';
-            img.style.top = targetY + 'px';
-            img.style.setProperty('--duration', (500 + Math.random() * 1000) + 'ms');
-            img.onanimationend = () => img.remove();
-            particles.appendChild(img);
-            spawnTarget(particles);
+    // Called every frame. Checks for a gesture match and returns the current
+    // score. Does NOT write to any overlay — main.js handles rendering.
+    function tick(gesture, confidence, hx, hy) {
+        if (gesture === targetGesture && confidence >= 0.7) {
+            const dist = Math.hypot(hx - targetX, hy - targetY);
+            if (dist < 100 && Date.now() - lastMatchTime > 500) {
+                targetSprite?.remove();
+                score++;
+                lastMatchTime = Date.now();
+                onScore(); 
+
+                const star = document.createElement('img');
+                star.src       = 'public/assets/star.png';
+                star.className = 'star';
+                star.style.left = targetX + 'px';
+                star.style.top  = targetY + 'px';
+                star.style.setProperty('--duration', (500 + Math.random() * 1000) + 'ms');
+                star.onanimationend = () => star.remove();
+                particlesEl.appendChild(star);
+
+                spawnTarget();
+            }
         }
+        return { score };
     }
 
-    return { shouldEnd: false, newScore };
+    function reset() {
+        targetSprite?.remove();
+        targetSprite  = null;
+        score         = 0;
+        lastMatchTime = 0;
+        particlesEl.innerHTML = '';
+    }
+
+    return { enter, tick, reset };
 }
