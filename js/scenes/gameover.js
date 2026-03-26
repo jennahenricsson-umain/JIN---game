@@ -1,39 +1,50 @@
-import { subscribeToTopScores } from '../firebase.js';
+const RANKS = ['1ST', '2ND', '3RD', '4TH', '5TH'];
+let rendered = false;
+let sessionScores = [];
 
-let unsubscribe = null;
-let rendered    = false;
+function buildScoreboard(scores, finalScore) {
+    const latestIndex = [...scores].findIndex(s => s.score === finalScore);
+    return `
+        <div class="scoreboard">
+            <div class="scoreboard__title">TOP SCORES</div>
+            <div class="scoreboard__divider"></div>
+            ${scores.map((s, i) => `
+                <div class="scoreboard__row ${i === latestIndex ? 'scoreboard__row--highlight' : ''}">
+                    <span class="scoreboard__rank">${RANKS[i]}</span>
+                    <span class="scoreboard__dots"></span>
+                    <span class="scoreboard__score">${s.score}</span>
+                </div>
+            `).join('')}
+            <div class="scoreboard__divider"></div>
+        </div>
+    `;
+}
 
-// finalScore2 is optional — pass it in multiplayer to show both scores
 export function renderGameOver(overlay, gesture, confidence, finalScore, finalScore2 = null) {
     if (!rendered) {
         rendered = true;
+        const combined = finalScore2 !== null ? finalScore + finalScore2 : finalScore;
+        sessionScores.push({ score: combined });
+        if (sessionScores.length > 5) sessionScores.shift();
 
+        const displayScores = [...sessionScores].sort((a, b) => b.score - a.score).slice(0, 5);
         const scoreDisplay = finalScore2 !== null
             ? `P1: ${finalScore} &nbsp;&nbsp; P2: ${finalScore2}`
             : `Your score: ${finalScore}`;
 
         overlay.innerHTML = `
             <p class="scene-text scene-text--game-over">Good Game!</p>
-            <p class="scene-text scene-text--game-over-hint">(Wave to play again, Thumbs down to main menu)</p>
-            <p class="scene-text scene-text--game-score">${scoreDisplay}</p>
-            <div class="scene-text scene-text--scoreboard" id="scoreboard">Loading scores...</div>
+            <p class="scene-text scene-text--game-over-hint"><img src="public/assets/open_palm_JIN.png" class="hint-icon"> Wave to play again &nbsp;|&nbsp; <img src="public/assets/thumbs_down_JIN.png" class="hint-icon"> Main menu</p>
         `;
-
-        unsubscribe = subscribeToTopScores((scores) => {
-            const board = document.getElementById('scoreboard');
-            if (board) {
-                board.innerHTML = '<b>Top 5</b><br>' + scores.map((s, i) => `${i + 1}. ${s.score}`).join('<br>');
-            }
-        });
     }
 
     if (gesture === 'Open_Palm' && confidence >= 0.7) {
+        if (sessionScores.length >= 5) sessionScores = [];
         rendered = false;
         overlay.innerHTML = '';
         return 'onboarding';
     }
-    else if (gesture === 'Thumb_Down' && confidence >= 0.7) {
-        if (unsubscribe) { unsubscribe(); unsubscribe = null; }
+    if (gesture === 'Thumb_Down' && confidence >= 0.7) {
         rendered = false;
         overlay.innerHTML = '';
         return 'menu';

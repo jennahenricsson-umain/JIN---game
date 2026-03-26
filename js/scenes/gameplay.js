@@ -36,12 +36,6 @@ export function createGame(particlesEl, onScore, xMin, xMax) {
     function enter() {
         score         = 0;
         lastMatchTime = 0;
-        const startText = document.createElement('span');
-        startText.className = 'scene-text scene-text--game-start';
-        startText.textContent = 'START';
-        startText.style.setProperty('--duration', '1000ms');
-        startText.onanimationend = () => startText.remove();
-        particlesEl.appendChild(startText);
         spawnTarget();
     }
 

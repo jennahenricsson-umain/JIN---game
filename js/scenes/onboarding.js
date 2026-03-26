@@ -1,23 +1,14 @@
-// Creates a self-contained onboarding instance.
-//
-//   particlesEl — the div this instance appends target sprites and stars into
-//   xMin / xMax — horizontal bounds in screen pixels; the three fixed targets
-//                 are spread evenly across this range, matching the original
-//                 spacing logic scaled to whatever area is provided
-//
-// The factory has no knowledge of game mode.
 export function createOnboarding(particlesEl, xMin, xMax) {
-    const gestureSequence = ['Open_Palm', 'Thumb_Up', 'ILoveYou'];
+    const gestureSequence = ['Thumb_Up', 'ILoveYou', 'Open_Palm'];
+    const gestureLabels   = ['Thumbs Up', 'I Love You', 'Open Palm'];
     const targetY = window.innerHeight / 2;
     let step         = 0;
     let targetX      = 0;
     let targetSprite = null;
 
-    // Spread three targets across [xMin, xMax] with the same relative spacing
-    // as the original (centre ± margin), scaled to fit the available width.
     function getTargetX(stepIndex) {
         const centre = (xMin + xMax) / 2;
-        const margin = (xMax - xMin) / 4; // keeps targets comfortably within bounds
+        const margin = (xMax - xMin) / 4;
         return centre - margin + stepIndex * margin;
     }
 
@@ -36,15 +27,15 @@ export function createOnboarding(particlesEl, xMin, xMax) {
         step = 0;
         targetSprite?.remove();
         targetSprite = null;
+    }
+
+    function spawn() {
         spawnTarget();
     }
 
-    // Called every frame.
-    // Returns { done, step } — main.js uses step to render progress text
-    // and shows a "waiting" message once done is true.
     function tick(gesture, confidence, hx, hy) {
-        if (step >= gestureSequence.length) return { done: true, step };
-        if (gesture === 'Thumb_Down' && confidence >= 0.7) return { done: true, step };
+        if (step >= gestureSequence.length) return { done: true, step, label: '', progress: '' };
+        if (gesture === 'Thumb_Down' && confidence >= 0.7) return { done: true, step, label: '', progress: '' };
 
         if (gesture === gestureSequence[step] && confidence >= 0.6) {
             const dist = Math.hypot(hx - targetX, hy - targetY);
@@ -68,8 +59,10 @@ export function createOnboarding(particlesEl, xMin, xMax) {
             }
         }
 
-        return { done: step >= gestureSequence.length, step };
+        const progress = gestureSequence.map((_, i) => i < step ? '●' : '○').join(' ');
+        const label = step < gestureSequence.length ? gestureLabels[step] : '';
+        return { done: step >= gestureSequence.length, step, label, progress };
     }
 
-    return { tick, reset };
+    return { tick, reset, spawn };
 }
