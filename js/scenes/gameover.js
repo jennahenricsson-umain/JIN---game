@@ -2,6 +2,7 @@ const RANKS = ['1ST', '2ND', '3RD', '4TH', '5TH'];
 let rendered = false;
 let sessionScores = [];
 
+
 function buildScoreboard(scores, finalScore) {
     const latestIndex = [...scores].findIndex(s => s.score === finalScore);
     return `
@@ -23,22 +24,20 @@ function buildScoreboard(scores, finalScore) {
 export function renderGameOver(overlay, gesture, confidence, finalScore, finalScore2 = null) {
     if (!rendered) {
         rendered = true;
-        const combined = finalScore2 !== null ? finalScore + finalScore2 : finalScore;
-        sessionScores.push({ score: combined });
-        if (sessionScores.length > 5) sessionScores.shift();
+        sessionScores.push({ score: finalScore });
 
         const displayScores = [...sessionScores].sort((a, b) => b.score - a.score).slice(0, 5);
-        const scoreDisplay = finalScore2 !== null
-            ? `P1: ${finalScore} &nbsp;&nbsp; P2: ${finalScore2}`
-            : `Your score: ${finalScore}`;
+        const latestIndex = displayScores.findIndex(s => s === sessionScores[sessionScores.length - 1]);
 
         overlay.innerHTML = `
             <p class="scene-text scene-text--game-over">Good Game!</p>
-            <p class="scene-text scene-text--game-over-hint"><img src="public/assets/open_palm_JIN.png" class="hint-icon"> Wave to play again &nbsp;|&nbsp; <img src="public/assets/thumbs_down_JIN.png" class="hint-icon"> Main menu</p>
+            <p class="scene-text scene-text--game-over-hint">👍 Thumbs Up to play again</p>
+            <p class="scene-text scene-text--game-score">Your score: ${finalScore}</p>
+            <div class="scene-text scene-text--scoreboard" id="scoreboard">${buildScoreboard(displayScores, latestIndex)}</div>
         `;
     }
 
-    if (gesture === 'Open_Palm' && confidence >= 0.7) {
+    if (gesture === 'Thumb_Up' && score >= 0.7) {
         if (sessionScores.length >= 5) sessionScores = [];
         rendered = false;
         overlay.innerHTML = '';
