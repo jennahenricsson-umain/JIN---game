@@ -31,13 +31,14 @@ export function renderGameOver(overlay, gesture, confidence, finalScore, finalSc
 
         overlay.innerHTML = `
             <p class="scene-text scene-text--game-over">Good Game!</p>
-            <p class="scene-text scene-text--game-over-hint">👍 Thumbs Up to play again</p>
-            <p class="scene-text scene-text--game-score">Your score: ${finalScore}</p>
-            <div class="scene-text scene-text--scoreboard" id="scoreboard">${buildScoreboard(displayScores, latestIndex)}</div>
+            <p class="scene-text scene-text--game-over-hint"><img src="public/assets/open_palm_JIN.png" class="hint-icon"> Wave to play again &nbsp;|&nbsp; <img src="public/assets/thumbs_down_JIN.png" class="hint-icon"> Main menu</p>
+            <div class="scene-text scene-text--scoreboard" id="scoreboard">${buildScoreboard(displayScores, finalScore)}</div>
+            ${window._savedIconsHTML || ''}
+            ${window._savedScoreHTML || ''}
         `;
     }
 
-    if (gesture === 'Thumb_Up' && score >= 0.7) {
+    if (gesture === 'Open_Palm' && confidence >= 0.7) {
         if (sessionScores.length >= 5) sessionScores = [];
         rendered = false;
         overlay.innerHTML = '';

@@ -17,6 +17,7 @@ export function createGame(particlesEl, onScore, xMin, xMax) {
     let score         = 0;
 
     const gestures = ['Victory', 'Thumb_Up', 'Pointing_Up', 'ILoveYou', 'Closed_Fist'];
+    let matchedGestures = [];
 
     function spawnTarget() {
         targetSprite?.remove();
@@ -34,8 +35,9 @@ export function createGame(particlesEl, onScore, xMin, xMax) {
 
     // Call once to show the START animation and spawn the first target
     function enter() {
-        score         = 0;
-        lastMatchTime = 0;
+        score           = 0;
+        lastMatchTime   = 0;
+        matchedGestures = [];
         spawnTarget();
     }
 
@@ -47,6 +49,7 @@ export function createGame(particlesEl, onScore, xMin, xMax) {
             if (dist < 100 && Date.now() - lastMatchTime > 500) {
                 targetSprite?.remove();
                 score++;
+                matchedGestures.push(targetGesture);
                 lastMatchTime = Date.now();
                 onScore(); 
 
@@ -62,14 +65,15 @@ export function createGame(particlesEl, onScore, xMin, xMax) {
                 spawnTarget();
             }
         }
-        return { score };
+        return { score, matchedGestures };
     }
 
     function reset() {
         targetSprite?.remove();
-        targetSprite  = null;
-        score         = 0;
-        lastMatchTime = 0;
+        targetSprite    = null;
+        score           = 0;
+        lastMatchTime   = 0;
+        matchedGestures = [];
         particlesEl.innerHTML = '';
     }
 

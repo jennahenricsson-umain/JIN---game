@@ -17,6 +17,8 @@ const particlesP1   = document.getElementById('particles-p1');
 const overlayP2     = document.getElementById('overlay-p2');
 const particlesP2   = document.getElementById('particles-p2');
 const sharedOverlay = document.getElementById('shared-overlay');
+const timebarEl     = document.getElementById('timebar');
+const timebarFill   = document.getElementById('timebar-fill');
 const app           = document.getElementById('app');
 
 // ─── State ────────────────────────────────────────────────────────────────────
@@ -160,6 +162,11 @@ function enterGameOver() {
 
     finalScore1 = score1;
     finalScore2 = score2;
+    const iconsEl = overlay.querySelector('.score-icons');
+    const scoreNumEl = overlay.querySelector('.score-number');
+    window._savedIconsHTML = iconsEl ? iconsEl.outerHTML : '';
+    window._savedScoreHTML = scoreNumEl ? scoreNumEl.outerHTML : '';
+    overlay.innerHTML = '';
     gameState   = 'over';
 }
 
@@ -211,14 +218,19 @@ function render() {
 
             const pct = (step / 3) * 100;
 
-            if (introActive) {
-                setHTML(overlay, `<p class="scene-text scene-text--onboarding-title">Match the shown gesture</p>`);
-            } else {
+            if (!overlay.querySelector('.scene-text--onboarding-title')) {
+                overlay.innerHTML = `<p class="scene-text scene-text--onboarding-title">Match the gesture shown</p>`;
+            }
+
+            if (!introActive) {
+                const title = overlay.querySelector('.scene-text--onboarding-title');
+                if (title) title.classList.add('onboarding-title--up');
+
                 if (!overlay.querySelector('.progress-bar')) {
-                    overlay.innerHTML = `
-                        <p class="scene-text scene-text--onboarding-title onboarding-title--up">Match the shown gesture</p>
-                        <div class="progress-bar"><div class="progress-bar__fill" style="width:0%"></div></div>
-                    `;
+                    const bar = document.createElement('div');
+                    bar.className = 'progress-bar';
+                    bar.innerHTML = `<div class="progress-bar__fill" style="width:0%"></div>`;
+                    overlay.appendChild(bar);
                     requestAnimationFrame(() => {
                         const fill = overlay.querySelector('.progress-bar__fill');
                         if (fill) fill.style.width = pct + '%';
@@ -287,18 +299,45 @@ function render() {
         if (g1 === 'Victory' && c1 >= 0.7) gestureAttempts++;
 
         if (gameMode === 'single') {
-            const { score } = p1Game.tick(g1, c1, hx1, hy1);
-            if (score > score1) { successfulMatches++; trackMetric('target_matched', { player: 1, score, accuracy: c1 }); }
+            const { score, matchedGestures } = p1Game.tick(g1, c1, hx1, hy1);
+            if (score > score1) {
+                successfulMatches++;
+                trackMetric('target_matched', { player: 1, score, accuracy: c1 });
+                const iconsEl = overlay.querySelector('.score-icons');
+                if (iconsEl) {
+                    const img = document.createElement('img');
+                    img.src = `public/assets/${matchedGestures[matchedGestures.length - 1]}_JIN.png`;
+                    img.className = 'score-icon';
+                    iconsEl.appendChild(img);
+                    // Remove oldest if overflowing
+                    while (iconsEl.scrollWidth > iconsEl.clientWidth && iconsEl.children.length > 1) {
+                        iconsEl.removeChild(iconsEl.firstChild);
+                    }
+                }
+                const numEl = overlay.querySelector('.score-number');
+                if (numEl) numEl.textContent = score;
+            }
             score1 = score;
 
+            if (!overlay.querySelector('.score-icons')) {
+                overlay.innerHTML = `<div class="score-icons"></div><span class="score-number">0</span>`;
+            }
+
             const timeLeft = getTimeLeft(score1);
-            setHTML(overlay, `
-                <p class="scene-text scene-text--game-score">Score: ${score1}</p>
-                <p class="scene-text scene-text--game-time-countdown">${timeLeft <= 5 ? timeLeft.toFixed(0) : ''}</p>
-                <p class="scene-text scene-text--game-timer">Time: ${timeLeft.toFixed(1)}s</p>
-            `);
+            const pct = (timeLeft / timeLimit) * 100;
+            timebarEl.classList.add('active');
+            timebarFill.style.height = pct + '%';
+            timebarFill.style.background = pct > 40
+                ? 'linear-gradient(0deg, #7b00ff, #b44fff)'
+                : pct > 20
+                    ? 'linear-gradient(0deg, #ff6600, #ffaa00)'
+                    : 'linear-gradient(0deg, #ff0000, #ff4444)';
 
             if (timeLeft === 0 || (g1 === 'Thumb_Down' && c1 >= 0.7)) {
+                timebarEl.classList.remove('active');
+                timebarFill.style.height = '100%';
+                overlay.innerHTML   = '';
+                particles.innerHTML = '';
                 p1Game.reset();
                 enterGameOver();
             }
