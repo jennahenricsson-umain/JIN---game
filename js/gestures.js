@@ -29,7 +29,7 @@ export async function initGestures(videoElement) {
     recognizer1 = await GestureRecognizer.createFromOptions(resolver, {
         baseOptions: { modelAssetPath: 'public/gesture_recognizer.task', delegate: 'GPU' },
         runningMode: 'VIDEO',
-        numHands: 1,
+        numHands: 2,
         minHandDetectionConfidence: 0.5,
         minHandPresenceConfidence: 0.5,
         minTrackingConfidence: 0.4
