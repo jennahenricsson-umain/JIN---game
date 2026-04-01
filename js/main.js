@@ -222,6 +222,10 @@ function render() {
             p1Onboarding._spawned = true;
             p1Onboarding.spawn();
         }
+        if (!introActive && gameMode === 'multi' && !p2Onboarding._spawned) {
+            p2Onboarding._spawned = true;
+            p2Onboarding.spawn();
+        }
 
         if (gameMode === 'single') {
             const { done, step } = introActive
@@ -259,25 +263,39 @@ function render() {
                 setTimeout(() => enterCountdown(), 600);
             }
         } else if (gameMode === 'multi') {
-            const r1 = p1Onboarding.tick(g1, g2, c1, c2, h1, h2, hx1, hy1, hx2, hy2);
-            const r2 = p2Onboarding.tick(g3, g4, c3, c4, h3, h4, hx3, hy3, hx4, hy4);
+            const { done: p1done, step: p1step, targethandedness: p1targethandedness } = introActive
+                ? { done: false, step: 0, label: '', progress: '' }
+                : p1Onboarding.tick(g1, g2, c1, c2, h1, h2, hx1, hy1, hx2, hy2);
+            const { done: p2done, step: p2step, targethandedness: p2targethandedness } = introActive
+                ? { done: false, step: 0, label: '', progress: '' }
+                : p2Onboarding.tick(g3, g4, c3, c4, h3, h4, hx3, hy3, hx4, hy4);
 
-            setHTML(overlayP1, r1.done
-                ? `<p class="scene-text scene-text--onboarding">Waiting for P2…</p>`
-                : `<p class="scene-text scene-text--game-gesture">Gesture: ${g1} (${(c1 * 100).toFixed(0)}%)</p>
-                   <p class="scene-text scene-text--onboarding">Learn to play<br>${r1.targethandedness}</p>`);
+            if (!overlay.querySelector('.scene-text--onboarding-title')) {
+                sharedOverlay.innerHTML = `<p class="scene-text scene-text--onboarding-title">Match the gesture shown</p>`;
+            }
+            if (!introActive){
+                const title = sharedOverlay.querySelector('.scene-text--onboarding-title');
+                if (title) title.classList.add('onboarding-title--up');
 
-            setHTML(overlayP2, r2.done
-                ? `<p class="scene-text scene-text--onboarding">Waiting for P1…</p>`
-                : `<p class="scene-text scene-text--game-gesture">Gesture: ${g3} (${(c3 * 100).toFixed(0)}%)</p>
-                   <p class="scene-text scene-text--onboarding">Learn to play<br>${r2.targethandedness}</p>`);
+                setHTML(overlayP1, p1done
+                    ? `<p class="scene-text scene-text--onboarding">Waiting for P2…</p>`
+                    : `<p class="scene-text scene-text--game-gesture">Gesture: ${g1} (${(c1 * 100).toFixed(0)}%)</p>
+                    <p class="scene-text scene-text--onboarding">Use ${p1targethandedness} hand</p>`);
 
-            if (r1.done && r2.done) {
+                setHTML(overlayP2, p2done
+                    ? `<p class="scene-text scene-text--onboarding">Waiting for P1…</p>`
+                    : `<p class="scene-text scene-text--game-gesture">Gesture: ${g3} (${(c3 * 100).toFixed(0)}%)</p>
+                    <p class="scene-text scene-text--onboarding">Use ${p2targethandedness} hand</p>`);
+            }
+
+            if (p1done && p2done) {
                 overlayP1.innerHTML = '';
                 overlayP2.innerHTML = '';
-                enterCountdown();
+                sharedOverlay.innerHTML = '';
+                setTimeout(() => enterCountdown(), 600);
             }
         }
+        
 
     // ── Countdown ─────────────────────────────────────────────────────────────
     } else if (gameState === 'countdown') {
