@@ -7,40 +7,44 @@ import { startSession, updateSession, endSession, saveGame, trackMetric } from '
 
 // ─── DOM ──────────────────────────────────────────────────────────────────────
 
-const video        = document.getElementById('video');
-const canvas       = document.getElementById('landmarks');
-const ctx          = canvas.getContext('2d');
-const overlay      = document.getElementById('overlay');
-const particles    = document.getElementById('particles');
-const overlayP1    = document.getElementById('overlay-p1');
-const particlesP1  = document.getElementById('particles-p1');
-const overlayP2    = document.getElementById('overlay-p2');
-const particlesP2  = document.getElementById('particles-p2');
+const video         = document.getElementById('video');
+const canvas        = document.getElementById('landmarks');
+const ctx           = canvas.getContext('2d');
+const overlay       = document.getElementById('overlay');
+const particles     = document.getElementById('particles');
+const overlayP1     = document.getElementById('overlay-p1');
+const particlesP1   = document.getElementById('particles-p1');
+const overlayP2     = document.getElementById('overlay-p2');
+const particlesP2   = document.getElementById('particles-p2');
 const sharedOverlay = document.getElementById('shared-overlay');
-const app          = document.getElementById('app');
+const timebarEl     = document.getElementById('timebar');
+const timebarFill   = document.getElementById('timebar-fill');
+const app           = document.getElementById('app');
 
 // ─── State ────────────────────────────────────────────────────────────────────
 
-let gameState = 'menu';   // 'menu' | 'loading' | 'onboarding' | 'play' | 'over'
-let gameMode  = 'single'; // 'single' | 'multi'
+let gameState = 'menu'; // 'menu'|'loading'|'onboarding'|'countdown'|'play'|'between'|'over'
+let gameMode  = 'single';
 
-// Shared timer — owned here, extended by onScore callbacks from game instances
-const timeLimit = 15;
+let countdownStart    = 0;
+let betweenStart      = 0;
+let onboardingStart   = 0;
+let roundNumber       = 0;
+const BETWEEN_DURATION = 2500;
+
+const timeLimit = 5;
 let gameStartTime = 0;
 function extendTimer() { gameStartTime = Date.now(); }
 function getTimeLeft(combinedScore) {
     return Math.max(0, (timeLimit - combinedScore) - (Date.now() - gameStartTime) / 1000);
 }
 
-// Game / onboarding instances — created fresh each round
 let p1Game = null, p2Game = null;
 let p1Onboarding = null, p2Onboarding = null;
 
-// Scores
 let score1 = 0, score2 = 0;
 let finalScore1 = 0, finalScore2 = 0;
 
-// Analytics
 let gamesPlayed       = 0;
 let totalScore        = 0;
 let gestureAttempts   = 0;
@@ -60,7 +64,11 @@ function syncCanvas() {
 syncCanvas();
 window.addEventListener('resize', syncCanvas);
 
-// ─── Multiplayer helpers ──────────────────────────────────────────────────────
+function setHTML(el, html) {
+    if (el.innerHTML !== html) el.innerHTML = html;
+}
+
+// ─── State transitions ────────────────────────────────────────────────────────
 
 async function startMultiplayer() {
     gameState = 'loading';
@@ -78,6 +86,8 @@ function enterOnboarding() {
         particles.innerHTML = '';
         p1Onboarding = createOnboarding(particles, margin, window.innerWidth - margin);
         p1Onboarding.reset();
+        p1Onboarding._spawned   = false;
+        p1Onboarding._finishing = false;
     } else {
         particlesP1.innerHTML = '';
         particlesP2.innerHTML = '';
@@ -87,8 +97,17 @@ function enterOnboarding() {
         p2Onboarding.reset();
     }
 
+    overlay.innerHTML = '';
     gameState = 'onboarding';
+    onboardingStart = Date.now();
     trackMetric('onboarding_started', { mode: gameMode, timestamp: Date.now() });
+}
+
+function enterCountdown() {
+    overlay.innerHTML = '';
+    overlay.dataset.countdownStep = '';
+    countdownStart = Date.now();
+    gameState = 'countdown';
 }
 
 function enterPlay() {
@@ -115,15 +134,20 @@ function enterPlay() {
     trackMetric('game_started', { mode: gameMode, timestamp: Date.now() });
 }
 
+function enterBetween() {
+    betweenStart = Date.now();
+    roundNumber++;
+    gameState = 'between';
+}
+
 function enterGameOver() {
-    // Always revert to full-screen for the scoreboard
     app.classList.remove('multiplayer');
-    overlayP1.innerHTML  = '';
-    overlayP2.innerHTML  = '';
-    particlesP1.innerHTML = '';
-    particlesP2.innerHTML = '';
+    overlayP1.innerHTML     = '';
+    overlayP2.innerHTML     = '';
+    particlesP1.innerHTML   = '';
+    particlesP2.innerHTML   = '';
     sharedOverlay.innerHTML = '';
-    particles.innerHTML  = '';
+    particles.innerHTML     = '';
 
     const duration = Math.floor((Date.now() - gameStartTime) / 1000);
     gamesPlayed++;
@@ -132,8 +156,7 @@ function enterGameOver() {
     const metrics = {
         gestureAttempts,
         successfulMatches,
-        accuracy: gestureAttempts > 0
-            ? (successfulMatches / gestureAttempts * 100).toFixed(1) : 0
+        accuracy: gestureAttempts > 0 ? (successfulMatches / gestureAttempts * 100).toFixed(1) : 0
     };
 
     saveGame(score1 + score2, duration, metrics);
@@ -142,6 +165,11 @@ function enterGameOver() {
 
     finalScore1 = score1;
     finalScore2 = score2;
+    const iconsEl = overlay.querySelector('.score-icons');
+    const scoreNumEl = overlay.querySelector('.score-number');
+    window._savedIconsHTML = iconsEl ? iconsEl.outerHTML : '';
+    window._savedScoreHTML = scoreNumEl ? scoreNumEl.outerHTML : '';
+    overlay.innerHTML = '';
     gameState   = 'over';
 }
 
@@ -155,8 +183,6 @@ function detect() {
 // ─── Render loop ──────────────────────────────────────────────────────────────
 
 function render() {
-    if (gameState !== 'over') overlay.innerHTML = '';
-
     const { gesture: g1, score: c1, handedness: h1 } = getGesture(0,0);
     const { x: hx1, y: hy1 }         = getHandPosition(0,0);
     const { gesture: g2, score: c2, handedness: h2 } = getGesture(0,1);
@@ -180,62 +206,148 @@ function render() {
             app.classList.remove('multiplayer');
             enterOnboarding();
         } else if (selection === 'multi') {
-            startMultiplayer(); // async — manages gameState internally
+            startMultiplayer();
         }
 
     // ── Loading ───────────────────────────────────────────────────────────────
     } else if (gameState === 'loading') {
-        overlay.innerHTML = '<p class="scene-text scene-text--onboarding">Loading multiplayer…</p>';
+        setHTML(overlay, '<p class="scene-text scene-text--onboarding">Loading multiplayer…</p>');
 
     // ── Onboarding ────────────────────────────────────────────────────────────
     } else if (gameState === 'onboarding') {
+        const elapsed     = Date.now() - onboardingStart;
+        const introActive = elapsed < 3000;
+
+        if (!introActive && !p1Onboarding._spawned) {
+            p1Onboarding._spawned = true;
+            p1Onboarding.spawn();
+        }
+
         if (gameMode === 'single') {
-            const { done, targethandedness } = p1Onboarding.tick(g1, g2, c1, c2, h1, h2, hx1, hy1, hx2, hy2);
-            overlay.innerHTML = `
-                <p class="scene-text scene-text--game-gesture">Gesture: ${g1} (${(c1 * 100).toFixed(0)}%)</p>
-                <p class="scene-text scene-text--onboarding">Learn to play<br>${targethandedness}</p>
-            `;
-            if (done) enterPlay();
+            const { done, step } = introActive
+                ? { done: false, step: 0, label: '', progress: '' }
+                : p1Onboarding.tick(g1, g2, c1, c2, h1, h2, hx1, hy1, hx2, hy2);
+
+            const pct = (step / 3) * 100;
+
+            if (!overlay.querySelector('.scene-text--onboarding-title')) {
+                overlay.innerHTML = `<p class="scene-text scene-text--onboarding-title">Match the gesture shown</p>`;
+            }
+
+            if (!introActive) {
+                const title = overlay.querySelector('.scene-text--onboarding-title');
+                if (title) title.classList.add('onboarding-title--up');
+
+                if (!overlay.querySelector('.progress-bar')) {
+                    const bar = document.createElement('div');
+                    bar.className = 'progress-bar';
+                    bar.innerHTML = `<div class="progress-bar__fill" style="width:0%"></div>`;
+                    overlay.appendChild(bar);
+                    requestAnimationFrame(() => {
+                        const fill = overlay.querySelector('.progress-bar__fill');
+                        if (fill) fill.style.width = pct + '%';
+                    });
+                } else {
+                    const fill = overlay.querySelector('.progress-bar__fill');
+                    if (fill && fill.style.width !== pct + '%') fill.style.width = pct + '%';
+                }
+            }
+            if (done && !p1Onboarding._finishing) {
+                p1Onboarding._finishing = true;
+                const fill = overlay.querySelector('.progress-bar__fill');
+                if (fill) fill.style.width = '100%';
+                setTimeout(() => enterCountdown(), 600);
+            }
         } else if (gameMode === 'multi') {
             const r1 = p1Onboarding.tick(g1, g2, c1, c2, h1, h2, hx1, hy1, hx2, hy2);
             const r2 = p2Onboarding.tick(g3, g4, c3, c4, h3, h4, hx3, hy3, hx4, hy4);
 
-            overlayP1.innerHTML = r1.done
+            setHTML(overlayP1, r1.done
                 ? `<p class="scene-text scene-text--onboarding">Waiting for P2…</p>`
                 : `<p class="scene-text scene-text--game-gesture">Gesture: ${g1} (${(c1 * 100).toFixed(0)}%)</p>
-                   <p class="scene-text scene-text--onboarding">Learn to play<br>${r1.targethandedness}</p>`;
+                   <p class="scene-text scene-text--onboarding">Learn to play<br>${r1.targethandedness}</p>`);
 
-            overlayP2.innerHTML = r2.done
+            setHTML(overlayP2, r2.done
                 ? `<p class="scene-text scene-text--onboarding">Waiting for P1…</p>`
                 : `<p class="scene-text scene-text--game-gesture">Gesture: ${g3} (${(c3 * 100).toFixed(0)}%)</p>
-                   <p class="scene-text scene-text--onboarding">Learn to play<br>${r2.targethandedness}</p>`;
+                   <p class="scene-text scene-text--onboarding">Learn to play<br>${r2.targethandedness}</p>`);
 
             if (r1.done && r2.done) {
                 overlayP1.innerHTML = '';
                 overlayP2.innerHTML = '';
-                enterPlay();
+                enterCountdown();
             }
         }
+
+    // ── Countdown ─────────────────────────────────────────────────────────────
+    } else if (gameState === 'countdown') {
+        const elapsed = Date.now() - countdownStart;
+        const step    = Math.floor(elapsed / 1000);
+        const steps   = ['3', '2', '1', 'GO!'];
+
+        if (step < steps.length && overlay.dataset.countdownStep !== String(step)) {
+            overlay.dataset.countdownStep = step;
+            const isGo = steps[step] === 'GO!';
+            overlay.innerHTML = `
+                ${!isGo ? `<p class="scene-text scene-text--countdown-label">Get ready to play</p>` : ''}
+                <p class="scene-text scene-text--countdown">${steps[step]}</p>
+            `;
+            if (isGo) setTimeout(() => enterPlay(), 1000);
+        }
+
+    // ── Between rounds ────────────────────────────────────────────────────────
+    } else if (gameState === 'between') {
+        const elapsed = Date.now() - betweenStart;
+        setHTML(overlay, `
+            <p class="scene-text scene-text--between-title">Round ${roundNumber} complete!</p>
+            <p class="scene-text scene-text--between-score">Score: ${finalScore1}${finalScore2 ? ` | P2: ${finalScore2}` : ''}</p>
+        `);
+        if (elapsed >= BETWEEN_DURATION) enterOnboarding();
 
     // ── Play ──────────────────────────────────────────────────────────────────
     } else if (gameState === 'play') {
         if (g1 === 'Victory' && c1 >= 0.7) gestureAttempts++; // Detta känns som en jättekonstig metric??
 
         if (gameMode === 'single') {
-            const { score, targethandedness } = p1Game.tick(g1, g2, c1, c2, h1, h2, hx1, hy1, hx2, hy2);
-            if (score > score1) { successfulMatches++; trackMetric('target_matched', { player: 1, score, accuracy: c1 }); }
+            const { score, matchedGestures } = p1Game.tick(g1, g2, c1, c2, h1, h2, hx1, hy1, hx2, hy2);
+            if (score > score1) {
+                successfulMatches++;
+                trackMetric('target_matched', { player: 1, score, accuracy: c1 });
+                const iconsEl = overlay.querySelector('.score-icons');
+                if (iconsEl) {
+                    const img = document.createElement('img');
+                    img.src = `public/assets/${matchedGestures[matchedGestures.length - 1]}_JIN.png`;
+                    img.className = 'score-icon';
+                    iconsEl.appendChild(img);
+                    // Remove oldest if overflowing
+                    while (iconsEl.scrollWidth > iconsEl.clientWidth && iconsEl.children.length > 1) {
+                        iconsEl.removeChild(iconsEl.firstChild);
+                    }
+                }
+                const numEl = overlay.querySelector('.score-number');
+                if (numEl) numEl.textContent = score;
+            }
             score1 = score;
 
-            const timeLeft = getTimeLeft(score1);
-            overlay.innerHTML = `
-                <p class="scene-text scene-text--game-score">Score: ${score1}</p>
-                <p class="scene-text scene-text--game-time-countdown">${timeLeft <= 5 ? timeLeft.toFixed(0) : ''}</p>
-                <p class="scene-text scene-text--game-timer">Time: ${timeLeft.toFixed(1)}s</p>
-                <p class="scene-text scene-text--onboarding">${targethandedness}</p>
+            if (!overlay.querySelector('.score-icons')) {
+                overlay.innerHTML = `<div class="score-icons"></div><span class="score-number">0</span>`;
+            }
 
-            `;
+            const timeLeft = getTimeLeft(score1);
+            const pct = (timeLeft / timeLimit) * 100;
+            timebarEl.classList.add('active');
+            timebarFill.style.height = pct + '%';
+            timebarFill.style.background = pct > 40
+                ? 'linear-gradient(0deg, #7b00ff, #b44fff)'
+                : pct > 20
+                    ? 'linear-gradient(0deg, #ff6600, #ffaa00)'
+                    : 'linear-gradient(0deg, #ff0000, #ff4444)';
 
             if (timeLeft === 0 || (g1 === 'Thumb_Down' && c1 >= 0.7) || (g2 === 'Thumb_Down' && c2 >= 0.7)) {
+                timebarEl.classList.remove('active');
+                timebarFill.style.height = '100%';
+                overlay.innerHTML   = '';
+                particles.innerHTML = '';
                 p1Game.reset();
                 enterGameOver();
             }
@@ -248,14 +360,14 @@ function render() {
             score2 = r2.score;
 
             const timeLeft = getTimeLeft(score1 + score2);
-            overlayP1.innerHTML = `<p class="scene-text scene-text--game-score">Score: ${score1}</p>
-            <p class="scene-text scene-text--onboarding">${r1.targethandedness}</p>`;
-            overlayP2.innerHTML = `<p class="scene-text scene-text--game-score">Score: ${score2}</p>
-            <p class="scene-text scene-text--onboarding">${r2.targethandedness}</p>`;
-            sharedOverlay.innerHTML = `
+            setHTML(overlayP1, `<p class="scene-text scene-text--game-score">Score: ${score1}</p>
+            <p class="scene-text scene-text--onboarding">${r1.targethandedness}</p>`);
+            setHTML(overlayP2, `<p class="scene-text scene-text--game-score">Score: ${score2}</p>
+            <p class="scene-text scene-text--onboarding">${r2.targethandedness}</p>`);
+            setHTML(sharedOverlay, `
                 <p class="scene-text scene-text--game-time-countdown">${timeLeft <= 5 ? timeLeft.toFixed(0) : ''}</p>
                 <p class="scene-text scene-text--game-timer">Time: ${timeLeft.toFixed(1)}s</p>
-            `;
+            `);
 
             const thumbDown = (g1 === 'Thumb_Down' && c1 >= 0.7) || (g2 === 'Thumb_Down' && c2 >= 0.7)
                            || (g3 === 'Thumb_Down' && c3 >= 0.7) || (g4 === 'Thumb_Down' && c4 >= 0.7);
@@ -272,13 +384,11 @@ function render() {
         const result = renderGameOver(overlay, g1, g2, c1, c2, finalScore1, scoreArg2);
 
         if (result === 'onboarding') {
-            // Play again — keep the same gameMode
             if (gameMode === 'multi') app.classList.add('multiplayer');
-            enterOnboarding();
+            enterBetween();
         } else if (result === 'menu') {
-            // Back to main menu — clean up multiplayer if needed
             if (gameMode === 'multi') disableMultiplayer();
-            gameMode = 'single';
+            gameMode  = 'single';
             gameState = 'menu';
         }
     }

@@ -1,24 +1,15 @@
-// Creates a self-contained onboarding instance.
-//
-//   particlesEl — the div this instance appends target sprites and stars into
-//   xMin / xMax — horizontal bounds in screen pixels; the three fixed targets
-//                 are spread evenly across this range, matching the original
-//                 spacing logic scaled to whatever area is provided
-//
-// The factory has no knowledge of game mode.
 export function createOnboarding(particlesEl, xMin, xMax) {
-    const gestureSequence = ['Open_Palm', 'Thumb_Up', 'ILoveYou'];
+    const gestureSequence    = ['Open_Palm', 'Thumb_Up', 'ILoveYou'];
     const handednessSequence = ['Left', 'Right', 'Left'];
+    const gestureLabels      = ['Open Palm', 'Thumbs Up', 'I Love You'];
     const targetY = window.innerHeight / 2;
     let step         = 0;
     let targetX      = 0;
     let targetSprite = null;
 
-    // Spread three targets across [xMin, xMax] with the same relative spacing
-    // as the original (centre ± margin), scaled to fit the available width.
     function getTargetX(stepIndex) {
         const centre = (xMin + xMax) / 2;
-        const margin = (xMax - xMin) / 4; // keeps targets comfortably within bounds
+        const margin = (xMax - xMin) / 4;
         return centre - margin + stepIndex * margin;
     }
 
@@ -38,15 +29,17 @@ export function createOnboarding(particlesEl, xMin, xMax) {
         step = 0;
         targetSprite?.remove();
         targetSprite = null;
+    }
+
+    function spawn() {
         spawnTarget();
     }
 
     // Called every frame.
-    // Returns { done, step } — main.js uses step to render progress text
-    // and shows a "waiting" message once done is true.
+    // Returns { done, step, targethandedness, label, progress }
     function tick(gesture, gesture2, confidence, confidence2, handedness, handedness2, hx1, hy1, hx2, hy2) {
-        if (step >= gestureSequence.length) return { done: true, step };
-        if ((gesture === 'Thumb_Down' && confidence >= 0.7)||(gesture2 === 'Thumb_Down' && confidence2 >= 0.7)) return { done: true, step };
+        if (step >= gestureSequence.length) return { done: true, step, targethandedness: '', label: '', progress: '' };
+        if ((gesture === 'Thumb_Down' && confidence >= 0.7)||(gesture2 === 'Thumb_Down' && confidence2 >= 0.7)) return { done: true, step, targethandedness: '', label: '', progress: '' };
 
         const hand1Match = gesture  === gestureSequence[step] && confidence  >= 0.6 && handedness  !== handednessSequence[step];
         const hand2Match = gesture2 === gestureSequence[step] && confidence2 >= 0.6 && handedness2 !== handednessSequence[step];
@@ -71,8 +64,10 @@ export function createOnboarding(particlesEl, xMin, xMax) {
                 }
         }
 
-        return { done: step >= gestureSequence.length, targethandedness: handednessSequence[step] };
+        const progress = gestureSequence.map((_, i) => i < step ? '●' : '○').join(' ');
+        const label = step < gestureSequence.length ? gestureLabels[step] : '';
+        return { done: step >= gestureSequence.length, step, targethandedness: handednessSequence[step] || '', label, progress };
     }
 
-    return { tick, reset };
+    return { tick, reset, spawn };
 }

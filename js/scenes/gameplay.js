@@ -19,6 +19,7 @@ export function createGame(particlesEl, onScore, xMin, xMax) {
     let score         = 0;
 
     const gestures = ['Victory', 'Thumb_Up', 'Pointing_Up', 'ILoveYou', 'Closed_Fist'];
+    let matchedGestures = [];
 
     function spawnTarget() {
         targetSprite?.remove();
@@ -37,14 +38,9 @@ export function createGame(particlesEl, onScore, xMin, xMax) {
 
     // Call once to show the START animation and spawn the first target
     function enter() {
-        score         = 0;
-        lastMatchTime = 0;
-        const startText = document.createElement('span');
-        startText.className = 'scene-text scene-text--game-start';
-        startText.textContent = 'START';
-        startText.style.setProperty('--duration', '1000ms');
-        startText.onanimationend = () => startText.remove();
-        particlesEl.appendChild(startText);
+        score           = 0;
+        lastMatchTime   = 0;
+        matchedGestures = [];
         spawnTarget();
     }
 
@@ -58,8 +54,9 @@ export function createGame(particlesEl, onScore, xMin, xMax) {
         if ((hand1Match || hand2Match) && dist < 100 && Date.now() - lastMatchTime > 500) {
                 targetSprite?.remove();
                 score++;
+                matchedGestures.push(targetGesture);
                 lastMatchTime = Date.now();
-                onScore(); 
+                onScore();
 
                 const star = document.createElement('img');
                 star.src       = 'public/assets/star.png';
@@ -72,14 +69,15 @@ export function createGame(particlesEl, onScore, xMin, xMax) {
 
                 spawnTarget();
         }
-        return { score, targethandedness };
+        return { score, targethandedness, matchedGestures };
     }
 
     function reset() {
         targetSprite?.remove();
-        targetSprite  = null;
-        score         = 0;
-        lastMatchTime = 0;
+        targetSprite    = null;
+        score           = 0;
+        lastMatchTime   = 0;
+        matchedGestures = [];
         particlesEl.innerHTML = '';
     }
 
