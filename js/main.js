@@ -16,23 +16,19 @@ const overlayP1     = document.getElementById('overlay-p1');
 const particlesP1   = document.getElementById('particles-p1');
 const overlayP2     = document.getElementById('overlay-p2');
 const particlesP2   = document.getElementById('particles-p2');
-const sharedOverlay = document.getElementById('shared-overlay');
 const timebarEl     = document.getElementById('timebar');
 const timebarFill   = document.getElementById('timebar-fill');
 const app           = document.getElementById('app');
 
 // ─── State ────────────────────────────────────────────────────────────────────
 
-let gameState = 'menu'; // 'menu'|'loading'|'onboarding'|'countdown'|'play'|'between'|'over'
+let gameState = 'menu'; // 'menu'|'loading'|'onboarding'|'countdown'|'play'|'over'
 let gameMode  = 'single';
 
 let countdownStart    = 0;
-let betweenStart      = 0;
 let onboardingStart   = 0;
-let roundNumber       = 0;
-const BETWEEN_DURATION = 2500;
 
-const timeLimit = 5;
+const timeLimit = 30;
 let gameStartTime = 0;
 function extendTimer() { gameStartTime = Date.now(); }
 function getTimeLeft(combinedScore) {
@@ -95,6 +91,10 @@ function enterOnboarding() {
         p2Onboarding = createOnboarding(particlesP2, hw + margin, window.innerWidth - margin);
         p1Onboarding.reset();
         p2Onboarding.reset();
+        p1Onboarding._spawned   = false;
+        p1Onboarding._finishing = false;
+        p2Onboarding._spawned   = false;
+        p2Onboarding._finishing = false;
     }
 
     overlay.innerHTML = '';
@@ -124,6 +124,10 @@ function enterPlay() {
     } else if (gameMode === 'multi') {
         particlesP1.innerHTML = '';
         particlesP2.innerHTML = '';
+        overlay.innerHTML = `
+            <p class="scene-text scene-text--game-timer"></p>
+            <p class="scene-text scene-text--game-time-countdown"></p>
+        `;
         p1Game = createGame(particlesP1, extendTimer, margin, hw - margin);
         p2Game = createGame(particlesP2, extendTimer, hw + margin, window.innerWidth - margin);
         p1Game.enter();
@@ -134,19 +138,13 @@ function enterPlay() {
     trackMetric('game_started', { mode: gameMode, timestamp: Date.now() });
 }
 
-function enterBetween() {
-    betweenStart = Date.now();
-    roundNumber++;
-    gameState = 'between';
-}
-
 function enterGameOver() {
     app.classList.remove('multiplayer');
     overlayP1.innerHTML     = '';
     overlayP2.innerHTML     = '';
     particlesP1.innerHTML   = '';
     particlesP2.innerHTML   = '';
-    sharedOverlay.innerHTML = '';
+    overlay.innerHTML = '';
     particles.innerHTML     = '';
 
     const duration = Math.floor((Date.now() - gameStartTime) / 1000);
@@ -239,6 +237,9 @@ function render() {
             }
 
             if (!introActive) {
+                setHTML(overlay, `<p class="scene-text scene-text--game-gesture">Gesture: ${g3} (${(c3 * 100).toFixed(0)}%)</p>
+                    <p class="scene-text scene-text--onboarding">Use ${p2targethandedness} hand</p>`);
+
                 const title = overlay.querySelector('.scene-text--onboarding-title');
                 if (title) title.classList.add('onboarding-title--up');
 
@@ -271,10 +272,10 @@ function render() {
                 : p2Onboarding.tick(g3, g4, c3, c4, h3, h4, hx3, hy3, hx4, hy4);
 
             if (!overlay.querySelector('.scene-text--onboarding-title')) {
-                sharedOverlay.innerHTML = `<p class="scene-text scene-text--onboarding-title">Match the gesture shown</p>`;
+                overlay.innerHTML = `<p class="scene-text scene-text--onboarding-title">Match the gesture shown</p>`;
             }
             if (!introActive){
-                const title = sharedOverlay.querySelector('.scene-text--onboarding-title');
+                const title = overlay.querySelector('.scene-text--onboarding-title');
                 if (title) title.classList.add('onboarding-title--up');
 
                 setHTML(overlayP1, p1done
@@ -291,7 +292,7 @@ function render() {
             if (p1done && p2done) {
                 overlayP1.innerHTML = '';
                 overlayP2.innerHTML = '';
-                sharedOverlay.innerHTML = '';
+                overlay.innerHTML = '';
                 setTimeout(() => enterCountdown(), 600);
             }
         }
@@ -310,17 +311,8 @@ function render() {
                 ${!isGo ? `<p class="scene-text scene-text--countdown-label">Get ready to play</p>` : ''}
                 <p class="scene-text scene-text--countdown">${steps[step]}</p>
             `;
-            if (isGo) setTimeout(() => enterPlay(), 1000);
+            if (isGo) setTimeout(() => enterPlay(), 500);
         }
-
-    // ── Between rounds ────────────────────────────────────────────────────────
-    } else if (gameState === 'between') {
-        const elapsed = Date.now() - betweenStart;
-        setHTML(overlay, `
-            <p class="scene-text scene-text--between-title">Round ${roundNumber} complete!</p>
-            <p class="scene-text scene-text--between-score">Score: ${finalScore1}${finalScore2 ? ` | P2: ${finalScore2}` : ''}</p>
-        `);
-        if (elapsed >= BETWEEN_DURATION) enterOnboarding();
 
     // ── Play ──────────────────────────────────────────────────────────────────
     } else if (gameState === 'play') {
@@ -382,10 +374,10 @@ function render() {
             <p class="scene-text scene-text--onboarding">${r1.targethandedness}</p>`);
             setHTML(overlayP2, `<p class="scene-text scene-text--game-score">Score: ${score2}</p>
             <p class="scene-text scene-text--onboarding">${r2.targethandedness}</p>`);
-            setHTML(sharedOverlay, `
-                <p class="scene-text scene-text--game-time-countdown">${timeLeft <= 5 ? timeLeft.toFixed(0) : ''}</p>
-                <p class="scene-text scene-text--game-timer">Time: ${timeLeft.toFixed(1)}s</p>
-            `);
+            overlay.querySelector('.scene-text--game-timer').textContent = `Time: ${timeLeft.toFixed(1)}s`;
+            if (timeLeft <= 5) {
+                overlay.querySelector('.scene-text--game-time-countdown').textContent = timeLeft.toFixed(0);
+            }
 
             const thumbDown = (g1 === 'Thumb_Down' && c1 >= 0.7) || (g2 === 'Thumb_Down' && c2 >= 0.7)
                            || (g3 === 'Thumb_Down' && c3 >= 0.7) || (g4 === 'Thumb_Down' && c4 >= 0.7);
@@ -401,9 +393,9 @@ function render() {
         const scoreArg2 = gameMode === 'multi' ? finalScore2 : null;
         const result = renderGameOver(overlay, g1, g2, c1, c2, finalScore1, scoreArg2);
 
-        if (result === 'onboarding') {
+        if (result === 'play_again') {
             if (gameMode === 'multi') app.classList.add('multiplayer');
-            enterBetween();
+            enterOnboarding();
         } else if (result === 'menu') {
             if (gameMode === 'multi') disableMultiplayer();
             gameMode  = 'single';

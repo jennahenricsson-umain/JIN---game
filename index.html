@@ -300,7 +300,19 @@
             transform: translate(-50%, -50%);
             pointer-events: none;
             opacity: 0.7;
+        }
+
+        .peace-target--active {
+            opacity: 1;
             animation: wiggle 2s ease-in-out infinite;
+        }
+
+        .peace-target--faded {
+            opacity: 0.4;
+        }
+
+        .peace-target--done {
+            opacity: 1;
         }
 
         @keyframes wiggle {
@@ -404,17 +416,8 @@
             pointer-events: none;
         }
 
-        /* Shared overlay sits above both player layers — used for timer */
-        #shared-overlay {
-            position: absolute;
-            inset: 0;
-            z-index: 2;
-            pointer-events: none;
-        }
-
         /* When multiplayer is active, hide the single-player divs and
            reveal the per-player and shared ones */
-        .multiplayer #overlay,
         .multiplayer #particles {
             display: none;
         }
@@ -423,7 +426,7 @@
         .multiplayer #particles-p1,
         .multiplayer #overlay-p2,
         .multiplayer #particles-p2,
-        .multiplayer #shared-overlay {
+        .multiplayer #overlay {
             display: block;
         }
 
@@ -453,8 +456,6 @@
         <div id="particles-p1"></div>
         <div id="overlay-p2"></div>
         <div id="particles-p2"></div>
-        <!-- Shared overlay — timer and game-over in multiplayer -->
-        <div id="shared-overlay"></div>
         <!-- Time bar -->
         <div class="timebar" id="timebar">
             <div class="timebar__fill" id="timebar-fill"></div>

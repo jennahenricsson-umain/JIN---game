@@ -30,7 +30,7 @@ export function renderGameOver(overlay, gesture, gesture2, confidence, confidenc
 
         overlay.innerHTML = `
             <p class="scene-text scene-text--game-over">Good Game!</p>
-            <p class="scene-text scene-text--game-over-hint"><img src="public/assets/open_palm_JIN.png" class="hint-icon"> Wave to play again &nbsp;|&nbsp; <img src="public/assets/thumbs_down_JIN.png" class="hint-icon"> Main menu</p>
+            <p class="scene-text scene-text--game-over-hint"><img src="public/assets/open_palm_JIN.png" class="hint-icon"> Wave to play again with same settings &nbsp;|&nbsp; <img src="public/assets/thumbs_down_JIN.png" class="hint-icon"> Main menu</p>
             <div class="scene-text scene-text--scoreboard" id="scoreboard">${buildScoreboard(displayScores, finalScore)}</div>
             ${window._savedIconsHTML || ''}
             ${window._savedScoreHTML || ''}
@@ -41,7 +41,7 @@ export function renderGameOver(overlay, gesture, gesture2, confidence, confidenc
         if (sessionScores.length >= 5) sessionScores = [];
         rendered = false;
         overlay.innerHTML = '';
-        return 'onboarding';
+        return 'play_again';
     } else if ((gesture === 'Thumb_Down' && confidence >= 0.7)||(gesture2 === 'Thumb_Down' && confidence2 >= 0.7)) {
         rendered = false;
         overlay.innerHTML = '';
