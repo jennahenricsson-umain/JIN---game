@@ -80,15 +80,16 @@ function enterOnboarding() {
 
     if (gameMode === 'single') {
         particles.innerHTML = '';
-        p1Onboarding = createOnboarding(particles, margin, window.innerWidth - margin);
+        overlay.innerHTML = '';
+        p1Onboarding = createOnboarding(particles, overlay, margin, window.innerWidth - margin);
         p1Onboarding.reset();
         p1Onboarding._spawned   = false;
         p1Onboarding._finishing = false;
     } else {
         particlesP1.innerHTML = '';
         particlesP2.innerHTML = '';
-        p1Onboarding = createOnboarding(particlesP1, margin, hw - margin);
-        p2Onboarding = createOnboarding(particlesP2, hw + margin, window.innerWidth - margin);
+        p1Onboarding = createOnboarding(particlesP1, overlayP1, margin, hw - margin);
+        p2Onboarding = createOnboarding(particlesP2, overlayP2, hw + margin, window.innerWidth - margin);
         p1Onboarding.reset();
         p2Onboarding.reset();
         p1Onboarding._spawned   = false;
@@ -105,6 +106,7 @@ function enterOnboarding() {
 
 function enterCountdown() {
     overlay.innerHTML = '';
+    particles.innerHTML = '';
     overlay.dataset.countdownStep = '';
     countdownStart = Date.now();
     gameState = 'countdown';
@@ -227,36 +229,15 @@ function render() {
 
         if (gameMode === 'single') {
             const { done, step } = introActive
-                ? { done: false, step: 0, label: '', progress: '' }
+                ? { done: false, step: 0 }
                 : p1Onboarding.tick(g1, g2, c1, c2, h1, h2, hx1, hy1, hx2, hy2);
-
-            const pct = (step / 3) * 100;
 
             if (!overlay.querySelector('.scene-text--onboarding-title')) {
                 overlay.innerHTML = `<p class="scene-text scene-text--onboarding-title">Match the gesture shown</p>`;
             }
+            const title = overlay.querySelector('.scene-text--onboarding-title');
+            if (title) title.classList.add('onboarding-title--up');
 
-            if (!introActive) {
-                setHTML(overlay, `<p class="scene-text scene-text--game-gesture">Gesture: ${g3} (${(c3 * 100).toFixed(0)}%)</p>
-                    <p class="scene-text scene-text--onboarding">Use ${p2targethandedness} hand</p>`);
-
-                const title = overlay.querySelector('.scene-text--onboarding-title');
-                if (title) title.classList.add('onboarding-title--up');
-
-                if (!overlay.querySelector('.progress-bar')) {
-                    const bar = document.createElement('div');
-                    bar.className = 'progress-bar';
-                    bar.innerHTML = `<div class="progress-bar__fill" style="width:0%"></div>`;
-                    overlay.appendChild(bar);
-                    requestAnimationFrame(() => {
-                        const fill = overlay.querySelector('.progress-bar__fill');
-                        if (fill) fill.style.width = pct + '%';
-                    });
-                } else {
-                    const fill = overlay.querySelector('.progress-bar__fill');
-                    if (fill && fill.style.width !== pct + '%') fill.style.width = pct + '%';
-                }
-            }
             if (done && !p1Onboarding._finishing) {
                 p1Onboarding._finishing = true;
                 const fill = overlay.querySelector('.progress-bar__fill');
@@ -264,11 +245,11 @@ function render() {
                 setTimeout(() => enterCountdown(), 600);
             }
         } else if (gameMode === 'multi') {
-            const { done: p1done, step: p1step, targethandedness: p1targethandedness } = introActive
-                ? { done: false, step: 0, label: '', progress: '' }
+            const { done: p1done, step: p1step,} = introActive
+                ? { done: false, step: 0}
                 : p1Onboarding.tick(g1, g2, c1, c2, h1, h2, hx1, hy1, hx2, hy2);
-            const { done: p2done, step: p2step, targethandedness: p2targethandedness } = introActive
-                ? { done: false, step: 0, label: '', progress: '' }
+            const { done: p2done, step: p2step} = introActive
+                ? { done: false, step: 0}
                 : p2Onboarding.tick(g3, g4, c3, c4, h3, h4, hx3, hy3, hx4, hy4);
 
             if (!overlay.querySelector('.scene-text--onboarding-title')) {
@@ -277,16 +258,6 @@ function render() {
             if (!introActive){
                 const title = overlay.querySelector('.scene-text--onboarding-title');
                 if (title) title.classList.add('onboarding-title--up');
-
-                setHTML(overlayP1, p1done
-                    ? `<p class="scene-text scene-text--onboarding">Waiting for P2…</p>`
-                    : `<p class="scene-text scene-text--game-gesture">Gesture: ${g1} (${(c1 * 100).toFixed(0)}%)</p>
-                    <p class="scene-text scene-text--onboarding">Use ${p1targethandedness} hand</p>`);
-
-                setHTML(overlayP2, p2done
-                    ? `<p class="scene-text scene-text--onboarding">Waiting for P1…</p>`
-                    : `<p class="scene-text scene-text--game-gesture">Gesture: ${g3} (${(c3 * 100).toFixed(0)}%)</p>
-                    <p class="scene-text scene-text--onboarding">Use ${p2targethandedness} hand</p>`);
             }
 
             if (p1done && p2done) {

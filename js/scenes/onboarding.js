@@ -1,10 +1,11 @@
-export function createOnboarding(particlesEl, xMin, xMax) {
+export function createOnboarding(particlesEl, overlayEl, xMin, xMax) {
     const gestureSequence    = ['Open_Palm', 'Thumb_Up', 'ILoveYou'];
     const handednessSequence = ['Left', 'Right', 'Left'];
     const gestureLabels      = ['Open Palm', 'Thumbs Up', 'I Love You'];
     const targetY = window.innerHeight / 2;
     let step         = 0;
     let targetSprites = [];
+
 
     function getTargetX(stepIndex) {
         const centre = (xMin + xMax) / 2;
@@ -28,6 +29,7 @@ export function createOnboarding(particlesEl, xMin, xMax) {
         step = 0;
         targetSprites.forEach(s => s.remove());
         targetSprites = [];
+        overlayEl.innerHTML = '';
     }
 
     function spawn() {
@@ -43,7 +45,42 @@ export function createOnboarding(particlesEl, xMin, xMax) {
             else                sprite.className = 'peace-target peace-target--faded';
         });
 
-                if (step >= gestureSequence.length) return { done: true, step, targethandedness: '', label: '', progress: '' };
+        const pct = (step / 3) * 100;
+        // renders current gesture and its conficence, might be removed later
+        if (!overlayEl.querySelector('.scene-text--game-gesture')) {
+            const onboarding_gesture = document.createElement('p');
+            onboarding_gesture.className = 'scene-text scene-text--game-gesture';
+            onboarding_gesture.textContent = `Gesture: ${gesture} (${(confidence * 100).toFixed(0)}%)`;
+            overlayEl.appendChild(onboarding_gesture);
+        } else {
+            overlayEl.querySelector('.scene-text--game-gesture').textContent = `Gesture: ${gesture} (${(confidence * 100).toFixed(0)}%)`;   
+        }
+
+        // renders which hand to use, might be replaced with sprites later
+        if (!overlayEl.querySelector('.scene-text--onboarding')) {
+            const onboarding_text = document.createElement('p');
+            onboarding_text.className = 'scene-text scene-text--onboarding';
+            onboarding_text.textContent = `Use ${handednessSequence[step]} hand`;
+            overlayEl.appendChild(onboarding_text);
+        } else {
+            overlayEl.querySelector('.scene-text--onboarding').textContent = `Use ${handednessSequence[step]} hand`;
+        }
+
+        if (!overlayEl.querySelector('.progress-bar')) {
+            const bar = document.createElement('div');
+            bar.className = 'progress-bar';
+            bar.innerHTML = `<div class="progress-bar__fill" style="width:0%"></div>`;
+            overlayEl.appendChild(bar);
+            requestAnimationFrame(() => {
+                const fill = overlayEl.querySelector('.progress-bar__fill');
+                if (fill) fill.style.width = pct + '%';
+            });
+        } else {
+            const fill = overlayEl.querySelector('.progress-bar__fill');
+            if (fill && fill.style.width !== pct + '%') fill.style.width = pct + '%';
+        }
+
+        if (step >= gestureSequence.length) return { done: true, step };
 
         const hand1Match = gesture  === gestureSequence[step] && confidence  >= 0.6 && handedness  !== handednessSequence[step];
         const hand2Match = gesture2 === gestureSequence[step] && confidence2 >= 0.6 && handedness2 !== handednessSequence[step];
@@ -55,7 +92,7 @@ export function createOnboarding(particlesEl, xMin, xMax) {
 
         const progress = gestureSequence.map((_, i) => i < step ? '●' : '○').join(' ');
         const label = step < gestureSequence.length ? gestureLabels[step] : '';
-        return { done: step >= gestureSequence.length, step, targethandedness: handednessSequence[step] || '', label, progress };
+        return { done: step >= gestureSequence.length, step };
     }
 
     return { tick, reset, spawn };
