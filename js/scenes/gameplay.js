@@ -30,7 +30,7 @@ export function createGame(particlesEl, onScore, xMin, xMax) {
 
         targetSprite           = document.createElement('img');
         targetSprite.src       = `public/assets/${targetGesture}_JIN.png`;
-        targetSprite.className = 'peace-target';
+        targetSprite.className = 'peace-target peace-target--active';
         targetSprite.style.left = targetX + 'px';
         targetSprite.style.top  = targetY + 'px';
         particlesEl.appendChild(targetSprite);
