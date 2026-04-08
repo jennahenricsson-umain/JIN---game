@@ -121,17 +121,25 @@ function enterPlay() {
 
     if (gameMode === 'single') {
         particles.innerHTML = '';
-        p1Game = createGame(particles, extendTimer, margin, window.innerWidth - margin);
-        p1Game.enter();
-    } else if (gameMode === 'multi') {
-        particlesP1.innerHTML = '';
-        particlesP2.innerHTML = '';
+        overlay.innerHTML = '';
         overlay.innerHTML = `
             <p class="scene-text scene-text--game-timer"></p>
             <p class="scene-text scene-text--game-time-countdown"></p>
         `;
-        p1Game = createGame(particlesP1, extendTimer, margin, hw - margin);
-        p2Game = createGame(particlesP2, extendTimer, hw + margin, window.innerWidth - margin);
+        p1Game = createGame(particles, overlay, extendTimer, margin, window.innerWidth - margin);
+        p1Game.enter();
+    } else if (gameMode === 'multi') {
+        particlesP1.innerHTML = '';
+        particlesP2.innerHTML = '';
+        overlay.innerHTML = '';
+        overlayP1.innerHTML = '';
+        overlayP2.innerHTML = '';
+        overlay.innerHTML = `
+            <p class="scene-text scene-text--game-timer"></p>
+            <p class="scene-text scene-text--game-time-countdown"></p>
+        `;
+        p1Game = createGame(particlesP1, overlayP1, extendTimer, margin, hw - margin);
+        p2Game = createGame(particlesP2, overlayP2, extendTimer, hw + margin, window.innerWidth - margin);
         p1Game.enter();
         p2Game.enter();
     }
@@ -142,11 +150,17 @@ function enterPlay() {
 
 function enterGameOver() {
     app.classList.remove('multiplayer');
+
+    const iconsEl = overlay.querySelector('.score-icons');
+    const scoreNumEl = overlay.querySelector('.game-score');
+    window._savedIconsHTML = iconsEl ? iconsEl.outerHTML : '';
+    window._savedScoreHTML = scoreNumEl ? scoreNumEl.outerHTML : '';
+
+    overlay.innerHTML = '';
     overlayP1.innerHTML     = '';
     overlayP2.innerHTML     = '';
     particlesP1.innerHTML   = '';
     particlesP2.innerHTML   = '';
-    overlay.innerHTML = '';
     particles.innerHTML     = '';
 
     const duration = Math.floor((Date.now() - gameStartTime) / 1000);
@@ -165,11 +179,6 @@ function enterGameOver() {
 
     finalScore1 = score1;
     finalScore2 = score2;
-    const iconsEl = overlay.querySelector('.score-icons');
-    const scoreNumEl = overlay.querySelector('.score-number');
-    window._savedIconsHTML = iconsEl ? iconsEl.outerHTML : '';
-    window._savedScoreHTML = scoreNumEl ? scoreNumEl.outerHTML : '';
-    overlay.innerHTML = '';
     gameState   = 'over';
 }
 
@@ -235,8 +244,10 @@ function render() {
             if (!overlay.querySelector('.scene-text--onboarding-title')) {
                 overlay.innerHTML = `<p class="scene-text scene-text--onboarding-title">Match the gesture shown</p>`;
             }
-            const title = overlay.querySelector('.scene-text--onboarding-title');
-            if (title) title.classList.add('onboarding-title--up');
+            if (!introActive){
+                const title = overlay.querySelector('.scene-text--onboarding-title');
+                if (title) title.classList.add('onboarding-title--up');
+            }
 
             if (done && !p1Onboarding._finishing) {
                 p1Onboarding._finishing = true;
@@ -290,29 +301,12 @@ function render() {
         if (g1 === 'Victory' && c1 >= 0.7) gestureAttempts++; // Detta känns som en jättekonstig metric??
 
         if (gameMode === 'single') {
-            const { score, matchedGestures } = p1Game.tick(g1, g2, c1, c2, h1, h2, hx1, hy1, hx2, hy2);
+            const { score } = p1Game.tick(g1, g2, c1, c2, h1, h2, hx1, hy1, hx2, hy2);
             if (score > score1) {
                 successfulMatches++;
                 trackMetric('target_matched', { player: 1, score, accuracy: c1 });
-                const iconsEl = overlay.querySelector('.score-icons');
-                if (iconsEl) {
-                    const img = document.createElement('img');
-                    img.src = `public/assets/${matchedGestures[matchedGestures.length - 1]}_JIN.png`;
-                    img.className = 'score-icon';
-                    iconsEl.appendChild(img);
-                    // Remove oldest if overflowing
-                    while (iconsEl.scrollWidth > iconsEl.clientWidth && iconsEl.children.length > 1) {
-                        iconsEl.removeChild(iconsEl.firstChild);
-                    }
-                }
-                const numEl = overlay.querySelector('.score-number');
-                if (numEl) numEl.textContent = score;
             }
             score1 = score;
-
-            if (!overlay.querySelector('.score-icons')) {
-                overlay.innerHTML = `<div class="score-icons"></div><span class="score-number">0</span>`;
-            }
 
             const timeLeft = getTimeLeft(score1);
             const pct = (timeLeft / timeLimit) * 100;
@@ -336,15 +330,12 @@ function render() {
             const r1 = p1Game.tick(g1, g2, c1, c2, h1, h2, hx1, hy1, hx2, hy2);
             const r2 = p2Game.tick(g3, g4, c3, c4, h3, h4, hx3, hy3, hx4, hy4);
             if (r1.score > score1) { successfulMatches++; trackMetric('target_matched', { player: 1, score: r1.score, accuracy: c1 }); }
-            if (r2.score > score2) { trackMetric('target_matched', { player: 2, score: r2.score, accuracy: c2 }); }
+            if (r2.score > score2) { successfulMatches++; trackMetric('target_matched', { player: 2, score: r2.score, accuracy: c2 }); }
             score1 = r1.score;
             score2 = r2.score;
 
             const timeLeft = getTimeLeft(score1 + score2);
-            setHTML(overlayP1, `<p class="scene-text scene-text--game-score">Score: ${score1}</p>
-            <p class="scene-text scene-text--onboarding">${r1.targethandedness}</p>`);
-            setHTML(overlayP2, `<p class="scene-text scene-text--game-score">Score: ${score2}</p>
-            <p class="scene-text scene-text--onboarding">${r2.targethandedness}</p>`);
+
             overlay.querySelector('.scene-text--game-timer').textContent = `Time: ${timeLeft.toFixed(1)}s`;
             if (timeLeft <= 5) {
                 overlay.querySelector('.scene-text--game-time-countdown').textContent = timeLeft.toFixed(0);

@@ -7,7 +7,7 @@
 //                  either the full screen or one half depending on the mode
 //
 // The factory has no knowledge of game mode — it just runs within its bounds.
-export function createGame(particlesEl, onScore, xMin, xMax) {
+export function createGame(particlesEl, overlayEl, onScore, xMin, xMax) {
     const margin = 120;
     const confidenceThreshold = 0.6;
     let targetX       = 0;
@@ -45,12 +45,32 @@ export function createGame(particlesEl, onScore, xMin, xMax) {
     }
 
     // Called every frame. Checks for a gesture match and returns the current
-    // score. Does NOT write to any overlay — main.js handles rendering.
+    // score. Renders score text and which hand to use.
     function tick(gesture, gesture2, confidence, confidence2, handedness, handedness2, hx1, hy1, hx2, hy2) {
         const hand1Match = gesture  === targetGesture && confidence  >= confidenceThreshold && handedness  !== targethandedness;
         const hand2Match = gesture2 === targetGesture && confidence2 >= confidenceThreshold && handedness2 !== targethandedness;
         const dist = hand1Match ? Math.hypot(hx1 - targetX, hy1 - targetY)
                    : hand2Match ? Math.hypot(hx2 - targetX, hy2 - targetY) : Infinity;
+
+        if (!overlayEl.querySelector('.scene-text--game-score')) {
+            const scoreEl = document.createElement('p');
+            scoreEl.className = 'scene-text scene-text--game-score';
+            scoreEl.textContent = `Score: ${score}`;
+            overlayEl.appendChild(scoreEl);
+        } else {
+            overlayEl.querySelector('.scene-text--game-score').textContent = `Score: ${score}`;
+        }
+
+        // renders which hand to use, will be replaced with sprites later
+        if (!overlayEl.querySelector('.scene-text--onboarding')) {
+            const onboardingEl = document.createElement('p');
+            onboardingEl.className = 'scene-text scene-text--onboarding';
+            onboardingEl.textContent = targethandedness ? `Use ${targethandedness} hand` : '';
+            overlayEl.appendChild(onboardingEl);
+        } else {
+            overlayEl.querySelector('.scene-text--onboarding').textContent = targethandedness ? `Use ${targethandedness} hand` : '';
+        }
+
         if ((hand1Match || hand2Match) && dist < 100 && Date.now() - lastMatchTime > 500) {
                 targetSprite?.remove();
                 score++;
@@ -67,9 +87,28 @@ export function createGame(particlesEl, onScore, xMin, xMax) {
                 star.onanimationend = () => star.remove();
                 particlesEl.appendChild(star);
 
+                if (!overlayEl.querySelector('.score-icons')) {
+                    const iconsEl = document.createElement('div');
+                    iconsEl.className = 'score-icons';
+                    overlayEl.appendChild(iconsEl);
+                }
+
+                const iconsEl = overlayEl.querySelector('.score-icons');
+                if (iconsEl) {
+                    const img = document.createElement('img');
+                    img.src = `public/assets/${matchedGestures[matchedGestures.length - 1]}_JIN.png`;
+                    img.className = 'score-icon';
+                    iconsEl.appendChild(img);
+                    // Remove oldest if overflowing
+                    while (iconsEl.scrollWidth > iconsEl.clientWidth && iconsEl.children.length > 1) {
+                        iconsEl.removeChild(iconsEl.firstChild);
+                    }
+                }
+
                 spawnTarget();
         }
-        return { score, targethandedness, matchedGestures };
+        
+        return { score };
     }
 
     function reset() {
@@ -79,6 +118,7 @@ export function createGame(particlesEl, onScore, xMin, xMax) {
         lastMatchTime   = 0;
         matchedGestures = [];
         particlesEl.innerHTML = '';
+        overlayEl.innerHTML = '';
     }
 
     return { enter, tick, reset };
