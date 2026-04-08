@@ -17,7 +17,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-let currentSessionId = null;
+export let currentSessionId = null;
 let sessionStartTime = null;
 
 // Initialize user session
