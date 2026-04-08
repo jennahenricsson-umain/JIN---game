@@ -47,23 +47,36 @@
 
         .scene-text {
             margin: 0;
-            font-family: Arial Black, Arial, sans-serif;
-            color: #fff;
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            color: #010101;
             text-align: center;
+            text-shadow: 0 4px 30px #898989;
+            font-weight: 700;
             position: absolute;
             left: 50%;
             transform: translateX(-50%);
-            text-shadow: 0 2px 8px #000, 0 0 2px #000;
+        }
+        
+        .scene-text .highlight-violet {
+            color: #8d29f1;
+        }
+
+        .scene-text .highlight-orange {
+            color: #ff6133;
         }
 
         .scene-text--main-menu {
-            font-size: clamp(28px, 3.5vw, 52px);
-            top: 60%;
+            font-size: clamp(60px, 10vw, 80px);
+            top: 25%;
             line-height: 1.4;
+        }
+        .scene-text--menu-subtitle {
+            font-size: clamp(24px, 3vw, 40px);
+            top: 70%;
         }
 
         .scene-text--onboarding {
-            font-size: clamp(32px, 4vw, 64px);
+            font-size: clamp(60px, 10vw, 80px);
             top: 20%;
             line-height: 1.3;
         }
@@ -77,8 +90,8 @@
         }
 
         .scene-text--onboarding-title.onboarding-title--up {
-            font-size: clamp(28px, 3.5vw, 52px);
-            top: 8%;
+            font-size: clamp(40px, 6vw, 80px);
+            top: 15%;
             transform: translateX(-50%);
         }
 
@@ -144,6 +157,7 @@
             font-size: clamp(28px, 4vw, 52px);
             top: 4%;
             left: auto;
+            right: 5%;
             transform: none;
             text-align: right;
             font-family: 'Courier New', monospace;

@@ -1,11 +1,13 @@
 export function renderMenu(overlay, gesture, gesture2, confidence, confidence2, handX1, handX2) {
     overlay.innerHTML = `
-        <img src="public/assets/Umain-logotype-white.png" class="main-menu-logo" alt="Logo">
-        <p class="scene-text scene-text--main-menu" style="left: 25%;">
-            Single Player<br>Wave on the <strong>left</strong>
+        <p class="scene-text scene-text--main-menu">
+            CHOOSE <span class="highlight-orange">MODE</span>
         </p>
-        <p class="scene-text scene-text--main-menu" style="left: 75%;">
-            Multiplayer<br>Wave on the <strong>right</strong>
+        <p class="scene-text scene-text--menu-subtitle" style="left: 25%;">
+            1 PLAYER<br>WAVE ON THE <span class="highlight-violet">LEFT</span>
+        </p>
+        <p class="scene-text scene-text--menu-subtitle" style="left: 75%;">
+            2 PLAYERS<br>WAVE ON THE <span class="highlight-orange">RIGHT</span>
         </p>
     `;
 
