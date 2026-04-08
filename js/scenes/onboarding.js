@@ -5,6 +5,7 @@ export function createOnboarding(particlesEl, overlayEl, xMin, xMax) {
     const targetY = window.innerHeight / 2;
     let step         = 0;
     let targetSprites = [];
+    let done         = false;
 
 
     function getTargetX(stepIndex) {
@@ -30,6 +31,7 @@ export function createOnboarding(particlesEl, overlayEl, xMin, xMax) {
         targetSprites.forEach(s => s.remove());
         targetSprites = [];
         overlayEl.innerHTML = '';
+        particlesEl.innerHTML = '';
     }
 
     function spawn() {
@@ -88,11 +90,16 @@ export function createOnboarding(particlesEl, overlayEl, xMin, xMax) {
                    : hand2Match ? Math.hypot(hx2 - getTargetX(step), hy2 - targetY) : Infinity;
         if ((hand1Match || hand2Match) && dist < 100) {
                 step++;
+                done = step >= gestureSequence.length;
+                if (done) {
+                    particlesEl.innerHTML = '';
+                    overlayEl.innerHTML = '';
+                }
         }
 
         const progress = gestureSequence.map((_, i) => i < step ? '●' : '○').join(' ');
         const label = step < gestureSequence.length ? gestureLabels[step] : '';
-        return { done: step >= gestureSequence.length, step };
+        return { done, step };
     }
 
     return { tick, reset, spawn };
