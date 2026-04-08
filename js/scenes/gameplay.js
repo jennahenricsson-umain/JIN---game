@@ -29,7 +29,7 @@ export function createGame(particlesEl, overlayEl, onScore, xMin, xMax) {
         targethandedness = Math.random() < 0.5 ? 'Left' : 'Right';
 
         targetSprite           = document.createElement('img');
-        targetSprite.src       = `public/assets/${targetGesture}_JIN.png`;
+        targetSprite.src       = `public/assets/${targetGesture}_${targethandedness}_JIN.png`;
         targetSprite.className = 'peace-target peace-target--active';
         targetSprite.style.left = targetX + 'px';
         targetSprite.style.top  = targetY + 'px';
@@ -51,15 +51,6 @@ export function createGame(particlesEl, overlayEl, onScore, xMin, xMax) {
         const hand2Match = gesture2 === targetGesture && confidence2 >= confidenceThreshold && handedness2 !== targethandedness;
         const dist = hand1Match ? Math.hypot(hx1 - targetX, hy1 - targetY)
                    : hand2Match ? Math.hypot(hx2 - targetX, hy2 - targetY) : Infinity;
-
-        if (!overlayEl.querySelector('.scene-text--game-score')) {
-            const scoreEl = document.createElement('p');
-            scoreEl.className = 'scene-text scene-text--game-score';
-            scoreEl.textContent = `Score: ${score}`;
-            overlayEl.appendChild(scoreEl);
-        } else {
-            overlayEl.querySelector('.scene-text--game-score').textContent = `Score: ${score}`;
-        }
 
         // renders which hand to use, will be replaced with sprites later
         if (!overlayEl.querySelector('.scene-text--onboarding')) {
@@ -86,6 +77,15 @@ export function createGame(particlesEl, overlayEl, onScore, xMin, xMax) {
                 star.style.setProperty('--duration', (500 + Math.random() * 1000) + 'ms');
                 star.onanimationend = () => star.remove();
                 particlesEl.appendChild(star);
+
+                if (!overlayEl.querySelector('.scene-text--game-score')) {
+                    const scoreEl = document.createElement('p');
+                    scoreEl.className = 'scene-text scene-text--game-score';
+                    scoreEl.textContent = `Score: ${score}`;
+                    overlayEl.appendChild(scoreEl);
+                } else {
+                    overlayEl.querySelector('.scene-text--game-score').textContent = `Score: ${score}`;
+                }
 
                 if (!overlayEl.querySelector('.score-icons')) {
                     const iconsEl = document.createElement('div');

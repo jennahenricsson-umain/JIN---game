@@ -17,7 +17,7 @@ export function createOnboarding(particlesEl, overlayEl, xMin, xMax) {
     function spawnAllTargets() {
         [0, 1, 2].forEach(i => {
             const el = document.createElement('img');
-            el.src = `public/assets/${gestureSequence[i]}_JIN.png`;
+            el.src = `public/assets/${gestureSequence[i]}_${handednessSequence[i]}_JIN.png`;
             el.className = 'peace-target';
             el.style.left = getTargetX(i) + 'px';
             el.style.top = targetY + 'px';
