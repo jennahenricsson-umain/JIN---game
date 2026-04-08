@@ -45,6 +45,16 @@
             pointer-events: none;
         }
 
+        .img-logo {
+            position: absolute;
+            top: 10%;
+            right: 10%;
+            transform: translate(-50%, -50%);
+            max-width: 60vw;
+            max-height: 40vh;
+            object-fit: contain;
+        }
+
         .scene-text {
             margin: 0;
             font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -150,7 +160,7 @@
 
         .scene-text--game-gesture {
             font-size: clamp(20px, 2.5vw, 30px);
-            top: 15%;
+            top: 10%;
         }
 
         .scene-text--game-score {
@@ -461,7 +471,9 @@
         <div class="camera-background">
             <video id="video" class="camera-background-feed" autoplay playsinline muted></video>
         </div>
-        <canvas id="landmarks" class="landmark-canvas"></canvas>
+        <canvas id="landmarks" class="landmark-canvas">
+            <img src="assets/umain_logotype_black.png" alt="logotype" class="img-logo">
+        </canvas>
         <!-- Single-player overlays (default) -->
         <div class="game-overlay" id="overlay"></div>
         <div class="game-overlay" id="particles"></div>

@@ -52,20 +52,10 @@ export function createOnboarding(particlesEl, overlayEl, xMin, xMax) {
         if (!overlayEl.querySelector('.scene-text--game-gesture')) {
             const onboarding_gesture = document.createElement('p');
             onboarding_gesture.className = 'scene-text scene-text--game-gesture';
-            onboarding_gesture.textContent = `Gesture: ${gesture} (${(confidence * 100).toFixed(0)}%)`;
+            onboarding_gesture.textContent = `GESTURE: ${gesture} (${(confidence * 100).toFixed(0)}%)`;
             overlayEl.appendChild(onboarding_gesture);
         } else {
-            overlayEl.querySelector('.scene-text--game-gesture').textContent = `Gesture: ${gesture} (${(confidence * 100).toFixed(0)}%)`;   
-        }
-
-        // renders which hand to use, might be replaced with sprites later
-        if (!overlayEl.querySelector('.scene-text--onboarding')) {
-            const onboarding_text = document.createElement('p');
-            onboarding_text.className = 'scene-text scene-text--onboarding';
-            onboarding_text.textContent = `Use ${handednessSequence[step]} hand`;
-            overlayEl.appendChild(onboarding_text);
-        } else {
-            overlayEl.querySelector('.scene-text--onboarding').textContent = `Use ${handednessSequence[step]} hand`;
+            overlayEl.querySelector('.scene-text--game-gesture').textContent = `GESTURE: ${gesture} (${(confidence * 100).toFixed(0)}%)`;   
         }
 
         if (!overlayEl.querySelector('.progress-bar')) {
