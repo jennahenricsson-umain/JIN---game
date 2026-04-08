@@ -92,12 +92,20 @@ export function detectGesture(canvas, ctx) {
     //         ctx.stroke();
     //     }
     // }
+    const vw      = video.videoWidth;
+    const vh      = video.videoHeight;
+    const sw      = window.innerWidth;
+    const sh      = window.innerHeight;
+    const scale   = Math.max(sw / vw, sh / vh);
+    const offsetX = (vw * scale - sw) / 2;
+    const offsetY = (vh * scale - sh) / 2;
+    
 
     const pixels = cropCtx1.getImageData(0, 0, canvas.width, canvas.height).data;
 
     for (let i=0; i<pixels.length; i+=4*spacing) {
         const pixelIndex = i / 4;
-        const x = canvas.width - pixelIndex % canvas.width;
+        const x = toScreenX(pixelIndex, 0, canvas.width, )pixelIndex % canvas.width;
         const y = Math.floor(pixelIndex / canvas.width);
         const brightness = pixels[i] + pixels[i + 1] + pixels[i + 2];
 
@@ -158,6 +166,7 @@ function runRecognizer(recognizer, input, playerIndex, ctx) {
     const offsetX = (vw * scale - sw) / 2;
     const offsetY = (vh * scale - sh) / 2;
 
+    
     // Loop through both hand slots (handIndex 0 and 1)
     for (let handIndex = 0; handIndex < 2; handIndex++) {
         const gestures   = result.gestures[handIndex];
