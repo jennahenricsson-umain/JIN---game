@@ -47,18 +47,31 @@
 
         .img-logo {
             position: absolute;
-            top: 10%;
-            right: 10%;
-            transform: translate(-50%, -50%);
-            max-width: 60vw;
-            max-height: 40vh;
+            max-width: 15vw;
+            max-height: 7vh;
             object-fit: contain;
+
         }
 
+        .rectangle-wrapper {
+            border-color: #1E1E1E;
+            border-width: 4px;
+            border-style: solid;
+            padding: 16 px;
+        }
+
+        .rectangle-wrapper.orange {
+            background-color: #ff633384;
+        }
+
+        .rectangle-wrapper.violet {
+            background-color: #8d29f17a;
+        }
+        
         .scene-text {
             margin: 0;
             font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-            color: #010101;
+            color: #1E1E1E;
             text-align: center;
             text-shadow: 0 4px 30px #898989;
             font-weight: 700;
@@ -128,10 +141,9 @@
 
         .scene-text--countdown {
             font-size: clamp(100px, 18vw, 220px);
-            top: 60%;
+            top: 50%;
             transform: translate(-50%, -50%);
-            color: #b44fff;
-            text-shadow: 0 0 40px #b44fff, 0 2px 8px #000;
+            color: #8d29f1;
             animation: countdownPulse 1s ease-in-out forwards;
         }
 
@@ -243,27 +255,17 @@
         }
 
         .scoreboard {
-            font-family: 'Courier New', monospace;
-            background: rgba(20, 0, 40, 0.92);
-            border: 3px solid #b44fff;
-            padding: 16px 32px;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
             min-width: 320px;
             text-align: center;
-            box-shadow: 0 0 24px #b44fff88;
         }
 
         .scoreboard__title {
-            font-size: clamp(18px, 2.5vw, 28px);
-            letter-spacing: 6px;
-            color: #b44fff;
+            font-size: clamp(50px, 5.5vw, 70px);
+            color: #1e1e1e;
             -webkit-text-stroke: 0;
-            text-shadow: 0 0 10px #b44fff;
             margin-bottom: 8px;
-        }
-
-        .scoreboard__divider {
-            border-top: 2px solid #b44fff66;
-            margin: 8px 0;
+            margin-top: 8px;
         }
 
         .scoreboard__row {
@@ -271,20 +273,22 @@
             justify-content: space-between;
             align-items: center;
             font-size: clamp(14px, 2vw, 22px);
-            padding: 4px 0;
-            color: #b44fff;
+            padding: 10px 12px;
+            color:#1E1E1E;
+            background-color: #F4F4F4;
+            border-width: 3px;
+            border-color: #1E1E1E;
             -webkit-text-stroke: 0;
-            text-shadow: 0 0 8px #b44fff;
         }
 
         .scoreboard__row--highlight {
-            color: #fff;
-            text-shadow: 0 1px 4px #000;
+            color: #8d29f1;
         }
 
         .scoreboard__rank {
             width: 48px;
             text-align: left;
+            color: #1E1E1E;
         }
 
         .scoreboard__dots {
@@ -295,8 +299,17 @@
         }
 
         .scoreboard__score {
-            width: 64px;
+            width: 20px;
             text-align: right;
+            color:#1E1E1E;
+        }
+
+        .scoreboard__playagain {
+            font-size: clamp(30px, 3.5vw, 40px);
+            color: #1e1e1e;
+            -webkit-text-stroke: 0;
+            margin-bottom: 8px;
+            margin-top: 8px;
         }
 
         .scene-text--game-start {
@@ -333,7 +346,7 @@
         }
 
         .peace-target--active {
-            opacity: 1;
+            opacity: 0.9;
             animation: wiggle 2s ease-in-out infinite;
         }
 
@@ -471,9 +484,10 @@
         <div class="camera-background">
             <video id="video" class="camera-background-feed" autoplay playsinline muted></video>
         </div>
-        <canvas id="landmarks" class="landmark-canvas">
-            <img src="assets/umain_logotype_black.png" alt="logotype" class="img-logo">
-        </canvas>
+        <canvas id="landmarks" class="landmark-canvas"></canvas>
+        <img src="public/assets/umain_logotype_black.png" alt="logotype" class="img-logo" style="top: 20px; right: 20px;">
+        <img src="public/assets/arrow_down_JIN.png" alt="logotype" class="img-logo" style="top: 20px; left: 20px;">
+        <img src="public/assets/arrow_up_JIN.png" alt="logotype" class="img-logo" style="bottom: 20px; right: 20px;">
         <!-- Single-player overlays (default) -->
         <div class="game-overlay" id="overlay"></div>
         <div class="game-overlay" id="particles"></div>
