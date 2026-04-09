@@ -29,7 +29,7 @@ export function createGame(particlesEl, overlayEl, onScore, xMin, xMax) {
         targethandedness = Math.random() < 0.5 ? 'Left' : 'Right';
 
         targetSprite           = document.createElement('img');
-        targetSprite.src       = `public/assets/${targetGesture}_JIN.png`;
+        targetSprite.src       = `public/assets/${targetGesture}_${targethandedness}_JIN.png`;
         targetSprite.className = 'peace-target peace-target--active';
         targetSprite.style.left = targetX + 'px';
         targetSprite.style.top  = targetY + 'px';
@@ -52,25 +52,6 @@ export function createGame(particlesEl, overlayEl, onScore, xMin, xMax) {
         const dist = hand1Match ? Math.hypot(hx1 - targetX, hy1 - targetY)
                    : hand2Match ? Math.hypot(hx2 - targetX, hy2 - targetY) : Infinity;
 
-        if (!overlayEl.querySelector('.scene-text--game-score')) {
-            const scoreEl = document.createElement('p');
-            scoreEl.className = 'scene-text scene-text--game-score';
-            scoreEl.textContent = `Score: ${score}`;
-            overlayEl.appendChild(scoreEl);
-        } else {
-            overlayEl.querySelector('.scene-text--game-score').textContent = `Score: ${score}`;
-        }
-
-        // renders which hand to use, will be replaced with sprites later
-        if (!overlayEl.querySelector('.scene-text--onboarding')) {
-            const onboardingEl = document.createElement('p');
-            onboardingEl.className = 'scene-text scene-text--onboarding';
-            onboardingEl.textContent = targethandedness ? `Use ${targethandedness} hand` : '';
-            overlayEl.appendChild(onboardingEl);
-        } else {
-            overlayEl.querySelector('.scene-text--onboarding').textContent = targethandedness ? `Use ${targethandedness} hand` : '';
-        }
-
         if ((hand1Match || hand2Match) && dist < 100 && Date.now() - lastMatchTime > 500) {
                 targetSprite?.remove();
                 score++;
@@ -87,6 +68,15 @@ export function createGame(particlesEl, overlayEl, onScore, xMin, xMax) {
                 star.onanimationend = () => star.remove();
                 particlesEl.appendChild(star);
 
+                if (!overlayEl.querySelector('.scene-text--game-score')) {
+                    const scoreEl = document.createElement('p');
+                    scoreEl.className = 'scene-text scene-text--game-score';
+                    scoreEl.textContent = `Score: ${score}`;
+                    overlayEl.appendChild(scoreEl);
+                } else {
+                    overlayEl.querySelector('.scene-text--game-score').textContent = `Score: ${score}`;
+                }
+
                 if (!overlayEl.querySelector('.score-icons')) {
                     const iconsEl = document.createElement('div');
                     iconsEl.className = 'score-icons';
@@ -96,7 +86,7 @@ export function createGame(particlesEl, overlayEl, onScore, xMin, xMax) {
                 const iconsEl = overlayEl.querySelector('.score-icons');
                 if (iconsEl) {
                     const img = document.createElement('img');
-                    img.src = `public/assets/${matchedGestures[matchedGestures.length - 1]}_JIN.png`;
+                    img.src = `public/assets/${matchedGestures[matchedGestures.length - 1]}_${targethandedness}_JIN.png`;
                     img.className = 'score-icon';
                     iconsEl.appendChild(img);
                     // Remove oldest if overflowing

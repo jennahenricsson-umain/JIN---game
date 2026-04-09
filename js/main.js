@@ -28,7 +28,7 @@ let gameMode  = 'single';
 let countdownStart    = 0;
 let onboardingStart   = 0;
 
-const timeLimit = 30;
+const timeLimit = 5;
 let gameStartTime = 0;
 function extendTimer() { gameStartTime = Date.now(); }
 function getTimeLeft(combinedScore) {
@@ -180,6 +180,7 @@ function enterGameOver() {
     finalScore1 = score1;
     finalScore2 = score2;
     gameState   = 'over';
+    gameStartTime = Date.now();
 }
 
 // ─── Detection loop ───────────────────────────────────────────────────────────
@@ -242,7 +243,9 @@ function render() {
                 : p1Onboarding.tick(g1, g2, c1, c2, h1, h2, hx1, hy1, hx2, hy2);
 
             if (!overlay.querySelector('.scene-text--onboarding-title')) {
-                overlay.innerHTML = `<p class="scene-text scene-text--onboarding-title">MATCH THE <span class="highlight-violet">GESTURE</span><br>AND <span class="highlight-orange">POSITION</span></p>`;
+                overlay.innerHTML = `<p class="scene-text scene-text--onboarding-title">MATCH THE <span class="highlight-violet">GESTURE</span><br>AND <span class="highlight-orange">POSITION</span></p>
+                <p class="scene-text scene-text--menu-subtitle" style="left: 25%">LEFT HAND IS <br><span class="highlight-violet">VIOLET</span></p>
+                <p class="scene-text scene-text--menu-subtitle" style="left: 75%">RIGHT HAND IS <br><span class="highlight-orange">ORANGE</span></p>`;
             }
             if (!introActive){
                 const title = overlay.querySelector('.scene-text--onboarding-title');
@@ -284,16 +287,15 @@ function render() {
     } else if (gameState === 'countdown') {
         const elapsed = Date.now() - countdownStart;
         const step    = Math.floor(elapsed / 1000);
-        const steps   = ['3', '2', '1', 'GO!'];
+        const steps   = ['3', '2', '1', 'START!'];
 
         if (step < steps.length && overlay.dataset.countdownStep !== String(step)) {
             overlay.dataset.countdownStep = step;
-            const isGo = steps[step] === 'GO!';
+            const isGo = steps[step] === 'START!';
             overlay.innerHTML = `
-                ${!isGo ? `<p class="scene-text scene-text--countdown-label">Get ready to play</p>` : ''}
-                <p class="scene-text scene-text--countdown">${steps[step]}</p>
-            `;
-            if (isGo) setTimeout(() => enterPlay(), 500);
+                    ${!isGo ? `<p class="scene-text scene-text--countdown-label">GET RERADY</p>` : ''}
+                    <p class="scene-text scene-text--countdown">${steps[step]}</p>`;
+            if (isGo) setTimeout(() => enterPlay(), 600);
         }
 
     // ── Play ──────────────────────────────────────────────────────────────────
@@ -354,11 +356,12 @@ function render() {
     } else if (gameState === 'over') {
         const scoreArg2 = gameMode === 'multi' ? finalScore2 : null;
         const result = renderGameOver(overlay, g1, g2, c1, c2, finalScore1, scoreArg2);
+        const idle = Date.now() - gameStartTime > 10000; // auto-reset after 10s of inactivity
 
         if (result === 'play_again') {
             if (gameMode === 'multi') app.classList.add('multiplayer');
             enterOnboarding();
-        } else if (result === 'menu') {
+        } else if (result === 'menu' || idle) {
             if (gameMode === 'multi') disableMultiplayer();
             gameMode  = 'single';
             gameState = 'menu';
