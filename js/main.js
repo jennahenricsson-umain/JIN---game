@@ -28,7 +28,7 @@ let gameMode  = 'single';
 let countdownStart    = 0;
 let onboardingStart   = 0;
 
-const timeLimit = 5;
+const timeLimit = 30;
 let gameStartTime = 0;
 function extendTimer() { gameStartTime = Date.now(); }
 function getTimeLeft(combinedScore) {
@@ -226,7 +226,7 @@ function render() {
     // ── Onboarding ────────────────────────────────────────────────────────────
     } else if (gameState === 'onboarding') {
         const elapsed     = Date.now() - onboardingStart;
-        const introActive = elapsed < 3000;
+        const introActive = elapsed < 5000;
 
         if (!introActive && !p1Onboarding._spawned) {
             p1Onboarding._spawned = true;
@@ -295,7 +295,7 @@ function render() {
             overlay.dataset.countdownStep = step;
             const isGo = steps[step] === 'START!';
             overlay.innerHTML = `
-                    ${!isGo ? `<p class="scene-text scene-text--countdown-label">GET RERADY</p>` : ''}
+                    ${!isGo ? `<p class="scene-text scene-text--countdown-label">GET READY</p>` : ''}
                     <p class="scene-text scene-text--countdown">${steps[step]}</p>`;
             if (isGo) setTimeout(() => enterPlay(), 600);
         }
@@ -322,7 +322,11 @@ function render() {
                     ? 'linear-gradient(0deg, #ff6600, #ffaa00)'
                     : 'linear-gradient(0deg, #ff0000, #ff4444)';
 
-            if (timeLeft === 0 || (g1 === 'Thumb_Down' && c1 >= 0.7) || (g2 === 'Thumb_Down' && c2 >= 0.7)) {
+            if (timeLeft <= 5) {
+                overlay.querySelector('.scene-text--game-time-countdown').textContent = timeLeft.toFixed(0);
+            }
+
+            if (timeLeft <= 0 || (g1 === 'Thumb_Down' && c1 >= 0.7) || (g2 === 'Thumb_Down' && c2 >= 0.7)) {
                 timebarEl.classList.remove('active');
                 timebarFill.style.height = '100%';
                 overlay.innerHTML   = '';
@@ -341,13 +345,23 @@ function render() {
             const timeLeft = getTimeLeft(score1 + score2);
 
             overlay.querySelector('.scene-text--game-timer').textContent = `Time: ${timeLeft.toFixed(1)}s`;
-            if (timeLeft <= 5) {
-                overlay.querySelector('.scene-text--game-time-countdown').textContent = timeLeft.toFixed(0);
-            }
+
+            const pct = (timeLeft / timeLimit) * 100;
+            timebarEl.classList.add('active');
+            timebarEl.classList.add('multiplayer');
+            timebarFill.style.height = pct + '%';
+            timebarFill.style.background = pct > 40
+                ? 'linear-gradient(0deg, #7b00ff, #b44fff)'
+                : pct > 20
+                    ? 'linear-gradient(0deg, #ff6600, #ffaa00)'
+                    : 'linear-gradient(0deg, #ff0000, #ff4444)';
 
             const thumbDown = (g1 === 'Thumb_Down' && c1 >= 0.7) || (g2 === 'Thumb_Down' && c2 >= 0.7)
                            || (g3 === 'Thumb_Down' && c3 >= 0.7) || (g4 === 'Thumb_Down' && c4 >= 0.7);
-            if (timeLeft === 0 || thumbDown) {
+            if (timeLeft <= 0 || thumbDown) {
+                timebarEl.classList.remove('active');
+                timebarEl.classList.remove('multiplayer');
+                timebarFill.style.height = '100%';
                 p1Game.reset();
                 p2Game.reset();
                 enterGameOver();
@@ -358,7 +372,7 @@ function render() {
     } else if (gameState === 'over') {
         const scoreArg2 = gameMode === 'multi' ? finalScore2 : null;
         const result = renderGameOver(overlay, g1, g2, c1, c2, finalScore1, scoreArg2);
-        const idle = Date.now() - gameStartTime > 50000; // auto-reset after 10s of inactivity
+        const idle = Date.now() - gameStartTime > 50000; // auto-reset after 50s of inactivity
 
         if (result === 'play_again') {
             if (gameMode === 'multi') app.classList.add('multiplayer');
