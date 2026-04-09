@@ -177,22 +177,19 @@
 
         .scene-text--game-score {
             font-size: clamp(28px, 4vw, 52px);
-            top: 4%;
+            top: 20px;
             left: auto;
-            right: 5%;
+            left: 10px;
             transform: none;
-            text-align: right;
-            font-family: 'Courier New', monospace;
-            color: #b44fff;
-            text-shadow: 0 0 16px #b44fff, 0 2px 8px #000;
+            text-align: left;
             animation: scorePop 0.2s ease-out;
         }
 
         .multipplpayer #overlay-p1 .scene-text--game-score {
-            right: 50%;
+            left: 10px;
         }
         .multiplayer #overlay-p2 .scene-text--game-score {
-            right: 5%;
+            left: 50%;
         }
 
         @keyframes scorePop {
