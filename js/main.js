@@ -267,7 +267,9 @@ function render() {
                 : p2Onboarding.tick(g3, g4, c3, c4, h3, h4, hx3, hy3, hx4, hy4);
 
             if (!overlay.querySelector('.scene-text--onboarding-title')) {
-                overlay.innerHTML = `<p class="scene-text scene-text--onboarding-title">MATCH THE <span class="highlight-violet">GESTURE</span><br>AND <span class="highlight-orange">POSITION</span></p>`;
+                overlay.innerHTML = `<p class="scene-text scene-text--onboarding-title">MATCH THE <span class="highlight-violet">GESTURE</span><br>AND <span class="highlight-orange">POSITION</span></p> 
+                <p class="scene-text scene-text--menu-subtitle" style="left: 25%">LEFT HAND IS <br><span class="highlight-violet">VIOLET</span></p>
+                <p class="scene-text scene-text--menu-subtitle" style="left: 75%">RIGHT HAND IS <br><span class="highlight-orange">ORANGE</span></p>`;
             }
             if (!introActive){
                 const title = overlay.querySelector('.scene-text--onboarding-title');
@@ -356,7 +358,7 @@ function render() {
     } else if (gameState === 'over') {
         const scoreArg2 = gameMode === 'multi' ? finalScore2 : null;
         const result = renderGameOver(overlay, g1, g2, c1, c2, finalScore1, scoreArg2);
-        const idle = Date.now() - gameStartTime > 10000; // auto-reset after 10s of inactivity
+        const idle = Date.now() - gameStartTime > 50000; // auto-reset after 10s of inactivity
 
         if (result === 'play_again') {
             if (gameMode === 'multi') app.classList.add('multiplayer');
