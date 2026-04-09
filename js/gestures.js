@@ -105,7 +105,7 @@ export function detectGesture(canvas, ctx) {
 
     for (let i=0; i<pixels.length; i+=4*spacing) {
         const pixelIndex = i / 4;
-        const x = toScreenX(pixelIndex, 0, canvas.width, )pixelIndex % canvas.width;
+        const x = pixelIndex % canvas.width;
         const y = Math.floor(pixelIndex / canvas.width);
         const brightness = pixels[i] + pixels[i + 1] + pixels[i + 2];
 
