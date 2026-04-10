@@ -145,6 +145,22 @@ function runRecognizer(recognizer, input, playerIndex, ctx) {
                 ctx.arc(x, y, 5, 0, Math.PI * 2);
                 ctx.fill();
             });
+
+        // Draw a transparent rectangle around the hand to indicate detection
+        ctx.fillStyle = handedness[playerIndex][handIndex] === 'Left' ?  'rgba(252, 144, 3, 0.5)': 'rgba(136, 0, 255, 0.5)';
+
+        const inputWidth = multiplayerMode ? vw / 2 : vw;
+        const xMin = Math.min(...landmarks.map(lm => lm.x));
+        const xMax = Math.max(...landmarks.map(lm => lm.x));
+        const yMin = Math.min(...landmarks.map(lm => lm.y));
+        const yMax = Math.max(...landmarks.map(lm => lm.y));
+        const xdis = (xMax - xMin) * inputWidth * scale;
+        const ydis = (yMax - yMin) * vh * scale;
+        const centerX = (xMin + xMax) / 2;
+        const centerY = (yMin + yMax) / 2;
+        const x = toScreenX(centerX, playerIndex, vw, scale, offsetX);
+        const y = centerY * vh * scale - offsetY;
+        ctx.fillRect(x - xdis/2, y - ydis/2, xdis, ydis);
         }
     }
 }
