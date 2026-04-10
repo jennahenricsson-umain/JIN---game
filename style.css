@@ -122,10 +122,23 @@ body {
     border: 2px solid #1E1E1E;
 }
 
+.multiplayer #overlay-p1 .progress-bar {
+    left: 25%;
+}
+
+.multiplayer #overlay-p2 .progress-bar {
+    left: 75%;
+}
+
 .progress-bar__fill {
     height: 100%;
     background: #8d29f1;
     transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.scene-text--waiting {
+    font-size: clamp(20px, 2.5vw, 30px);
+    top: 70%;
 }
 
 .scene-text--countdown {
