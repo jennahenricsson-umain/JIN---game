@@ -162,6 +162,11 @@ body {
     top: 53%;
 }
 
+.scene-text--onboarding-instruction {
+    font-size: clamp(28px, 3.5vw, 48px);
+    top: 65%;
+}
+
 .scene-text--game-gesture {
     font-size: clamp(20px, 2.5vw, 30px);
     top: 10%;

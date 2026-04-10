@@ -1,5 +1,5 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-import { getDatabase, ref, push, set, update } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+import { getDatabase, ref, push, set, update, query, orderByChild, limitToLast, get } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 
 const firebaseConfig = {
     apiKey: "AIzaSyDCe5jsT5vl9yeQEYHnNcomEWymgO817F8",
@@ -27,4 +27,12 @@ export function endGame(score) {
     if (!currentSessionId) return;
     const duration = Math.floor((Date.now() - gameStartTime) / 1000);
     update(ref(db, `sessions/${currentSessionId}`), { score, duration });
+}
+
+export async function getTopScores(limit = 5) {
+    const q = query(ref(db, 'sessions'), orderByChild('score'), limitToLast(limit));
+    const snapshot = await get(q);
+    const scores = [];
+    snapshot.forEach(child => scores.push(child.val()));
+    return scores.reverse(); // highest first
 }
