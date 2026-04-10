@@ -267,8 +267,8 @@ body {
     padding: 10px 12px;
     color:#1E1E1E;
     background-color: #F4F4F4;
-    border-width: 3px;
-    border-color: #1E1E1E;
+    border: 4px solid #1E1E1E;
+    margin: 4px 8px;
     -webkit-text-stroke: 0;
 }
 
@@ -296,7 +296,7 @@ body {
 }
 
 .scoreboard__playagain {
-    font-size: clamp(30px, 3.5vw, 40px);
+    font-size: clamp(50px, 5.5vw, 70px);
     color: #1e1e1e;
     -webkit-text-stroke: 0;
     margin-bottom: 8px;
@@ -479,13 +479,20 @@ body {
 .gameover-panel {
     display: flex;
     gap: 16px;
-    align-items: flex-start;
+    align-items: stretch;
+    width: 70vw;
+}
+
+.gameover-panel .rectangle-wrapper.orange {
+    flex: 3;
 }
 
 .qr-panel {
+    flex: 2;
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     padding: 16px;
 }
 
