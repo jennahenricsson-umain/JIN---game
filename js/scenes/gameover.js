@@ -15,7 +15,6 @@ function buildScoreboard(scores, finalScore) {
                     <span class="scoreboard__score">${s.score}</span>
                 </div>
             `).join('')}
-            <div class="scoreboard__playagain">WAVE TO PLAY AGAIN</div>
         </div>
     `;
 }
@@ -29,9 +28,15 @@ export function renderGameOver(overlay, gesture, gesture2, confidence, confidenc
         const displayScores = [...sessionScores].sort((a, b) => b.score - a.score).slice(0, 5);
 
         overlay.innerHTML = `
-            <p class="scene-text scene-text--game-over">GOOD GAME</p>
-            <p class="scene-text scene-text--game-over-hint"><img src="public/assets/open_palm_right_JIN.png" class="hint-icon"> Wave to play again with same settings &nbsp;|&nbsp; <img src="public/assets/thumbs_down_left_JIN.png" class="hint-icon"> Main menu</p>
-            <div class="scene-text scene-text--scoreboard" id="scoreboard">${buildScoreboard(displayScores, finalScore)}</div>
+            <div class="scene-text scene-text--scoreboard">
+                <div class="gameover-panel">
+                    ${buildScoreboard(displayScores, finalScore)}
+                    <div class="rectangle-wrapper violet qr-panel">
+                        <div id="qr-img-wrap" class="qr-img-wrap">Loading…</div>
+                        <div class="scoreboard__playagain">SCAN TO JOIN LEADERBOARD</div>
+                    </div>
+                </div>
+            </div>
             ${window._savedIconsHTML || ''}
             ${window._savedScoreHTML || ''}
         `;

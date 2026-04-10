@@ -28,7 +28,7 @@ let gameMode  = 'single';
 let countdownStart    = 0;
 let onboardingStart   = 0;
 
-const timeLimit = 30;
+const timeLimit = 5;
 let gameStartTime = 0;
 function extendTimer() { gameStartTime = Date.now(); }
 function getTimeLeft(combinedScore) {
@@ -186,11 +186,7 @@ function render() {
     const { gesture: g4, score: c4, handedness: h4 } = getGesture(1,1);
     const { x: hx4, y: hy4 }         = getHandPosition(1,1);
     // leave theese for now, might be a simpler way to implement later idk
-    const gestures = [[g1, g2], [g3, g4]];
-    const confidences = [[c1, c2], [c3, c4]];
-    const handednesses = [[h1, h2], [h3, h4]];
-    const handPositions = [[[hx1, hy1], [hx2, hy2]], [[hx3, hy3], [hx4, hy4]]];
-
+    
     // ── Menu ──────────────────────────────────────────────────────────────────
     if (gameState === 'menu') {
         const selection = renderMenu(overlay, g1, g2, c1, c2, hx1, hx2);
