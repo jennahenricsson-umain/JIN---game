@@ -42,7 +42,7 @@ export function createOnboarding(particlesEl, overlayEl, xMin, xMax) {
     // Returns { done, step, targethandedness, label, progress }
     function tick(gesture, gesture2, confidence, confidence2, handedness, handedness2, hx1, hy1, hx2, hy2) { 
         targetSprites.forEach((sprite, i) => {
-            if (i < step)       sprite.className = 'peace-target peace-target--done';
+            if (i < step)       sprite.src = `public/assets/${gestureSequence[i]}_chrome_${handednessSequence[i]}_JIN.png`, sprite.className = 'peace-target peace-target--done';
             else if (i === step) sprite.className = 'peace-target peace-target--active';
             else                sprite.className = 'peace-target peace-target--faded';
         });

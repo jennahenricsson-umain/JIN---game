@@ -60,8 +60,8 @@ export function createGame(particlesEl, overlayEl, onScore, xMin, xMax) {
                 onScore();
 
                 const star = document.createElement('img');
-                star.src       = 'public/assets/star.png';
-                star.className = 'star';
+                star.src       = `public/assets/${targetGesture}_chrome_${targethandedness}_JIN.png`;
+                star.className = 'peace-target peace-target--done';
                 star.style.left = targetX + 'px';
                 star.style.top  = targetY + 'px';
                 star.style.setProperty('--duration', (500 + Math.random() * 1000) + 'ms');
@@ -86,7 +86,7 @@ export function createGame(particlesEl, overlayEl, onScore, xMin, xMax) {
                 const iconsEl = overlayEl.querySelector('.score-icons');
                 if (iconsEl) {
                     const img = document.createElement('img');
-                    img.src = `public/assets/${matchedGestures[matchedGestures.length - 1]}_${targethandedness}_JIN.png`;
+                    img.src = `public/assets/${matchedGestures[matchedGestures.length - 1]}_chrome_${targethandedness}_JIN.png`;
                     img.className = 'score-icon';
                     iconsEl.appendChild(img);
                     // Remove oldest if overflowing
