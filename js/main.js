@@ -234,7 +234,6 @@ function render() {
 
             if (done && !p1Onboarding._finishing) {
                 p1Onboarding._finishing = true;
-                
                 setTimeout(() => enterCountdown(), 600);
             }
         } else if (gameMode === 'multi') {
@@ -253,6 +252,18 @@ function render() {
             if (!introActive){
                 const title = overlay.querySelector('.scene-text--onboarding-title');
                 if (title) title.classList.add('onboarding-title--up');
+            }
+            if (p1done && !p2done) {
+                overlayP1.innerHTML = '';
+                if (!overlayP2.querySelector('.scene-text--waiting')) {
+                    overlayP2.innerHTML = '<p class="scene-text scene-text--waiting" style="left: 25%">WAITING FOR PLAYER 2...</p>';
+                }
+            }
+
+            if (!p1done && p2done) {
+                if (!overlayP2.querySelector('.scene-text--waiting')) {
+                    overlayP2.innerHTML = '<p class="scene-text scene-text--waiting">WAITING FOR PLAYER 1...</p>';
+                }
             }
 
             if (p1done && p2done) {
@@ -328,10 +339,10 @@ function render() {
             timebarEl.classList.add('multiplayer');
             timebarFill.style.height = pct + '%';
             timebarFill.style.background = pct > 40
-                ? 'linear-gradient(0deg, #7b00ff, #b44fff)'
+                ? '#8d29f1'
                 : pct > 20
-                    ? 'linear-gradient(0deg, #ff6600, #ffaa00)'
-                    : 'linear-gradient(0deg, #ff0000, #ff4444)';
+                    ? '#ff6600'
+                    : ' #ff4444';
 
             const thumbDown = (g1 === 'Thumb_Down' && c1 >= 0.7) || (g2 === 'Thumb_Down' && c2 >= 0.7)
                            || (g3 === 'Thumb_Down' && c3 >= 0.7) || (g4 === 'Thumb_Down' && c4 >= 0.7);
