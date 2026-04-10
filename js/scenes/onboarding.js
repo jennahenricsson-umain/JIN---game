@@ -47,8 +47,11 @@ export function createOnboarding(particlesEl, overlayEl, xMin, xMax) {
             else                sprite.className = 'peace-target peace-target--faded';
         });
 
-        const handColors = ['violet', 'orange', 'violet'];
-        const handInstructions = ['LEFT HAND IS VIOLET', 'RIGHT HAND IS ORANGE', 'LEFT HAND IS jjjj'];
+        const handInstructions = [
+            'LEFT HAND IS <span class="highlight-violet">VIOLET</span>',
+            'RIGHT HAND IS <span class="highlight-orange">ORANGE</span>',
+            'LEFT HAND IS <span class="highlight-violet">VIOLET</span>'
+        ];
 
         if (!overlayEl.querySelector('.scene-text--onboarding-instruction')) {
             const instrEl = document.createElement('p');
@@ -57,7 +60,7 @@ export function createOnboarding(particlesEl, overlayEl, xMin, xMax) {
         }
         if (step < gestureSequence.length) {
             const instrEl = overlayEl.querySelector('.scene-text--onboarding-instruction');
-            instrEl.innerHTML = `<span class="highlight-${handColors[step]}">${handInstructions[step]}</span>`;
+            instrEl.innerHTML = handInstructions[step];
         }
 
         const pct = (step / 3) * 100;
@@ -65,7 +68,6 @@ export function createOnboarding(particlesEl, overlayEl, xMin, xMax) {
         if (!overlayEl.querySelector('.scene-text--game-gesture')) {
             const onboarding_gesture = document.createElement('p');
             onboarding_gesture.className = 'scene-text scene-text--game-gesture';
-            onboarding_gesture.textContent = `GESTURE: ${gesture} (${(confidence * 100).toFixed(0)}%)`;
             overlayEl.appendChild(onboarding_gesture);
         } 
         

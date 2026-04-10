@@ -28,11 +28,3 @@ export function endGame(score) {
     const duration = Math.floor((Date.now() - gameStartTime) / 1000);
     update(ref(db, `sessions/${currentSessionId}`), { score, duration });
 }
-
-export async function getTopScores(limit = 5) {
-    const q = query(ref(db, 'sessions'), orderByChild('score'), limitToLast(limit));
-    const snapshot = await get(q);
-    const scores = [];
-    snapshot.forEach(child => scores.push(child.val()));
-    return scores.reverse(); // highest first
-}

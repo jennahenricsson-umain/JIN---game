@@ -1,28 +1,17 @@
 import { saveScoreAndGetQR } from '../qrLogic.js';
-import { getTopScores } from '../firebase.js';
 
 const RANKS = ['1ST', '2ND', '3RD', '4TH', '5TH'];
 let rendered = false;
 let sessionScores = [];
 
-async function refreshScoreboard(finalScore) {
-    const scores = await getTopScores(5);
-    // mark the current session's score
-    let marked = false;
-    scores.forEach(s => {
-        if (!marked && s.score === finalScore) { s.current = true; marked = true; }
-    });
-    const el = document.getElementById('scoreboard-inner');
-    if (el) el.innerHTML = buildScoreboard(scores);
-}
-
-function buildScoreboard(scores) {
+function buildScoreboard(scores, finalScore) {
+    const latestIndex = [...scores].findIndex(s => s.score === finalScore);
     return `
         <div class="rectangle-wrapper orange">
             <div class="scoreboard__title">SCOREBOARD</div>
-            ${scores.map(s => `
-                <div class="scoreboard__row ${s.current ? 'scoreboard__row--highlight' : ''}">
-                    <span class="scoreboard__rank">${s.username || 'Guest'}</span>
+            ${scores.map((s, i) => `
+                <div class="scoreboard__row ${i === latestIndex ? 'scoreboard__row--highlight' : ''}">
+                    <span class="scoreboard__rank">${RANKS[i]}</span>
                     <span class="scoreboard__score">${s.score}</span>
                 </div>
             `).join('')}
@@ -34,11 +23,14 @@ function buildScoreboard(scores) {
 export function renderGameOver(overlay, gesture, gesture2, confidence, confidence2, finalScore, finalScore2 = null) {
     if (!rendered) {
         rendered = true;
+        sessionScores.push({ score: finalScore });
+
+        const displayScores = [...sessionScores].sort((a, b) => b.score - a.score).slice(0, 5);
 
         overlay.innerHTML = `
             <div class="scene-text scene-text--scoreboard">
                 <div class="gameover-panel">
-                    <div id="scoreboard-inner">${buildScoreboard([])}</div>
+                    ${buildScoreboard(displayScores, finalScore)}
                     <div class="rectangle-wrapper violet qr-panel">
                         <div id="qr-img-wrap" class="qr-img-wrap">Loading…</div>
                         <div class="scoreboard__playagain">SCAN TO JOIN LEADERBOARD</div>
@@ -48,8 +40,6 @@ export function renderGameOver(overlay, gesture, gesture2, confidence, confidenc
             ${window._savedIconsHTML || ''}
             ${window._savedScoreHTML || ''}
         `;
-
-        refreshScoreboard(finalScore);
 
         saveScoreAndGetQR(finalScore).then(url => {
             const wrap = document.getElementById('qr-img-wrap');
