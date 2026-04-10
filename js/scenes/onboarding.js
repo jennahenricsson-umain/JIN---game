@@ -86,8 +86,6 @@ export function createOnboarding(particlesEl, overlayEl, xMin, xMax) {
             if (fill && fill.style.width !== pct + '%') fill.style.width = pct + '%';
         }
 
-        if (step >= gestureSequence.length) return { done: true, step };
-
         const hand1Match = gesture  === gestureSequence[step] && confidence  >= 0.6 && handedness  !== handednessSequence[step];
         const hand2Match = gesture2 === gestureSequence[step] && confidence2 >= 0.6 && handedness2 !== handednessSequence[step];
         const dist = hand1Match ? Math.hypot(hx1 - getTargetX(step), hy1 - targetY)
@@ -96,11 +94,13 @@ export function createOnboarding(particlesEl, overlayEl, xMin, xMax) {
                 step++;
                 done = step >= gestureSequence.length;
                 if (done) {
-                    particlesEl.innerHTML = '';
-                    overlayEl.innerHTML = '';
+                    targetSprites.forEach(s => s.className = 'peace-target peace-target--done');
+                    const fill = overlay.querySelector('.progress-bar__fill');
+                    if (fill) fill.style.width = '100%';
                 }
         }
 
+        done = step >= gestureSequence.length;
         const progress = gestureSequence.map((_, i) => i < step ? '●' : '○').join(' ');
         const label = step < gestureSequence.length ? gestureLabels[step] : '';
         return { done, step };
