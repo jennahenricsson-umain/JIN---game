@@ -234,8 +234,7 @@ function render() {
 
             if (done && !p1Onboarding._finishing) {
                 p1Onboarding._finishing = true;
-                const fill = overlay.querySelector('.progress-bar__fill');
-                if (fill) fill.style.width = '100%';
+                
                 setTimeout(() => enterCountdown(), 600);
             }
         } else if (gameMode === 'multi') {
@@ -296,10 +295,10 @@ function render() {
             timebarEl.classList.add('active');
             timebarFill.style.height = pct + '%';
             timebarFill.style.background = pct > 40
-                ? 'linear-gradient(0deg, #7b00ff, #b44fff)'
+                ? '#8d29f1'
                 : pct > 20
-                    ? 'linear-gradient(0deg, #ff6600, #ffaa00)'
-                    : 'linear-gradient(0deg, #ff0000, #ff4444)';
+                    ? '#ff6600'
+                    : ' #ff4444';
 
             if (timeLeft <= 5) {
                 overlay.querySelector('.scene-text--game-time-countdown').textContent = timeLeft.toFixed(0);
