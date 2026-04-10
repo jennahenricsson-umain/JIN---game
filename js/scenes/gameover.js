@@ -1,3 +1,5 @@
+import { saveScoreAndGetQR } from '../qrLogic.js';
+
 const RANKS = ['1ST', '2ND', '3RD', '4TH', '5TH'];
 let rendered = false;
 let sessionScores = [];
@@ -33,14 +35,19 @@ export function renderGameOver(overlay, gesture, gesture2, confidence, confidenc
             ${window._savedIconsHTML || ''}
             ${window._savedScoreHTML || ''}
         `;
+
+        saveScoreAndGetQR(finalScore).then(url => {
+            const wrap = document.getElementById('qr-img-wrap');
+            if (wrap) wrap.innerHTML = `<img src="${url}" class="qr-prompt__img" alt="QR code">`;
+        });
     }
 
-    if ((gesture === 'Open_Palm' && confidence >= 0.7)||(gesture2 === 'Open_Palm' && confidence2 >= 0.7)) {
+    if ((gesture === 'Open_Palm' && confidence >= 0.7) || (gesture2 === 'Open_Palm' && confidence2 >= 0.7)) {
         if (sessionScores.length >= 5) sessionScores = [];
         rendered = false;
         overlay.innerHTML = '';
         return 'play_again';
-    } else if ((gesture === 'Thumb_Down' && confidence >= 0.7)||(gesture2 === 'Thumb_Down' && confidence2 >= 0.7)) {
+    } else if ((gesture === 'Thumb_Down' && confidence >= 0.7) || (gesture2 === 'Thumb_Down' && confidence2 >= 0.7)) {
         rendered = false;
         overlay.innerHTML = '';
         return 'menu';

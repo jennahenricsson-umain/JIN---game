@@ -137,14 +137,8 @@ function runRecognizer(recognizer, input, playerIndex, ctx) {
             handY[playerIndex][handIndex] = landmarks[9].y * vh * scale - offsetY;
 
             // P1 dots purple, P2 dots pink so players can distinguish their own hands
-            ctx.fillStyle = playerIndex === 0 ? '#8803fc' : '#fc0388';
-            landmarks.forEach(lm => {
-                const x = toScreenX(lm.x, playerIndex, vw, scale, offsetX);
-                const y = lm.y * vh * scale - offsetY;
-                ctx.beginPath();
-                ctx.arc(x, y, 5, 0, Math.PI * 2);
-                ctx.fill();
-            });
+            ctx.fillStyle = playerIndex === 0 ? '#03b1fc' : '#fc0388';
+            ;
 
         // Draw a transparent rectangle around the hand to indicate detection
         ctx.fillStyle = handedness[playerIndex][handIndex] === 'Left' ?  'rgba(252, 144, 3, 0.5)': 'rgba(136, 0, 255, 0.5)';

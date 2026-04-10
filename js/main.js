@@ -3,7 +3,7 @@ import { renderMenu } from './scenes/menu.js';
 import { createGame } from './scenes/gameplay.js';
 import { renderGameOver } from './scenes/gameover.js';
 import { createOnboarding } from './scenes/onboarding.js';
-import { startSession, updateSession, endSession, saveGame, trackMetric } from './firebase.js';
+import { startGame, endGame } from './firebase.js';
 
 // ─── DOM ──────────────────────────────────────────────────────────────────────
 
@@ -41,15 +41,11 @@ let p1Onboarding = null, p2Onboarding = null;
 let score1 = 0, score2 = 0;
 let finalScore1 = 0, finalScore2 = 0;
 
-let gamesPlayed       = 0;
-let totalScore        = 0;
-let gestureAttempts   = 0;
-let successfulMatches = 0;
+
 
 // ─── Session ──────────────────────────────────────────────────────────────────
 
-startSession();
-window.addEventListener('beforeunload', () => endSession());
+
 
 await initGestures(video);
 
@@ -101,7 +97,7 @@ function enterOnboarding() {
     overlay.innerHTML = '';
     gameState = 'onboarding';
     onboardingStart = Date.now();
-    trackMetric('onboarding_started', { mode: gameMode, timestamp: Date.now() });
+
 }
 
 function enterCountdown() {
@@ -144,8 +140,8 @@ function enterPlay() {
         p2Game.enter();
     }
 
+    startGame();
     gameState = 'play';
-    trackMetric('game_started', { mode: gameMode, timestamp: Date.now() });
 }
 
 function enterGameOver() {
@@ -163,19 +159,7 @@ function enterGameOver() {
     particlesP2.innerHTML   = '';
     particles.innerHTML     = '';
 
-    const duration = Math.floor((Date.now() - gameStartTime) / 1000);
-    gamesPlayed++;
-    totalScore += score1 + score2;
-
-    const metrics = {
-        gestureAttempts,
-        successfulMatches,
-        accuracy: gestureAttempts > 0 ? (successfulMatches / gestureAttempts * 100).toFixed(1) : 0
-    };
-
-    saveGame(score1 + score2, duration, metrics);
-    updateSession(gamesPlayed, totalScore);
-    trackMetric('game_ended', { score1, score2, duration, mode: gameMode, ...metrics });
+    endGame(score1 + score2);
 
     finalScore1 = score1;
     finalScore2 = score2;
@@ -302,13 +286,12 @@ function render() {
 
     // ── Play ──────────────────────────────────────────────────────────────────
     } else if (gameState === 'play') {
-        if (g1 === 'Victory' && c1 >= 0.7) gestureAttempts++; // Detta känns som en jättekonstig metric??
+
 
         if (gameMode === 'single') {
             const { score } = p1Game.tick(g1, g2, c1, c2, h1, h2, hx1, hy1, hx2, hy2);
             if (score > score1) {
-                successfulMatches++;
-                trackMetric('target_matched', { player: 1, score, accuracy: c1 });
+
             }
             score1 = score;
 
@@ -337,8 +320,7 @@ function render() {
         } else {
             const r1 = p1Game.tick(g1, g2, c1, c2, h1, h2, hx1, hy1, hx2, hy2);
             const r2 = p2Game.tick(g3, g4, c3, c4, h3, h4, hx3, hy3, hx4, hy4);
-            if (r1.score > score1) { successfulMatches++; trackMetric('target_matched', { player: 1, score: r1.score, accuracy: c1 }); }
-            if (r2.score > score2) { successfulMatches++; trackMetric('target_matched', { player: 2, score: r2.score, accuracy: c2 }); }
+
             score1 = r1.score;
             score2 = r2.score;
 
