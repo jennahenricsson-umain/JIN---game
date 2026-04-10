@@ -47,16 +47,30 @@ export function createOnboarding(particlesEl, overlayEl, xMin, xMax) {
             else                sprite.className = 'peace-target peace-target--faded';
         });
 
+        const handInstructions = [
+            'LEFT HAND IS <span class="highlight-violet">VIOLET</span>',
+            'RIGHT HAND IS <span class="highlight-orange">ORANGE</span>',
+            'LEFT HAND IS <span class="highlight-violet">VIOLET</span>'
+        ];
+
+        if (!overlayEl.querySelector('.scene-text--onboarding-instruction')) {
+            const instrEl = document.createElement('p');
+            instrEl.className = 'scene-text scene-text--onboarding-instruction';
+            overlayEl.appendChild(instrEl);
+        }
+        if (step < gestureSequence.length) {
+            const instrEl = overlayEl.querySelector('.scene-text--onboarding-instruction');
+            instrEl.innerHTML = handInstructions[step];
+        }
+
         const pct = (step / 3) * 100;
         // renders current gesture and its conficence, might be removed later
         if (!overlayEl.querySelector('.scene-text--game-gesture')) {
             const onboarding_gesture = document.createElement('p');
             onboarding_gesture.className = 'scene-text scene-text--game-gesture';
-            onboarding_gesture.textContent = `GESTURE: ${gesture} (${(confidence * 100).toFixed(0)}%)`;
             overlayEl.appendChild(onboarding_gesture);
-        } else {
-            overlayEl.querySelector('.scene-text--game-gesture').textContent = `GESTURE: ${gesture} (${(confidence * 100).toFixed(0)}%)`;   
-        }
+        } 
+        
 
         if (!overlayEl.querySelector('.progress-bar')) {
             const bar = document.createElement('div');

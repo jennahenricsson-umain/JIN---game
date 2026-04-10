@@ -133,7 +133,7 @@ body {
 .progress-bar__fill {
     height: 100%;
     background: #8d29f1;
-    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: width 0.5s cubic-bezier(0.1, 0, 0.01, 0);
 }
 
 .scene-text--waiting {
@@ -170,6 +170,11 @@ body {
 .scene-text--between-score {
     font-size: clamp(24px, 3vw, 40px);
     top: 53%;
+}
+
+.scene-text--onboarding-instruction {
+    font-size: clamp(28px, 3.5vw, 48px);
+    top: 65%;
 }
 
 .scene-text--game-gesture {
