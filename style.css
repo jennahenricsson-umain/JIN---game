@@ -92,6 +92,23 @@ body {
     top: 70%;
 }
 
+.scene-image {
+    position: absolute;
+    top:55%;
+    transform: translate(-50%, -50%);
+    max-width: 20vw;
+    max-height: 30vh;
+    object-fit: contain;
+    pointer-events: none;
+}
+
+.scene-image--left {
+    left: 25%;
+}
+.scene-image--right {
+    left: 75%;
+}
+
 .scene-text--onboarding {
     font-size: clamp(60px, 10vw, 80px);
     top: 20%;
