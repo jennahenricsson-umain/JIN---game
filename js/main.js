@@ -28,7 +28,7 @@ let gameMode  = 'single';
 let countdownStart    = 0;
 let onboardingStart   = 0;
 
-const timeLimit = 10;
+const timeLimit = 30;
 let gameStartTime = 0;
 function extendTimer() { gameStartTime = Date.now(); }
 function getTimeLeft(combinedScore) {
@@ -134,8 +134,8 @@ function enterPlay() {
             <p class="scene-text scene-text--game-timer"></p>
             <p class="scene-text scene-text--game-time-countdown"></p>
         `;
-        p1Game = createGame(particlesP1, overlayP1, extendTimer, margin, hw - margin);
-        p2Game = createGame(particlesP2, overlayP2, extendTimer, hw + margin, window.innerWidth - margin);
+        p1Game = createGame(particlesP1, overlayP1, () => {}, margin, hw - margin);
+        p2Game = createGame(particlesP2, overlayP2, () => {}, hw + margin, window.innerWidth - margin);
         p1Game.enter();
         p2Game.enter();
     }
