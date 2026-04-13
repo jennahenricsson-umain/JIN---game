@@ -14,17 +14,29 @@ const firebaseConfig = {
 const db = getDatabase(initializeApp(firebaseConfig));
 
 export let currentSessionId = null;
+export let currentSessionId2 = null;
 let gameStartTime = null;
 
-export function startGame() {
+export function startGame(isMultiplayer = false) {
     const newRef = push(ref(db, 'sessions'));
     currentSessionId = newRef.key;
     gameStartTime = Date.now();
     set(newRef, { timestamp: Date.now() });
+
+    if (isMultiplayer) {
+        const newRef2 = push(ref(db, 'sessions'));
+        currentSessionId2 = newRef2.key;
+        set(newRef2, { timestamp: Date.now() });
+    } else {
+        currentSessionId2 = null;
+    }
 }
 
-export function endGame(score) {
+export function endGame(score, score2 = null) {
     if (!currentSessionId) return;
     const duration = Math.floor((Date.now() - gameStartTime) / 1000);
     update(ref(db, `sessions/${currentSessionId}`), { score, duration });
+    if (currentSessionId2 && score2 !== null) {
+        update(ref(db, `sessions/${currentSessionId2}`), { score: score2, duration });
+    }
 }

@@ -20,6 +20,20 @@ function buildScoreboard(scores, finalScore) {
     `;
 }
 
+function buildQRColumn(score, wrapperId) {
+    return `
+        <div class="qr-column">
+            <div class="rectangle-wrapper violet qr-score-box">
+                <div class="scoreboard__title">YOUR SCORE: ${score}</div>
+            </div>
+            <div class="rectangle-wrapper orange qr-panel">
+                <div id="${wrapperId}" class="qr-img-wrap">Loading…</div>
+                <div class="qr-label">SCAN TO JOIN THE LEADERBOARD</div>
+            </div>
+        </div>
+    `;
+}
+
 // finalScore2 is optional — pass it in multiplayer to show both scores
 export function renderGameOver(overlay, gesture, gesture2, confidence, confidence2, finalScore, finalScore2 = null) {
     if (!rendered) {
@@ -27,30 +41,30 @@ export function renderGameOver(overlay, gesture, gesture2, confidence, confidenc
         sessionScores.push({ score: finalScore });
 
         const displayScores = [...sessionScores].sort((a, b) => b.score - a.score).slice(0, 5);
+        const isMulti = finalScore2 !== null;
 
         overlay.innerHTML = `
             <div class="scene-text scene-text--scoreboard">
                 <div class="gameover-panel">
+                    ${isMulti ? buildQRColumn(finalScore, 'qr-img-wrap-p1') : ''}
                     ${buildScoreboard(displayScores, finalScore)}
-                    <div class="qr-column">
-                        <div class="rectangle-wrapper violet qr-score-box">
-                            <div class="scoreboard__title">YOUR SCORE: ${finalScore}</div>
-                        </div>
-                        <div class="rectangle-wrapper violet qr-panel">
-                            <div id="qr-img-wrap" class="qr-img-wrap">Loading…</div>
-                            <div class="qr-label">SCAN TO JOIN SCOREBOARD</div>
-                        </div>
-                    </div>
+                    ${isMulti ? buildQRColumn(finalScore2, 'qr-img-wrap-p2') : buildQRColumn(finalScore, 'qr-img-wrap-p1')}
                 </div>
             </div>
             ${window._savedIconsHTML || ''}
             ${window._savedScoreHTML || ''}
         `;
 
-        saveScoreAndGetQR(finalScore).then(url => {
-            const wrap = document.getElementById('qr-img-wrap');
-            if (wrap) wrap.innerHTML = `<img src="${url}" class="qr-prompt__img" alt="QR code">`;
+        saveScoreAndGetQR(finalScore, 1).then(url => {
+            const wrap = document.getElementById('qr-img-wrap-p1');
+            if (wrap && url) wrap.innerHTML = `<img src="${url}" class="qr-prompt__img" alt="QR code">`;
         });
+        if (isMulti) {
+            saveScoreAndGetQR(finalScore2, 2).then(url => {
+                const wrap = document.getElementById('qr-img-wrap-p2');
+                if (wrap && url) wrap.innerHTML = `<img src="${url}" class="qr-prompt__img" alt="QR code">`;
+            });
+        }
     }
 
     if ((gesture === 'Open_Palm' && confidence >= 0.7) || (gesture2 === 'Open_Palm' && confidence2 >= 0.7)) {

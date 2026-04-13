@@ -140,7 +140,7 @@ function enterPlay() {
         p2Game.enter();
     }
 
-    startGame();
+    startGame(gameMode === 'multi');
     gameState = 'play';
 }
 
@@ -159,7 +159,7 @@ function enterGameOver() {
     particlesP2.innerHTML   = '';
     particles.innerHTML     = '';
 
-    endGame(score1 + score2);
+    endGame(score1, gameMode === 'multi' ? score2 : null);
 
     finalScore1 = score1;
     finalScore2 = score2;
