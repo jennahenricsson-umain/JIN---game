@@ -8,13 +8,14 @@ function buildScoreboard(scores, finalScore) {
     const latestIndex = [...scores].findIndex(s => s.score === finalScore);
     return `
         <div class="rectangle-wrapper orange">
-            <div class="scoreboard__title">SCOREBOARD</div>
+            <div class="scoreboard__title">LEADERBOARD</div>
             ${scores.map((s, i) => `
                 <div class="scoreboard__row ${i === latestIndex ? 'scoreboard__row--highlight' : ''}">
                     <span class="scoreboard__rank">${RANKS[i]}</span>
                     <span class="scoreboard__score">${s.score}</span>
                 </div>
             `).join('')}
+            <div class="scoreboard__playagain">WAVE TO PLAY AGAIN</div>
         </div>
     `;
 }
@@ -31,9 +32,14 @@ export function renderGameOver(overlay, gesture, gesture2, confidence, confidenc
             <div class="scene-text scene-text--scoreboard">
                 <div class="gameover-panel">
                     ${buildScoreboard(displayScores, finalScore)}
-                    <div class="rectangle-wrapper violet qr-panel">
-                        <div id="qr-img-wrap" class="qr-img-wrap">Loading…</div>
-                        <div class="scoreboard__playagain">SCAN TO JOIN LEADERBOARD</div>
+                    <div class="qr-column">
+                        <div class="rectangle-wrapper violet qr-score-box">
+                            <div class="scoreboard__title">YOUR SCORE: ${finalScore}</div>
+                        </div>
+                        <div class="rectangle-wrapper violet qr-panel">
+                            <div id="qr-img-wrap" class="qr-img-wrap">Loading…</div>
+                            <div class="qr-label">SCAN TO JOIN SCOREBOARD</div>
+                        </div>
                     </div>
                 </div>
             </div>

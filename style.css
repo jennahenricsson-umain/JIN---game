@@ -54,6 +54,8 @@ body {
 
 .rectangle-wrapper.orange {
     background-color: #ff633384;
+    display: flex;
+    flex-direction: column;
 }
 
 .rectangle-wrapper.violet {
@@ -183,13 +185,19 @@ body {
 }
 
 .scene-text--game-score {
-    font-size: clamp(28px, 4vw, 52px);
-    top: 20px;
-    left: auto;
-    left: 10px;
+    font-size: clamp(20px, 2.5vw, 30px);
+    top: auto;
+    bottom: 4%;
+    left: 20px;
     transform: none;
     text-align: left;
     animation: scorePop 0.2s ease-out;
+    background: #F4F4F4;
+    border: 2px solid #1E1E1E;
+    padding: 6px 16px;
+    font-weight: 700;
+    color: #1E1E1E;
+    text-shadow: none;
 }
 
 .multipplpayer #overlay-p1 .scene-text--game-score {
@@ -257,6 +265,65 @@ body {
     -webkit-text-stroke: 0;
 }
 
+.gameover-panel {
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
+    align-items: stretch;
+    width: 70vw;
+}
+
+.gameover-panel .rectangle-wrapper.orange {
+    flex: 3;
+}
+
+.gameover-panel .qr-column {
+    flex: 2;
+}
+
+.qr-column {
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.qr-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+}
+
+.qr-score-box {
+    text-align: center;
+    padding: 8px 16px;
+}
+
+.qr-score-box .scoreboard__title {
+    font-size: clamp(24px, 3vw, 40px);
+}
+
+.qr-label {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: clamp(14px, 1.8vw, 24px);
+    font-weight: 700;
+    color: #1E1E1E;
+    text-align: center;
+    margin-top: 12px;
+}
+
+.qr-img-wrap {
+    min-width: 180px;
+    min-height: 180px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #1E1E1E;
+}
+
 .scoreboard {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     min-width: 320px;
@@ -311,8 +378,8 @@ body {
     font-size: clamp(30px, 3.5vw, 40px);
     color: #1e1e1e;
     -webkit-text-stroke: 0;
+    margin-top: auto;
     margin-bottom: 8px;
-    margin-top: 8px;
 }
 
 .scene-text--game-start {
@@ -402,8 +469,11 @@ body {
 .score-icons {
     position: absolute;
     bottom: 4%;
-    left: 120px;
+    left: 210px;
     right: 120px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .multiplayer #overlay-p1 .score-icons {

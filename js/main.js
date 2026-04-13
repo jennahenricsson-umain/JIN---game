@@ -28,7 +28,7 @@ let gameMode  = 'single';
 let countdownStart    = 0;
 let onboardingStart   = 0;
 
-const timeLimit = 3;
+const timeLimit = 10;
 let gameStartTime = 0;
 function extendTimer() { gameStartTime = Date.now(); }
 function getTimeLeft(combinedScore) {
@@ -206,7 +206,7 @@ function render() {
     // ── Onboarding ────────────────────────────────────────────────────────────
     } else if (gameState === 'onboarding') {
         const elapsed     = Date.now() - onboardingStart;
-        const introActive = elapsed < 5000;
+        const introActive = elapsed < 3000;
 
         if (!introActive && !p1Onboarding._spawned) {
             p1Onboarding._spawned = true;
@@ -223,7 +223,7 @@ function render() {
                 : p1Onboarding.tick(g1, g2, c1, c2, h1, h2, hx1, hy1, hx2, hy2);
 
             if (!overlay.querySelector('.scene-text--onboarding-title')) {
-                overlay.innerHTML = `<p class="scene-text scene-text--onboarding-title">MATCH THE <span class="highlight-violet">POSITION</span></span></p>`;
+                overlay.innerHTML = `<p class="scene-text scene-text--onboarding-title">MATCH THE <span class="highlight-orange">POSITION</span></span></p>`;
             }
             if (!introActive){
                 const title = overlay.querySelector('.scene-text--onboarding-title');
@@ -243,7 +243,7 @@ function render() {
                 : p2Onboarding.tick(g3, g4, c3, c4, h3, h4, hx3, hy3, hx4, hy4);
 
             if (!overlay.querySelector('.scene-text--onboarding-title')) {
-                overlay.innerHTML = `<p class="scene-text scene-text--onboarding-title">MATCH THE <span class="highlight-violet">GESTURE</span></span></p>; 
+                overlay.innerHTML = `<p class="scene-text scene-text--onboarding-title">MATCH THE <span class="highlight-orange">POSITION</span></span></p>; 
                 </span></p>`;
             }
             if (!introActive){
@@ -357,7 +357,7 @@ function render() {
     } else if (gameState === 'over') {
         const scoreArg2 = gameMode === 'multi' ? finalScore2 : null;
         const result = renderGameOver(overlay, g1, g2, c1, c2, finalScore1, scoreArg2);
-        const idle = Date.now() - gameStartTime > 50000; // auto-reset after 50s of inactivity
+        const idle = Date.now() - gameStartTime > 30000; // auto-reset after 30s of inactivity
 
         if (result === 'play_again') {
             if (gameMode === 'multi') app.classList.add('multiplayer');
