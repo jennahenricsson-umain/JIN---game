@@ -102,6 +102,8 @@ function enterOnboarding() {
 function enterCountdown() {
     overlay.innerHTML = '';
     particles.innerHTML = '';
+    particlesP1.innerHTML = '';
+    particlesP2.innerHTML = ''; 
     overlay.dataset.countdownStep = '';
     countdownStart = Date.now();
     gameState = 'countdown';
