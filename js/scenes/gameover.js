@@ -11,9 +11,14 @@ function buildScoreboard(scores, finalScore) {
             <div class="scoreboard__title">LEADERBOARD</div>
             ${scores.map((s, i) => `
                 <div class="scoreboard__row ${i === latestIndex ? 'scoreboard__row--highlight' : ''}">
+                <div class="scoreboard__left">
+
                     <span class="scoreboard__rank">${RANKS[i]}</span>
+                    <span class="scoreboard__playertag">${s.player || ''}</span>
+                </div>
                     <span class="scoreboard__score">${s.score}</span>
                 </div>
+
             `).join('')}
             <div class="scoreboard__playagain">WAVE TO PLAY AGAIN</div>
         </div>
@@ -38,10 +43,15 @@ function buildQRColumn(score, wrapperId) {
 export function renderGameOver(overlay, gesture, gesture2, confidence, confidence2, finalScore, finalScore2 = null) {
     if (!rendered) {
         rendered = true;
-        sessionScores.push({ score: finalScore });
-
-        const displayScores = [...sessionScores].sort((a, b) => b.score - a.score).slice(0, 5);
         const isMulti = finalScore2 !== null;
+        if (isMulti){
+
+            sessionScores.push({ score: finalScore, player: 'P1' }, {score: finalScore2, player: 'P2'});
+        }
+        else {
+            sessionScores.push({ score: finalScore })
+        }
+        const displayScores = [...sessionScores].sort((a, b) => b.score - a.score).slice(0, 6);
 
         overlay.innerHTML = `
             <div class="scene-text scene-text--scoreboard">
@@ -68,7 +78,7 @@ export function renderGameOver(overlay, gesture, gesture2, confidence, confidenc
     }
 
     if ((gesture === 'Open_Palm' && confidence >= 0.7) || (gesture2 === 'Open_Palm' && confidence2 >= 0.7)) {
-        if (sessionScores.length >= 5) sessionScores = [];
+        if (sessionScores.length >= 6) sessionScores = [];
         rendered = false;
         overlay.innerHTML = '';
         return 'play_again';

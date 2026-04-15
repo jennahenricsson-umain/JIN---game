@@ -375,6 +375,12 @@ body {
     -webkit-text-stroke: 0;
 }
 
+.scoreboard__left {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
 .scoreboard__row--highlight {
     color: var(--color-violet);
 }
@@ -382,7 +388,20 @@ body {
 .scoreboard__rank {
     width: 48px;
     text-align: left;
-    color: var(--color-almost-black);
+    color: #1E1E1E;
+}
+
+.scoreboard__playertag {
+    width: 48px;
+    text-align: left;
+    color: #1E1E1E;
+}
+
+.scoreboard__dots {
+    flex: 1;
+    border-bottom: 2px dotted rgba(180,79,255,0.4);
+    margin: 0 12px;
+    margin-bottom: 4px;
 }
 
 .scoreboard__score {
