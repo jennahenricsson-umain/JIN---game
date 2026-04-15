@@ -76,23 +76,23 @@ export function createGame(particlesEl, overlayEl, xMin, xMax) {
                     overlayEl.querySelector('.scene-text--game-score').textContent = `Score: ${score}`;
                 }
 
-                if (!overlayEl.querySelector('.score-icons')) {
-                    const iconsEl = document.createElement('div');
-                    iconsEl.className = 'score-icons';
-                    overlayEl.appendChild(iconsEl);
-                }
+                // if (!overlayEl.querySelector('.score-icons')) {
+                //     const iconsEl = document.createElement('div');
+                //     iconsEl.className = 'score-icons';
+                //     overlayEl.appendChild(iconsEl);
+                // }
 
-                const iconsEl = overlayEl.querySelector('.score-icons');
-                if (iconsEl) {
-                    const img = document.createElement('img');
-                    img.src = `public/assets/${matchedGestures[matchedGestures.length - 1]}_chrome_${targethandedness}_JIN.png`;
-                    img.className = 'score-icon';
-                    iconsEl.appendChild(img);
-                    // Remove oldest if overflowing
-                    while (iconsEl.scrollWidth > iconsEl.clientWidth && iconsEl.children.length > 1) {
-                        iconsEl.removeChild(iconsEl.firstChild);
-                    }
-                }
+                // const iconsEl = overlayEl.querySelector('.score-icons');
+                // if (iconsEl) {
+                //     const img = document.createElement('img');
+                //     img.src = `public/assets/${matchedGestures[matchedGestures.length - 1]}_chrome_${targethandedness}_JIN.png`;
+                //     img.className = 'score-icon';
+                //     iconsEl.appendChild(img);
+                //     // Remove oldest if overflowing
+                //     while (iconsEl.scrollWidth > iconsEl.clientWidth && iconsEl.children.length > 1) {
+                //         iconsEl.removeChild(iconsEl.firstChild);
+                //     }
+                // }
 
                 spawnTarget();
         }
