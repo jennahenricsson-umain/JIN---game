@@ -202,7 +202,6 @@ function render() {
 
     // ── Loading ───────────────────────────────────────────────────────────────
     } else if (gameState === 'loading') {
-        setHTML(overlay, '<p class="scene-text scene-text--onboarding">LOADING MULTIPLAYER…</p>');
 
     // ── Onboarding ────────────────────────────────────────────────────────────
     } else if (gameState === 'onboarding') {
