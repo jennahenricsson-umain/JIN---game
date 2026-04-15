@@ -200,6 +200,7 @@ body {
 .scene-text--onboarding-instruction {
     font-size: clamp(28px, 3.5vw, 48px);
     top: 65%;
+    width: max-content;
 }
 
 .scene-text--game-gesture {
