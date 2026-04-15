@@ -30,9 +30,8 @@ let onboardingStart   = 0;
 
 const timeLimit = 30;
 let gameStartTime = 0;
-function extendTimer() { gameStartTime = Date.now(); }
-function getTimeLeft(combinedScore) {
-    return Math.max(0, (timeLimit - combinedScore) - (Date.now() - gameStartTime) / 1000);
+function getTimeLeft() {
+    return Math.max(0, timeLimit  - (Date.now() - gameStartTime) / 1000);
 }
 
 let p1Game = null, p2Game = null;
@@ -122,7 +121,7 @@ function enterPlay() {
             <p class="scene-text scene-text--game-timer"></p>
             <p class="scene-text scene-text--game-time-countdown"></p>
         `;
-        p1Game = createGame(particles, overlay, extendTimer, margin, window.innerWidth - margin);
+        p1Game = createGame(particles, overlay, margin, window.innerWidth - margin);
         p1Game.enter();
     } else if (gameMode === 'multi') {
         particlesP1.innerHTML = '';
@@ -134,8 +133,8 @@ function enterPlay() {
             <p class="scene-text scene-text--game-timer"></p>
             <p class="scene-text scene-text--game-time-countdown"></p>
         `;
-        p1Game = createGame(particlesP1, overlayP1, () => {}, margin, hw - margin);
-        p2Game = createGame(particlesP2, overlayP2, () => {}, hw + margin, window.innerWidth - margin);
+        p1Game = createGame(particlesP1, overlayP1, margin, hw - margin);
+        p2Game = createGame(particlesP2, overlayP2, hw + margin, window.innerWidth - margin);
         p1Game.enter();
         p2Game.enter();
     }
@@ -243,8 +242,7 @@ function render() {
                 : p2Onboarding.tick(g3, g4, c3, c4, h3, h4, hx3, hy3, hx4, hy4);
 
             if (!overlay.querySelector('.scene-text--onboarding-title')) {
-                overlay.innerHTML = `<p class="scene-text scene-text--onboarding-title">MATCH THE <span class="highlight-orange">POSITION</span></span></p>; 
-                </span></p>`;
+                overlay.innerHTML = `<p class="scene-text scene-text--onboarding-title">MATCH THE <span class="highlight-orange">POSITION</span></span></p>`;
             }
             if (!introActive){
                 const title = overlay.querySelector('.scene-text--onboarding-title');
@@ -293,12 +291,9 @@ function render() {
 
         if (gameMode === 'single') {
             const { score } = p1Game.tick(g1, g2, c1, c2, h1, h2, hx1, hy1, hx2, hy2);
-            if (score > score1) {
-
-            }
             score1 = score;
 
-            const timeLeft = getTimeLeft(score1);
+            const timeLeft = getTimeLeft();
             const pct = (timeLeft / timeLimit) * 100;
             timebarEl.classList.add('active');
             timebarFill.style.height = pct + '%';
@@ -312,7 +307,7 @@ function render() {
                 overlay.querySelector('.scene-text--game-time-countdown').textContent = timeLeft.toFixed(0);
             }
 
-            if (timeLeft <= 0 || (g1 === 'Thumb_Down' && c1 >= 0.7) || (g2 === 'Thumb_Down' && c2 >= 0.7)) {
+            if (timeLeft <= 0 ) {
                 timebarEl.classList.remove('active');
                 timebarFill.style.height = '100%';
                 overlay.innerHTML   = '';
@@ -327,7 +322,7 @@ function render() {
             score1 = r1.score;
             score2 = r2.score;
 
-            const timeLeft = getTimeLeft(score1 + score2);
+            const timeLeft = getTimeLeft();
 
             overlay.querySelector('.scene-text--game-timer').textContent = `Time: ${timeLeft.toFixed(1)}s`;
 
@@ -341,9 +336,7 @@ function render() {
                     ? '#ff6600'
                     : ' #ff4444';
 
-            const thumbDown = (g1 === 'Thumb_Down' && c1 >= 0.7) || (g2 === 'Thumb_Down' && c2 >= 0.7)
-                           || (g3 === 'Thumb_Down' && c3 >= 0.7) || (g4 === 'Thumb_Down' && c4 >= 0.7);
-            if (timeLeft <= 0 || thumbDown) {
+            if (timeLeft <= 0 ) {
                 timebarEl.classList.remove('active');
                 timebarEl.classList.remove('multiplayer');
                 timebarFill.style.height = '100%';
@@ -357,15 +350,18 @@ function render() {
     } else if (gameState === 'over') {
         const scoreArg2 = gameMode === 'multi' ? finalScore2 : null;
         const result = renderGameOver(overlay, g1, g2, c1, c2, finalScore1, scoreArg2);
-        const idle = Date.now() - gameStartTime > 30000; // auto-reset after 30s of inactivity
+        const idle = Date.now() - gameStartTime > 60000; // auto-reset after 60s of inactivity
+        const bufferTime = Date.now() - gameStartTime < 3000; // ignore inputs for first 3 seconds to prevent accidental skips
 
-        if (result === 'play_again') {
-            if (gameMode === 'multi') app.classList.add('multiplayer');
-            enterOnboarding();
-        } else if (result === 'menu' || idle) {
-            if (gameMode === 'multi') disableMultiplayer();
-            gameMode  = 'single';
-            gameState = 'menu';
+        if (!bufferTime) {
+            if (result === 'play_again') {
+                if (gameMode === 'multi') app.classList.add('multiplayer');
+                enterOnboarding();
+            } else if (result === 'menu' || idle) {
+                if (gameMode === 'multi') disableMultiplayer();
+                gameMode  = 'single';
+                gameState = 'menu';
+            }
         }
     }
 

@@ -7,7 +7,7 @@
 //                  either the full screen or one half depending on the mode
 //
 // The factory has no knowledge of game mode — it just runs within its bounds.
-export function createGame(particlesEl, overlayEl, onScore, xMin, xMax) {
+export function createGame(particlesEl, overlayEl, xMin, xMax) {
     const margin = 120;
     const confidenceThreshold = 0.6;
     let targetX       = 0;
@@ -57,7 +57,6 @@ export function createGame(particlesEl, overlayEl, onScore, xMin, xMax) {
                 score++;
                 matchedGestures.push(targetGesture);
                 lastMatchTime = Date.now();
-                onScore();
 
                 const star = document.createElement('img');
                 star.src       = `public/assets/${targetGesture}_chrome_${targethandedness}_JIN.png`;

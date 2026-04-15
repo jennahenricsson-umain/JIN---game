@@ -1,5 +1,8 @@
+
+
 export function renderMenu(overlay, gesture, gesture2, confidence, confidence2, handX1, handX2) {
-    overlay.innerHTML = `
+    
+    const html = `
         <p class="scene-text scene-text--main-menu">
             CHOOSE <span class="highlight-orange">MODE</span>
         </p>
@@ -12,6 +15,9 @@ export function renderMenu(overlay, gesture, gesture2, confidence, confidence2, 
             2 PLAYERS<br>WAVE ON THE <span class="highlight-orange">RIGHT</span>
         </p>
     `;
+    if (!overlay.querySelector('.scene-text--main-menu')) {
+        overlay.innerHTML = html;
+    }
 
     if (gesture === 'Open_Palm' && confidence >= 0.7) {
         return handX1 < window.innerWidth / 2 ? 'single' : 'multi';

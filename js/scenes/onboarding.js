@@ -95,7 +95,7 @@ export function createOnboarding(particlesEl, overlayEl, xMin, xMax) {
                 done = step >= gestureSequence.length;
                 if (done) {
                     targetSprites.forEach(s => s.className = 'peace-target peace-target--done');
-                    const fill = overlay.querySelector('.progress-bar__fill');
+                    const fill = overlayEl.querySelector('.progress-bar__fill');
                     if (fill) fill.style.width = '100%';
                 }
         }
