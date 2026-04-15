@@ -368,11 +368,23 @@ body {
     -webkit-text-stroke: 0;
 }
 
+.scoreboard__left {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
 .scoreboard__row--highlight {
     color: #8d29f1;
 }
 
 .scoreboard__rank {
+    width: 48px;
+    text-align: left;
+    color: #1E1E1E;
+}
+
+.scoreboard__playertag {
     width: 48px;
     text-align: left;
     color: #1E1E1E;
