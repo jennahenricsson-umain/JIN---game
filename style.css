@@ -297,6 +297,18 @@ body {
     -webkit-text-stroke: 0;
 }
 
+.sleeper-board {
+    width: clamp(280px, 40vw, 600px);
+}
+
+.sleeper-logo {
+    position: absolute;
+    top: 24px;
+    right: 24px;
+    height: 40px;
+    width: auto;
+}
+
 .gameover-panel {
     display: flex;
     flex-direction: row;
@@ -311,6 +323,34 @@ body {
 
 .gameover-panel .qr-column {
     flex: 2;
+}
+
+.gameover-panel .multi-scores {
+    flex: 2;
+}
+
+.gameover-panel--multi {
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
+    align-items: stretch;
+    width: 70vw;
+}
+
+.multi-player-box {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px;
+}
+
+.multi-score-value {
+    font-size: clamp(48px, 8vw, 100px);
+    font-weight: 700;
+    color: var(--color-almost-black);
+    line-height: 1;
 }
 
 .qr-column {

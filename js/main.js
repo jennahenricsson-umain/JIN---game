@@ -3,7 +3,8 @@ import { renderMenu } from './scenes/menu.js';
 import { createGame } from './scenes/gameplay.js';
 import { renderGameOver, resetGameOver } from './scenes/gameover.js';
 import { createOnboarding } from './scenes/onboarding.js';
-import { startGame, endGame } from './firebase.js';
+import { startGame, endGame, fetchLeaderboard } from './firebase.js';
+import { renderSleeperScreen, setSleeperScores, resetSleeper } from './scenes/sleeperscreen.js';
 
 // ─── DOM ──────────────────────────────────────────────────────────────────────
 
@@ -22,13 +23,16 @@ const app           = document.getElementById('app');
 
 // ─── State ────────────────────────────────────────────────────────────────────
 
-let gameState = 'menu'; // 'menu'|'loading'|'onboarding'|'countdown'|'play'|'over'
+let gameState = 'menu'; // 'menu'|'loading'|'onboarding'|'countdown'|'play'|'over'|'sleeper'
 let gameMode  = 'single';
+let menuEnteredAt = Date.now();
+let idleLoop = false;
+let sleeperEnteredAt = 0;
 
 let countdownStart    = 0;
 let onboardingStart   = 0;
 
-const timeLimit = 30;
+const timeLimit = 10;
 let gameStartTime = 0;
 function getTimeLeft() {
     return Math.max(0, timeLimit  - (Date.now() - gameStartTime) / 1000);
@@ -60,6 +64,15 @@ function setHTML(el, html) {
 }
 
 // ─── State transitions ────────────────────────────────────────────────────────
+
+function enterSleeper() {
+    resetSleeper();
+    overlay.innerHTML = '';
+    gameState = 'sleeper';
+    sleeperEnteredAt = Date.now();
+    idleLoop = true;
+    fetchLeaderboard(5).then(scores => setSleeperScores(scores));
+}
 
 async function startMultiplayer() {
     gameState = 'loading';
@@ -196,13 +209,21 @@ function render() {
     // ── Menu ──────────────────────────────────────────────────────────────────
     if (gameState === 'menu') {
         const selection = renderMenu(overlay, g1, g2, c1, c2, hx1, hx2);
-        if (selection === 'single') {
-            if (gameMode === 'multi') disableMultiplayer();
-            gameMode = 'single';
-            app.classList.remove('multiplayer');
-            enterOnboarding();
-        } else if (selection === 'multi') {
-            startMultiplayer();
+        const menuBuffer = Date.now() - menuEnteredAt < (idleLoop ? 1000 : 3000);
+        if (!menuBuffer) {
+            if (selection === 'single') {
+                idleLoop = false;
+                if (gameMode === 'multi') disableMultiplayer();
+                gameMode = 'single';
+                app.classList.remove('multiplayer');
+                enterOnboarding();
+            } else if (selection === 'multi') {
+                idleLoop = false;
+                startMultiplayer();
+            }
+        }
+        if (Date.now() - menuEnteredAt > (idleLoop ? 3000 : 30000)) {
+            enterSleeper();
         }
 
     // ── Loading ───────────────────────────────────────────────────────────────
@@ -366,19 +387,43 @@ function render() {
     } else if (gameState === 'over') {
         const scoreArg2 = gameMode === 'multi' ? finalScore2 : null;
         const result = renderGameOver(overlay, g1, g2, c1, c2, finalScore1, scoreArg2);
-        const idle = Date.now() - gameStartTime > 60000; // auto-reset after 60s of inactivity
-        const bufferTime = Date.now() - gameStartTime < 5000; // ignore inputs for first 5 seconds to prevent accidental skips
+        const elapsed = Date.now() - gameStartTime;
 
-        if (!bufferTime) {
-            if (result === 'play_again') {
-                if (gameMode === 'multi') app.classList.add('multiplayer');
-                enterOnboarding();
-            } else if (result === 'menu' || idle) {
+        if (gameMode === 'multi') {
+            if (elapsed > 7000) {
                 resetGameOver();
-                if (gameMode === 'multi') disableMultiplayer();
-                gameMode  = 'single';
+                overlay.innerHTML = '';
+                disableMultiplayer();
+                gameMode = 'single';
                 gameState = 'menu';
+                menuEnteredAt = Date.now();
             }
+        } else {
+            const idle = elapsed > 60000;
+            const bufferTime = elapsed < 7000;
+
+            if (overlay.querySelector('.scoreboard__playagain')) {
+                overlay.querySelector('.scoreboard__playagain').style.visibility = bufferTime ? 'hidden' : 'visible';
+            }
+
+            if (!bufferTime) {
+                if (result === 'play_again' || idle) {
+                    resetGameOver();
+                    overlay.innerHTML = '';
+                    gameMode = 'single';
+                    gameState = 'menu';
+                    menuEnteredAt = Date.now();
+                }
+            }
+        }
+
+    // ── Sleeper ───────────────────────────────────────────────────────────────
+    } else if (gameState === 'sleeper') {
+        renderSleeperScreen(overlay);
+        if (Date.now() - sleeperEnteredAt > 3000) {
+            overlay.innerHTML = '';
+            gameState = 'menu';
+            menuEnteredAt = Date.now();
         }
     }
 
