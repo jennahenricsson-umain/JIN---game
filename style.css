@@ -210,13 +210,13 @@ body {
 
 .scene-text--game-score {
     font-size: clamp(20px, 2.5vw, 30px);
-    top: auto;
-    bottom: 4%;
-    left: 20px;
-    transform: none;
-    text-align: left;
+    top: 4%;
+    bottom: auto;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
     animation: scorePop 0.2s ease-out;
-    background: #F4F4F4;
+    background: #c9c3c3;
     border: 2px solid var(--color-almost-black);
     padding: 6px 16px;
     font-weight: 700;
@@ -224,16 +224,16 @@ body {
     text-shadow: none;
 }
 
-.multipplpayer #overlay-p1 .scene-text--game-score {
-    left: 10px;
+.multiplayer #overlay-p1 .scene-text--game-score {
+    left: 25%;
 }
 .multiplayer #overlay-p2 .scene-text--game-score {
-    left: 50%;
+    left: 75%;
 }
 
 @keyframes scorePop {
-    0%   { transform: scale(1.4); }
-    100% { transform: scale(1); }
+    0%   { transform: translateX(-50%) scale(1.4); }
+    100% { transform: translateX(-50%) scale(1); }
 }
 
 .timebar {

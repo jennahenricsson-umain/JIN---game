@@ -42,6 +42,11 @@ export function createGame(particlesEl, overlayEl, xMin, xMax) {
         lastMatchTime   = 0;
         matchedGestures = [];
         spawnTarget();
+
+        const scoreEl = document.createElement('p');
+        scoreEl.className = 'scene-text scene-text--game-score';
+        scoreEl.textContent = 'Score: 0';
+        overlayEl.appendChild(scoreEl);
     }
 
     // Called every frame. Checks for a gesture match and returns the current

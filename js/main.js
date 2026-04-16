@@ -352,7 +352,7 @@ function render() {
         const scoreArg2 = gameMode === 'multi' ? finalScore2 : null;
         const result = renderGameOver(overlay, g1, g2, c1, c2, finalScore1, scoreArg2);
         const idle = Date.now() - gameStartTime > 60000; // auto-reset after 60s of inactivity
-        const bufferTime = Date.now() - gameStartTime < 3000; // ignore inputs for first 3 seconds to prevent accidental skips
+        const bufferTime = Date.now() - gameStartTime < 5000; // ignore inputs for first 5 seconds to prevent accidental skips
 
         if (overlay.querySelector('.scoreboard__playagain')) {
             overlay.querySelector('.scoreboard__playagain').style.visibility = bufferTime ? 'hidden' : 'visible';
