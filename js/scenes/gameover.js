@@ -59,9 +59,6 @@ function buildMultiLayout(score1, score2) {
     `;
 }
 
-export function resetGameOver() {
-    rendered = false;
-}
 
 // finalScore2 is optional — pass it in multiplayer to show both scores
 export function renderGameOver(overlay, gesture, gesture2, confidence, confidence2, finalScore, finalScore2 = null) {
