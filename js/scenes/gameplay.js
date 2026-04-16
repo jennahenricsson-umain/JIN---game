@@ -36,7 +36,7 @@ export function createGame(particlesEl, overlayEl, xMin, xMax) {
         particlesEl.appendChild(targetSprite);
     }
 
-    // Call once to show the START animation and spawn the first target
+    // Call once to spawn the first target
     function enter() {
         score           = 0;
         lastMatchTime   = 0;

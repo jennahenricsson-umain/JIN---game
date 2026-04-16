@@ -162,7 +162,7 @@ body {
 }
 
 .scene-text--waiting {
-    font-size: clamp(20px, 2.5vw, 30px);
+    font-size: clamp(30px, 4vw, 45px);
     top: 70%;
 }
 
@@ -199,8 +199,15 @@ body {
 
 .scene-text--onboarding-instruction {
     font-size: clamp(28px, 3.5vw, 48px);
-    top: 65%;
+    top: 25%;
     width: max-content;
+    animation: instructionPulse 2s ease-in-out infinite;
+}
+
+@keyframes instructionPulse {
+    0%   { transform: translate(-50%, -50%) scale(1); opacity: 0.8; }
+    50%  { transform: translate(-50%, -50%) scale(1.05); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(1); opacity: 0.8; }
 }
 
 .scene-text--game-gesture {
@@ -498,7 +505,7 @@ body {
 }
 
 .peace-target--faded {
-    opacity: 0.4;
+    opacity: 0;
 }
 
 .peace-target--done {
