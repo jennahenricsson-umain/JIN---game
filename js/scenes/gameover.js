@@ -1,6 +1,6 @@
 import { saveScoreAndGetQR } from '../qrLogic.js';
 
-const RANKS = ['1ST', '2ND', '3RD', '4TH', '5TH', '6TH'];
+const RANKS = ['1ST', '2ND', '3RD'];
 let rendered = false;
 let sessionScores = [];
 
@@ -39,39 +39,59 @@ function buildQRColumn(score, wrapperId) {
     `;
 }
 
+function buildMultiLayout(score1, score2) {
+    const topScore = Math.max(score1, score2);
+    return `
+        <div class="gameover-panel--multi">
+            <div class="rectangle-wrapper violet multi-player-box">
+                <div class="scoreboard__title">Score 1</div>
+                <div class="multi-score-value">${score1}</div>
+            </div>
+            <div class="rectangle-wrapper orange multi-player-box">
+                <div class="scoreboard__title">BEST TODAY</div>
+                <div class="multi-score-value">${topScore}</div>
+            </div>
+            <div class="rectangle-wrapper violet multi-player-box">
+                <div class="scoreboard__title">Score 2</div>
+                <div class="multi-score-value">${score2}</div>
+            </div>
+        </div>
+    `;
+}
+
+export function resetGameOver() {
+    rendered = false;
+}
+
 // finalScore2 is optional — pass it in multiplayer to show both scores
 export function renderGameOver(overlay, gesture, gesture2, confidence, confidence2, finalScore, finalScore2 = null) {
     if (!rendered) {
         rendered = true;
         const isMulti = finalScore2 !== null;
-        if (isMulti){
-
-            sessionScores.push({ score: finalScore, player: 'P1' }, {score: finalScore2, player: 'P2'});
-        }
-        else {
-            sessionScores.push({ score: finalScore })
+        if (isMulti) {
+            sessionScores.push({ score: finalScore, player: 'P1' }, { score: finalScore2, player: 'P2' });
+        } else {
+            sessionScores.push({ score: finalScore });
         }
         const displayScores = [...sessionScores].sort((a, b) => b.score - a.score).slice(0, 6);
 
         overlay.innerHTML = `
             <div class="scene-text scene-text--scoreboard">
-                <div class="gameover-panel">
-                    ${isMulti ? buildQRColumn(finalScore, 'qr-img-wrap-p1') : ''}
-                    ${buildScoreboard(displayScores, finalScore)}
-                    ${isMulti ? buildQRColumn(finalScore2, 'qr-img-wrap-p2') : buildQRColumn(finalScore, 'qr-img-wrap-p1')}
-                </div>
+                ${isMulti
+                    ? buildMultiLayout(finalScore, finalScore2)
+                    : `<div class="gameover-panel">
+                        ${buildScoreboard(displayScores, finalScore)}
+                        ${buildQRColumn(finalScore, 'qr-img-wrap-p1')}
+                       </div>`
+                }
             </div>
             ${window._savedIconsHTML || ''}
             ${window._savedScoreHTML || ''}
         `;
 
-        saveScoreAndGetQR(finalScore, 1).then(url => {
-            const wrap = document.getElementById('qr-img-wrap-p1');
-            if (wrap && url) wrap.innerHTML = `<img src="${url}" class="qr-prompt__img" alt="QR code">`;
-        });
-        if (isMulti) {
-            saveScoreAndGetQR(finalScore2, 2).then(url => {
-                const wrap = document.getElementById('qr-img-wrap-p2');
+        if (!isMulti) {
+            saveScoreAndGetQR(finalScore, 1).then(url => {
+                const wrap = document.getElementById('qr-img-wrap-p1');
                 if (wrap && url) wrap.innerHTML = `<img src="${url}" class="qr-prompt__img" alt="QR code">`;
             });
         }

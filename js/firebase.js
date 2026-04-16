@@ -40,3 +40,14 @@ export function endGame(score, score2 = null) {
         update(ref(db, `sessions/${currentSessionId2}`), { score: score2, duration });
     }
 }
+
+export async function fetchLeaderboard(limit = 5) {
+    const q = query(ref(db, 'sessions'), orderByChild('score'), limitToLast(limit));
+    const snapshot = await get(q);
+    const results = [];
+    snapshot.forEach(child => {
+        const val = child.val();
+        if (val.score != null) results.push({ score: val.score, name: val.username || '' });
+    });
+    return results.sort((a, b) => b.score - a.score);
+}
