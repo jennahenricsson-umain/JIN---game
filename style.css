@@ -117,7 +117,7 @@ body {
 
 .scene-text--onboarding {
     font-size: clamp(60px, 10vw, 80px);
-    top: 20%;
+    top: 15%;
     line-height: 1.3;
 }
 
@@ -133,6 +133,19 @@ body {
     font-size: clamp(40px, 6vw, 80px);
     top: 15%;
     transform: translateX(-50%);
+}
+
+.scene-text--onboarding-instruction {
+    font-size: clamp(28px, 3.5vw, 48px);
+    top: 30%;
+    width: max-content;
+    animation: instructionPulse 2s ease-in-out infinite;
+}
+
+@keyframes instructionPulse {
+    0%   { transform: translate(-50%, -50%) scale(1); opacity: 0.8; }
+    50%  { transform: translate(-50%, -50%) scale(1.05); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(1); opacity: 0.8; }
 }
 
 .progress-bar {
@@ -197,19 +210,6 @@ body {
     top: 53%;
 }
 
-.scene-text--onboarding-instruction {
-    font-size: clamp(28px, 3.5vw, 48px);
-    top: 25%;
-    width: max-content;
-    animation: instructionPulse 2s ease-in-out infinite;
-}
-
-@keyframes instructionPulse {
-    0%   { transform: translate(-50%, -50%) scale(1); opacity: 0.8; }
-    50%  { transform: translate(-50%, -50%) scale(1.05); opacity: 1; }
-    100% { transform: translate(-50%, -50%) scale(1); opacity: 0.8; }
-}
-
 .scene-text--game-gesture {
     font-size: clamp(20px, 2.5vw, 30px);
     top: 10%;
@@ -223,7 +223,7 @@ body {
     transform: translateX(-50%);
     text-align: center;
     animation: scorePop 0.2s ease-out;
-    background: #c9c3c3;
+    background: #ff633384;
     border: 2px solid var(--color-almost-black);
     padding: 6px 16px;
     font-weight: 700;
@@ -443,13 +443,6 @@ body {
     width: 48px;
     text-align: left;
     color: #1E1E1E;
-}
-
-.scoreboard__dots {
-    flex: 1;
-    border-bottom: 2px dotted rgba(180,79,255,0.4);
-    margin: 0 12px;
-    margin-bottom: 4px;
 }
 
 .scoreboard__score {
