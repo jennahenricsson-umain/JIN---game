@@ -8,7 +8,7 @@
 //
 // The factory has no knowledge of game mode — it just runs within its bounds.
 export function createGame(particlesEl, overlayEl, xMin, xMax) {
-    const margin = 120;
+    const margin = 200;
     const confidenceThreshold = 0.6;
     let targetX       = 0;
     let targetY       = 0;
@@ -23,7 +23,7 @@ export function createGame(particlesEl, overlayEl, xMin, xMax) {
 
     function spawnTarget() {
         targetSprite?.remove();
-        targetX       = xMin + Math.random() * (xMax - xMin);
+        targetX       = margin + xMin + Math.random() * ((xMax - xMin) - 2 * margin);
         targetY       = margin + Math.random() * (window.innerHeight - 2 * margin);
         targetGesture = gestures[Math.floor(Math.random() * gestures.length)];
         targethandedness = Math.random() < 0.5 ? 'Left' : 'Right';
