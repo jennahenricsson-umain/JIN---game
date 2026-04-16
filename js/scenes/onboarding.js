@@ -1,5 +1,5 @@
 export function createOnboarding(particlesEl, overlayEl, xMin, xMax) {
-    const gestureSequence    = ['Open_Palm', 'Thumb_Up', 'ILoveYou'];
+    const gestureSequence    = ['Thumb_Up', 'Open_Palm', 'ILoveYou'];
     const handednessSequence = ['Left', 'Right', 'Left'];
     const gestureLabels      = ['Open Palm', 'Thumbs Up', 'I Love You'];
     const targetY = window.innerHeight / 2;
@@ -42,7 +42,7 @@ export function createOnboarding(particlesEl, overlayEl, xMin, xMax) {
     // Returns { done, step, targethandedness, label, progress }
     function tick(gesture, gesture2, confidence, confidence2, handedness, handedness2, hx1, hy1, hx2, hy2) { 
         targetSprites.forEach((sprite, i) => {
-            if (i < step)       sprite.src = `public/assets/${gestureSequence[i]}_chrome_${handednessSequence[i]}_JIN.png`, sprite.className = 'peace-target peace-target--done';
+            if (i < step)       sprite.src = `public/assets/${gestureSequence[i]}_chrome_${handednessSequence[i]}_JIN.png`, sprite.className = 'peace-target peace-target--faded';
             else if (i === step) sprite.className = 'peace-target peace-target--active';
             else                sprite.className = 'peace-target peace-target--faded';
         });
@@ -85,19 +85,23 @@ export function createOnboarding(particlesEl, overlayEl, xMin, xMax) {
         const dist = hand1Match ? Math.hypot(hx1 - getTargetX(step), hy1 - targetY)
                    : hand2Match ? Math.hypot(hx2 - getTargetX(step), hy2 - targetY) : Infinity;
         if ((hand1Match || hand2Match) && dist < 100) {
+                //Render sucess sprite
+                const star = document.createElement('img');
+                star.src       = `public/assets/${gestureSequence[step]}_chrome_${handednessSequence[step]}_JIN.png`;
+                star.className = 'peace-target peace-target--done';
+                star.style.left = getTargetX(step) + 'px';
+                star.style.top  = targetY + 'px';
+                star.style.setProperty('--duration', (500 + Math.random() * 1000) + 'ms');
+                star.onanimationend = () => star.remove();
+                particlesEl.appendChild(star);
+
                 step++;
                 done = step >= gestureSequence.length;
+
+                    particlesEl.appendChild(star);
+
                 if (done) {
                     targetSprites.forEach(s => s.className = 'peace-target peace-target--faded')
-                    
-                    const star = document.createElement('img');
-                    star.src       = `public/assets/${gestureSequence[step]}_chrome_${handednessSequence[step]}_JIN.png`;
-                    star.className = 'peace-target peace-target--done';
-                    star.style.left = getTargetX(step) + 'px';
-                    star.style.top  = targetY + 'px';
-                    star.style.setProperty('--duration', (500 + Math.random() * 1000) + 'ms');
-                    star.onanimationend = () => star.remove();
-                    particlesEl.appendChild(star);
 
                     const fill = overlayEl.querySelector('.progress-bar__fill');
                     if (fill) fill.style.width = '100%';

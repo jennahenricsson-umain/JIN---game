@@ -139,7 +139,6 @@ function enterPlay() {
         overlayP2.innerHTML = '';
         overlay.innerHTML = `
             <p class="scene-text scene-text--game-timer"></p>
-            <p class="scene-text scene-text--game-time-countdown"></p>
         `;
         p1Game = createGame(particlesP1, overlayP1, margin, hw - margin);
         p2Game = createGame(particlesP2, overlayP2, hw + margin, window.innerWidth - margin);
@@ -230,7 +229,7 @@ function render() {
                 : p1Onboarding.tick(g1, g2, c1, c2, h1, h2, hx1, hy1, hx2, hy2);
 
             if (!overlay.querySelector('.scene-text--onboarding-title')) {
-                overlay.innerHTML = `<p class="scene-text scene-text--onboarding-title">SHOW <span class="highlight-orange">BOTH</span>HANDS</span></p>`;
+                overlay.innerHTML = `<p class="scene-text scene-text--onboarding-title">SHOW <span class="highlight-orange">BOTH</span> HANDS</span></p>`;
             }
             if (!introActive){
                 const title = overlay.querySelector('.scene-text--onboarding-title');
@@ -250,7 +249,7 @@ function render() {
                 : p2Onboarding.tick(g3, g4, c3, c4, h3, h4, hx3, hy3, hx4, hy4);
 
             if (!overlay.querySelector('.scene-text--onboarding-title')) {
-                overlay.innerHTML = `<p class="scene-text scene-text--onboarding-title">SHOW <span class="highlight-orange">BOTH</span>HANDS</span></p>`;
+                overlay.innerHTML = `<p class="scene-text scene-text--onboarding-title">SHOW <span class="highlight-orange">BOTH</span> HANDS</span></p>`;
             }
             if (!introActive){
                 const title = overlay.querySelector('.scene-text--onboarding-title');
@@ -313,7 +312,14 @@ function render() {
                     : ' #ff4444';
 
             if (timeLeft <= 5) {
-                overlay.querySelector('.scene-text--game-time-countdown').textContent = timeLeft.toFixed(0);
+                let currentSecond = Math.ceil(timeLeft);
+                const el = overlay.querySelector('.scene-text--game-time-countdown');
+                if (el.textContent !== String(currentSecond)) {
+                    el.classList.remove('scene-text--game-time-countdown');
+                    void el.offsetWidth;  // forces a reflow — the browser "sees" the removal
+                    el.classList.add('scene-text--game-time-countdown');
+                    el.textContent = currentSecond;
+                }
             }
 
             if (timeLeft <= 0 ) {
