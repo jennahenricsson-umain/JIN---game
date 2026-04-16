@@ -1,7 +1,7 @@
 import { initGestures, enableMultiplayer, disableMultiplayer, detectGesture, getGesture, getHandPosition } from './gestures.js';
 import { renderMenu } from './scenes/menu.js';
 import { createGame } from './scenes/gameplay.js';
-import { renderGameOver } from './scenes/gameover.js';
+import { renderGameOver, resetGameOver } from './scenes/gameover.js';
 import { createOnboarding } from './scenes/onboarding.js';
 import { startGame, endGame } from './firebase.js';
 
@@ -63,7 +63,13 @@ function setHTML(el, html) {
 
 async function startMultiplayer() {
     gameState = 'loading';
-    await enableMultiplayer();
+    try {
+        await enableMultiplayer();
+    } catch (error) {
+        gameState = 'menu';
+        overlay.innerHTML = `<p class="scene-text">Could not start multiplayer. Try again.</p>`;
+        return;
+    } 
     gameMode = 'multi';
     app.classList.add('multiplayer');
     enterOnboarding();
@@ -203,6 +209,7 @@ function render() {
     // ── Loading ───────────────────────────────────────────────────────────────
     } else if (gameState === 'loading') {
 
+
     // ── Onboarding ────────────────────────────────────────────────────────────
     } else if (gameState === 'onboarding') {
         const elapsed     = Date.now() - onboardingStart;
@@ -294,6 +301,7 @@ function render() {
             const { score } = p1Game.tick(g1, g2, c1, c2, h1, h2, hx1, hy1, hx2, hy2);
             score1 = score;
 
+            // Timebar
             const timeLeft = getTimeLeft();
             const pct = (timeLeft / timeLimit) * 100;
             timebarEl.classList.add('active');
@@ -327,6 +335,7 @@ function render() {
 
             overlay.querySelector('.scene-text--game-timer').textContent = `Time: ${timeLeft.toFixed(1)}s`;
 
+            // Timebar
             const pct = (timeLeft / timeLimit) * 100;
             timebarEl.classList.add('active');
             timebarEl.classList.add('multiplayer');
@@ -359,6 +368,7 @@ function render() {
                 if (gameMode === 'multi') app.classList.add('multiplayer');
                 enterOnboarding();
             } else if (result === 'menu' || idle) {
+                resetGameOver();
                 if (gameMode === 'multi') disableMultiplayer();
                 gameMode  = 'single';
                 gameState = 'menu';
