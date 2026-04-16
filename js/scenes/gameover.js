@@ -89,3 +89,7 @@ export function renderGameOver(overlay, gesture, gesture2, confidence, confidenc
     }
     return false;
 }
+
+export function resetGameOver() {
+    rendered = false;
+}
