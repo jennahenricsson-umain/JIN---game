@@ -137,7 +137,7 @@ function runRecognizer(recognizer, input, playerIndex, ctx) {
             handY[playerIndex][handIndex] = landmarks[9].y * vh * scale - offsetY;
 
             // Draw a transparent rectangle around the hand to indicate detection
-            ctx.fillStyle = handedness[playerIndex][handIndex] === 'Left' ?  'rgba(252, 144, 3, 0.5)': 'rgba(136, 0, 255, 0.5)';
+            ctx.fillStyle = handedness[playerIndex][handIndex] === 'Left' ?  'rgba(255, 101, 5, 0.6)': 'rgba(136, 0, 255, 0.5)';
 
             const inputWidth = multiplayerMode ? vw / 2 : vw;
             const xMin = Math.min(...landmarks.map(lm => lm.x));
