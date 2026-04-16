@@ -354,10 +354,6 @@ function render() {
         const idle = Date.now() - gameStartTime > 60000; // auto-reset after 60s of inactivity
         const bufferTime = Date.now() - gameStartTime < 3000; // ignore inputs for first 3 seconds to prevent accidental skips
 
-        if (overlay.querySelector('.scoreboard__playagain')) {
-            overlay.querySelector('.scoreboard__playagain').style.visibility = bufferTime ? 'hidden' : 'visible';
-        }
-        
         if (!bufferTime) {
             if (result === 'play_again') {
                 if (gameMode === 'multi') app.classList.add('multiplayer');
