@@ -52,16 +52,18 @@ body {
 }
 
 .rectangle-wrapper {
+    border: none;
     border-color: var(--color-almost-black);
-    border-width: 4px;
     border-style: solid;
-    padding: 16 px;
+    padding: 16px;
+    margin-bottom: 6px;
 }
 
 .rectangle-wrapper.orange {
     background-color: #ff633384;
     display: flex;
     flex-direction: column;
+    text-align: center;
 }
 
 .rectangle-wrapper.violet {
@@ -314,15 +316,15 @@ body {
     flex-direction: row;
     gap: 16px;
     align-items: stretch;
-    width: 70vw;
+    width: 65vw;
 }
 
 .gameover-panel .rectangle-wrapper.orange {
-    flex: 3;
+    flex: 4;
 }
 
 .gameover-panel .qr-column {
-    flex: 2;
+    flex: 1;
 }
 
 .gameover-panel .multi-scores {
@@ -402,12 +404,42 @@ body {
     text-align: center;
 }
 
+.leaderboard-column {
+    flex: 3;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+.wave-box{
+    font-size: clamp(25px, 5.5vw, 50px);
+    color: var(--color-almost-black);
+    text-align: center;
+    gap: 16px;
+    padding: 16px
+}
+
+.your-score-value{
+    color: var(--color-orange);
+    font-size: clamp(50px, 5.5vw, 70px);
+
+}
 .scoreboard__title {
     font-size: clamp(50px, 5.5vw, 70px);
     color: var(--color-almost-black);
     -webkit-text-stroke: 0;
     margin-bottom: 8px;
     margin-top: 8px;
+    border-width: 2px; 
+    margin-bottom: 4px;
+}
+
+.scoreboard__board-title{
+    font-size: clamp(30px, 5.5vw, 50px);
+    color: var(--color-almost-black);
+    -webkit-text-stroke: 0;
+    margin-bottom: 8px;
+    margin-top: 8px;
+
 }
 
 .scoreboard__row {
@@ -421,6 +453,9 @@ body {
     border-width: 3px;
     border-color: var(--color-almost-black);
     -webkit-text-stroke: 0;
+    margin-bottom: 6px;
+    border-style: solid;
+
 }
 
 .scoreboard__left {

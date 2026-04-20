@@ -7,20 +7,24 @@ let sessionScores = [];
 function buildScoreboard(scores, finalScore) {
     const latestIndex = [...scores].findIndex(s => s.score === finalScore);
     return `
-        <div class="rectangle-wrapper orange">
-            <div class="scoreboard__title">LEADERBOARD</div>
-            ${scores.map((s, i) => `
-                <div class="scoreboard__row ${i === latestIndex ? 'scoreboard__row--highlight' : ''}">
-                <div class="scoreboard__left">
+        <div class="leaderboard-column">
+            <div class="rectangle-wrapper orange">
+                <div class="scoreboard__board-title">LEADERBOARD</div>
+                ${scores.map((s, i) => `
+                    <div class="scoreboard__row ${i === latestIndex ? 'scoreboard__row--highlight' : ''}">
+                    <div class="scoreboard__left">
 
-                    <span class="scoreboard__rank">${RANKS[i]}</span>
-                    <span class="scoreboard__playertag">${s.player || ''}</span>
-                </div>
-                    <span class="scoreboard__score">${s.score}</span>
-                </div>
+                        <span class="scoreboard__rank">${RANKS[i]}</span>
+                        <span class="scoreboard__playertag">${s.player || ''}</span>
+                    </div>
+                        <span class="scoreboard__score">${s.score}</span>
+                    </div>
 
-            `).join('')}
-            <div class="scoreboard__playagain">WAVE TO PLAY AGAIN</div>
+                `).join('')}
+                </div>
+                    <div class="rectangle-wrapper orange wave-box">
+                    WAVE TO PLAY AGAIN
+                </div>
         </div>
     `;
 }
@@ -29,11 +33,13 @@ function buildQRColumn(score, wrapperId) {
     return `
         <div class="qr-column">
             <div class="rectangle-wrapper violet qr-score-box">
-                <div class="scoreboard__title">YOUR SCORE: ${score}</div>
+                <div class="scoreboard__title">YOUR SCORE </div>
+                <div class="your-score-value">${score}</div>
+
             </div>
-            <div class="rectangle-wrapper orange qr-panel">
+            <div class="rectangle-wrapper violet qr-panel">
                 <div id="${wrapperId}" class="qr-img-wrap">Loading…</div>
-                <div class="qr-label">SCAN TO JOIN THE LEADERBOARD</div>
+                <div class="qr-label">SCAN TO JOIN</div>
             </div>
         </div>
     `;
@@ -70,7 +76,9 @@ export function renderGameOver(overlay, gesture, gesture2, confidence, confidenc
         } else {
             sessionScores.push({ score: finalScore });
         }
-        const displayScores = [...sessionScores].sort((a, b) => b.score - a.score).slice(0, 6);
+        const displayScores = [...sessionScores].sort((a, b) => b.score - a.score).slice(0, 3);
+        while (displayScores.length < 3) displayScores.push({ score: 0 });
+
 
         overlay.innerHTML = `
             <div class="scene-text scene-text--scoreboard">
@@ -95,7 +103,7 @@ export function renderGameOver(overlay, gesture, gesture2, confidence, confidenc
     }
 
     if ((gesture === 'Open_Palm' && confidence >= 0.7) || (gesture2 === 'Open_Palm' && confidence2 >= 0.7)) {
-        if (sessionScores.length >= 6) sessionScores = [];
+        if (sessionScores.length >= 3) sessionScores = [];
         rendered = false;
         overlay.innerHTML = '';
         return 'play_again';
