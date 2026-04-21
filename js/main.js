@@ -220,7 +220,7 @@ function render() {
             idleLoop = false;
             startMultiplayer();
         }
-        if (Date.now() - menuEnteredAt > (idleLoop ? 3000 : 30000)) {
+        if (Date.now() - menuEnteredAt > (idleLoop ? 6000 : 30000)) {
             enterSleeper();
         }
 
@@ -418,7 +418,8 @@ function render() {
     // ── Sleeper ───────────────────────────────────────────────────────────────
     } else if (gameState === 'sleeper') {
         renderSleeperScreen(overlay);
-        if (Date.now() - sleeperEnteredAt > 3000) {
+        // JAg bytte till 5 sekunder för annars har man inte en chans att välja mode i menyn. Kanske behöver tweekas mer senare.
+        if (Date.now() - sleeperEnteredAt > 5000) {
             overlay.innerHTML = '';
             gameState = 'menu';
             menuEnteredAt = Date.now();
