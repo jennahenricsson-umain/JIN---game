@@ -163,8 +163,9 @@ body {
 
 .scene-text--back-instructions {
     font-size: clamp(10px, 1.5vw, 20px);
-    left: 10%;
+    left: 5%;
     bottom: 5%;
+    transform: none;
 }
 
 @keyframes instructionPulse {
