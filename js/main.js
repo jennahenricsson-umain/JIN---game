@@ -134,6 +134,7 @@ function enterPlay() {
     score1 = 0;
     score2 = 0;
     gameStartTime = Date.now();
+    timebarEl.style.display = '';
 
     if (gameMode === 'single') {
         particles.innerHTML = '';
@@ -150,9 +151,7 @@ function enterPlay() {
         overlay.innerHTML = '';
         overlayP1.innerHTML = '';
         overlayP2.innerHTML = '';
-        overlay.innerHTML = `
-            <p class="scene-text scene-text--game-timer"></p>
-        `;
+        overlay.innerHTML = '';
         p1Game = createGame(particlesP1, overlayP1, margin, hw - margin);
         p2Game = createGame(particlesP2, overlayP2, hw + margin, window.innerWidth - margin);
         p1Game.enter();
@@ -165,6 +164,8 @@ function enterPlay() {
 
 function enterGameOver() {
     app.classList.remove('multiplayer');
+    timebarEl.classList.remove('active', 'multiplayer');
+    timebarEl.style.display = 'none';
 
     const iconsEl = overlay.querySelector('.score-icons');
     const scoreNumEl = overlay.querySelector('.game-score');
@@ -358,7 +359,6 @@ function render() {
 
             const timeLeft = getTimeLeft();
 
-            overlay.querySelector('.scene-text--game-timer').textContent = `Time: ${timeLeft.toFixed(1)}s`;
 
             // Timebar
             const pct = (timeLeft / timeLimit) * 100;
@@ -388,7 +388,7 @@ function render() {
         const elapsed = Date.now() - gameStartTime;
 
         if (gameMode === 'multi') {
-            if (elapsed > 7000) {
+            if (elapsed > 20000) {
                 resetGameOver();
                 overlay.innerHTML = '';
                 disableMultiplayer();

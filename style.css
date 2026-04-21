@@ -70,6 +70,23 @@ body {
     background-color: #8d29f17a;
 }
 
+.multi-score-inner-box {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 16px 24px;
+    background-color: #F4F4F4;
+    border: 3px solid var(--color-almost-black);
+    width: 60%;
+}
+
+.multi-wave-text{
+    text-align: center;
+    font-weight: 700;
+    margin-top: 12px;
+    font-size: clamp(20px, 2.5vw, 32px);
+}
+
 .scene-text {
     margin: 0;
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -315,7 +332,7 @@ body {
     display: flex;
     flex-direction: row;
     gap: 16px;
-    align-items: stretch;
+    align-items: center;
     width: 65vw;
 }
 
@@ -335,7 +352,7 @@ body {
     display: flex;
     flex-direction: row;
     gap: 16px;
-    align-items: stretch;
+    align-items: center;
     width: 70vw;
 }
 
@@ -348,11 +365,28 @@ body {
     padding: 24px 16px;
 }
 
+.multi-player-box .scoreboard__title {
+    font-size: clamp(18px, 2.5vw, 32px);
+}
+
+.multi-center-column {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+}
+
+.multi-center-box {
+    padding: 48px 24px;
+}
+
 .multi-score-value {
-    font-size: clamp(48px, 8vw, 100px);
+    font-size: clamp(32px, 4.5vw, 60px);
     font-weight: 700;
-    color: var(--color-almost-black);
     line-height: 1;
+    color: var(--color-orange);
+    text-shadow: none;
 }
 
 .qr-column {
