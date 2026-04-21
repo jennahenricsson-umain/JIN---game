@@ -1,4 +1,4 @@
-const RANKS = ['1ST', '2ND', '3RD', '4TH', '5TH'];
+const RANKS = ['1ST', '2ND', '3RD'];
 let rendered = false;
 let scores = [];
 
@@ -8,10 +8,9 @@ export function setSleeperScores(newScores) {
 }
 
 function buildBoard() {
-    if (scores.length === 0) {
-        return `<div class="scoreboard__title">LOADING…</div>`;
-    }
-    return scores.map((s, i) => `
+    const display = [...scores];
+    while (display.length < 3) display.push({ name: '', score: 0 });
+    return display.map((s, i) => `
         <div class="scoreboard__row">
             <div class="scoreboard__left">
                 <span class="scoreboard__rank">${RANKS[i]}</span>
@@ -20,6 +19,7 @@ function buildBoard() {
             <span class="scoreboard__score">${s.score}</span>
         </div>
     `).join('');
+
 }
 
 export function renderSleeperScreen(overlay) {
@@ -28,9 +28,14 @@ export function renderSleeperScreen(overlay) {
         overlay.innerHTML = `
             <img src="public/assets/umain_logotype_black.png" class="sleeper-logo" alt="Umain">
             <div class="scene-text scene-text--scoreboard">
-                <div class="rectangle-wrapper orange sleeper-board">
-                    <div class="scoreboard__title">LEADERBOARD</div>
-                    ${buildBoard()}
+                <div class="leaderboard-column">
+                    <div class="rectangle-wrapper orange">
+                        <div class="scoreboard__board-title">LEADERBOARD</div>
+                        ${buildBoard()}
+                    </div>
+                    <div class="rectangle-wrapper orange wave-box">
+                        WAVE TO PLAY AGAIN
+                    </div>
                 </div>
             </div>
         `;
