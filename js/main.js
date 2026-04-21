@@ -32,7 +32,7 @@ let sleeperEnteredAt = 0;
 let countdownStart    = 0;
 let onboardingStart   = 0;
 
-const timeLimit = 10;
+const timeLimit = 30;
 let gameStartTime = 0;
 function getTimeLeft() {
     return Math.max(0, timeLimit  - (Date.now() - gameStartTime) / 1000);
@@ -208,19 +208,17 @@ function render() {
     
     // ── Menu ──────────────────────────────────────────────────────────────────
     if (gameState === 'menu') {
-        const selection = renderMenu(overlay, g1, g2, c1, c2, hx1, hx2);
-        const menuBuffer = Date.now() - menuEnteredAt < (idleLoop ? 1000 : 3000);
-        if (!menuBuffer) {
-            if (selection === 'single') {
-                idleLoop = false;
-                if (gameMode === 'multi') disableMultiplayer();
-                gameMode = 'single';
-                app.classList.remove('multiplayer');
-                enterOnboarding();
-            } else if (selection === 'multi') {
-                idleLoop = false;
-                startMultiplayer();
-            }
+    const selection = renderMenu(overlay, g1, g2, c1, c2, hx1, hx2);
+
+        if (selection === 'single') {
+            idleLoop = false;
+            if (gameMode === 'multi') disableMultiplayer();
+            gameMode = 'single';
+            app.classList.remove('multiplayer');
+            enterOnboarding();
+        } else if (selection === 'multi') {
+            idleLoop = false;
+            startMultiplayer();
         }
         if (Date.now() - menuEnteredAt > (idleLoop ? 3000 : 30000)) {
             enterSleeper();
