@@ -21,13 +21,12 @@ export function renderMenu(overlay, gesture, gesture2, confidence, confidence2, 
         <p class="scene-text scene-text--menu-subtitle" style="left: 75%;">
             <span style="font-size: 1.3em;">2 PLAYERS</span><br>WAVE ON THE <span class="highlight-orange">RIGHT</span>
         </p>
-        <div class="progress-bar" style="left: 25%"><div class="progress-bar__fill" id="bar-left" style="width:0% transition:none;"></div></div>
-        <div class="progress-bar" style="left: 75%"><div class="progress-bar__fill" id="bar-right" style="width:0% transition:none;"></div></div>
+        <div class="progress-bar" style="left: 25%"><div class="progress-bar__fill" id="bar-left" style="width:0%; transition:none;"></div></div>
+        <div class="progress-bar" style="left: 75%"><div class="progress-bar__fill" id="bar-right" style="width:0%; transition:none;"></div></div>
     `;
     if (!overlay.querySelector('.scene-text--main-menu')) {
         overlay.innerHTML = html;
     }
-
 
     if (gesture === 'Open_Palm' && confidence >= 0.7) {
         selection = handX1 < window.innerWidth / 2 ? 'single' : 'multi';
@@ -48,6 +47,8 @@ export function renderMenu(overlay, gesture, gesture2, confidence, confidence2, 
     if (gesture !=='Open_Palm' && gesture2 !=='Open_palm' || confidence <= 0.4 && confidence2 <= 0.4){
         leftActive = false;
         rightActive = false;
+        pctRight = 0;
+        pctLeft = 0;
     }
 
     if (leftActive) {
@@ -78,7 +79,6 @@ export function renderMenu(overlay, gesture, gesture2, confidence, confidence2, 
         pctLeft = 0;
         pctRight = 0;
     }
-
 
     const progressbarLeft = overlay.querySelector('#bar-left');
     const progressbarRight = overlay.querySelector('#bar-right');
