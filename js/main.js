@@ -208,19 +208,21 @@ function render() {
     
     // ── Menu ──────────────────────────────────────────────────────────────────
     if (gameState === 'menu') {
-    const selection = renderMenu(overlay, g1, g2, c1, c2, hx1, hx2);
-
-        if (selection === 'single') {
-            idleLoop = false;
-            if (gameMode === 'multi') disableMultiplayer();
-            gameMode = 'single';
-            app.classList.remove('multiplayer');
-            enterOnboarding();
-        } else if (selection === 'multi') {
-            idleLoop = false;
-            startMultiplayer();
+        const selection = renderMenu(overlay, g1, g2, c1, c2, hx1, hx2);
+        const menuBuffer = Date.now() - menuEnteredAt < (idleLoop ? 1000 : 5000);
+        if (!menuBuffer) {
+            if (selection === 'single') {
+                idleLoop = false;
+                if (gameMode === 'multi') disableMultiplayer();
+                gameMode = 'single';
+                app.classList.remove('multiplayer');
+                enterOnboarding();
+            } else if (selection === 'multi') {
+                idleLoop = false;
+                startMultiplayer();
+            }
         }
-        if (Date.now() - menuEnteredAt > (idleLoop ? 6000 : 30000)) {
+        if (Date.now() - menuEnteredAt > (idleLoop ? 5000 : 15000)) {
             enterSleeper();
         }
 
@@ -418,7 +420,6 @@ function render() {
     // ── Sleeper ───────────────────────────────────────────────────────────────
     } else if (gameState === 'sleeper') {
         renderSleeperScreen(overlay);
-        // JAg bytte till 5 sekunder för annars har man inte en chans att välja mode i menyn. Kanske behöver tweekas mer senare.
         if (Date.now() - sleeperEnteredAt > 5000) {
             overlay.innerHTML = '';
             gameState = 'menu';
