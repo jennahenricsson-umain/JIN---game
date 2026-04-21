@@ -32,7 +32,7 @@ let sleeperEnteredAt = 0;
 let countdownStart    = 0;
 let onboardingStart   = 0;
 
-const timeLimit = 10;
+const timeLimit = 30;
 let gameStartTime = 0;
 function getTimeLeft() {
     return Math.max(0, timeLimit  - (Date.now() - gameStartTime) / 1000);
