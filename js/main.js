@@ -222,7 +222,7 @@ function render() {
                 startMultiplayer();
             }
         }
-        if (Date.now() - menuEnteredAt > (idleLoop ? 5000 : 15000)) {
+        if (Date.now() - menuEnteredAt > (idleLoop ? 10000 : 15000)) {
             enterSleeper();
         }
 
