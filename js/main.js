@@ -209,7 +209,7 @@ function render() {
     // ── Menu ──────────────────────────────────────────────────────────────────
     if (gameState === 'menu') {
         const selection = renderMenu(overlay, g1, g2, c1, c2, hx1, hx2);
-        const menuBuffer = Date.now() - menuEnteredAt < (idleLoop ? 1000 : 3000);
+        const menuBuffer = Date.now() - menuEnteredAt < (idleLoop ? 1000 : 5000);
         if (!menuBuffer) {
             if (selection === 'single') {
                 idleLoop = false;
@@ -222,7 +222,7 @@ function render() {
                 startMultiplayer();
             }
         }
-        if (Date.now() - menuEnteredAt > (idleLoop ? 3000 : 30000)) {
+        if (Date.now() - menuEnteredAt > (idleLoop ? 5000 : 15000)) {
             enterSleeper();
         }
 
@@ -420,7 +420,7 @@ function render() {
     // ── Sleeper ───────────────────────────────────────────────────────────────
     } else if (gameState === 'sleeper') {
         renderSleeperScreen(overlay);
-        if (Date.now() - sleeperEnteredAt > 3000) {
+        if (Date.now() - sleeperEnteredAt > 5000) {
             overlay.innerHTML = '';
             gameState = 'menu';
             menuEnteredAt = Date.now();
