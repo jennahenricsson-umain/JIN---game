@@ -151,7 +151,9 @@ function enterPlay() {
         overlay.innerHTML = '';
         overlayP1.innerHTML = '';
         overlayP2.innerHTML = '';
-        overlay.innerHTML = '';
+        overlay.innerHTML = `
+            <p class="scene-text scene-text--game-timer"></p>
+        `;
         p1Game = createGame(particlesP1, overlayP1, margin, hw - margin);
         p2Game = createGame(particlesP2, overlayP2, hw + margin, window.innerWidth - margin);
         p1Game.enter();
@@ -209,20 +211,19 @@ function render() {
     
     // ── Menu ──────────────────────────────────────────────────────────────────
     if (gameState === 'menu') {
-        const selection = renderMenu(overlay, g1, g2, c1, c2, hx1, hx2);
-        const menuBuffer = Date.now() - menuEnteredAt < (idleLoop ? 1000 : 5000);
-        if (!menuBuffer) {
-            if (selection === 'single') {
-                idleLoop = false;
-                if (gameMode === 'multi') disableMultiplayer();
-                gameMode = 'single';
-                app.classList.remove('multiplayer');
-                enterOnboarding();
-            } else if (selection === 'multi') {
-                idleLoop = false;
-                startMultiplayer();
-            }
+    const selection = renderMenu(overlay, g1, g2, c1, c2, hx1, hx2);
+
+        if (selection === 'single') {
+            idleLoop = false;
+            if (gameMode === 'multi') disableMultiplayer();
+            gameMode = 'single';
+            app.classList.remove('multiplayer');
+            enterOnboarding();
+        } else if (selection === 'multi') {
+            idleLoop = false;
+            startMultiplayer();
         }
+
         if (Date.now() - menuEnteredAt > (idleLoop ? 10000 : 15000)) {
             enterSleeper();
         }
@@ -251,11 +252,20 @@ function render() {
                 : p1Onboarding.tick(g1, g2, c1, c2, h1, h2, hx1, hy1, hx2, hy2);
 
             if (!overlay.querySelector('.scene-text--onboarding-title')) {
-                overlay.innerHTML = `<p class="scene-text scene-text--onboarding-title">SHOW <span class="highlight-orange">BOTH</span> HANDS</span></p>`;
+                overlay.innerHTML = `<p class="scene-text scene-text--onboarding-title">SHOW <span class="highlight-orange">BOTH</span> HANDS</span></p>
+                <p class="scene-text scene-text--back-instructions">THUMBS DOWN TO GO BACK</p>`;
             }
             if (!introActive){
                 const title = overlay.querySelector('.scene-text--onboarding-title');
                 if (title) title.classList.add('onboarding-title--up');
+            }
+
+            if (g1 === "Thumb_Down" && c1 >= 0.7 || g2 === "Thumb_Down" && c2 >= 0.7) {
+                overlay.innerHTML = '';
+                particles.innerHTML = '';
+                gameMode = 'single';
+                gameState = 'menu';
+                menuEnteredAt = Date.now();
             }
 
             if (done && !p1Onboarding._finishing) {
@@ -271,7 +281,8 @@ function render() {
                 : p2Onboarding.tick(g3, g4, c3, c4, h3, h4, hx3, hy3, hx4, hy4);
 
             if (!overlay.querySelector('.scene-text--onboarding-title')) {
-                overlay.innerHTML = `<p class="scene-text scene-text--onboarding-title">SHOW <span class="highlight-orange">BOTH</span> HANDS</span></p>`;
+                overlay.innerHTML = `<p class="scene-text scene-text--onboarding-title">SHOW <span class="highlight-orange">BOTH</span> HANDS</span></p>
+                <p class="scene-text scene-text--back-instructions">THUMBS DOWN TO GO BACK</p>`;
             }
             if (!introActive){
                 const title = overlay.querySelector('.scene-text--onboarding-title');
@@ -288,6 +299,17 @@ function render() {
                 if (!overlayP2.querySelector('.scene-text--waiting')) {
                     overlayP2.innerHTML = '<p class="scene-text scene-text--waiting">WAITING FOR PLAYER 1...</p>';
                 }
+            }
+
+            if (g1 === "Thumb_Down" && c1 >= 0.7 || g2 === "Thumb_Down" && c2 >= 0.7 || g3 === "Thumb_Down" && c3 >= 0.7 || g4 === "Thumb_Down" && c4 >= 0.7) {
+                disableMultiplayer();
+                overlayP1.innerHTML = '';
+                overlayP2.innerHTML = '';
+                particlesP1.innerHTML = '';
+                particlesP2.innerHTML = '';
+                gameMode = 'single';
+                gameState = 'menu';
+                menuEnteredAt = Date.now();
             }
 
             if (p1done && p2done) {
@@ -361,7 +383,6 @@ function render() {
 
             const timeLeft = getTimeLeft();
 
-
             // Timebar
             const pct = (timeLeft / timeLimit) * 100;
             timebarEl.classList.add('active');
@@ -420,6 +441,7 @@ function render() {
     // ── Sleeper ───────────────────────────────────────────────────────────────
     } else if (gameState === 'sleeper') {
         renderSleeperScreen(overlay);
+        // JAg bytte till 5 sekunder för annars har man inte en chans att välja mode i menyn. Kanske behöver tweekas mer senare.
         if (Date.now() - sleeperEnteredAt > 5000) {
             overlay.innerHTML = '';
             gameState = 'menu';

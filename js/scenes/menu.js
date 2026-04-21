@@ -44,7 +44,7 @@ export function renderMenu(overlay, gesture, gesture2, confidence, confidence2, 
         leftActive = false;
         rightActive = true;
     }
-    if (gesture !=='Open_Palm' && gesture2 !=='Open_palm' || confidence <= 0.4 && confidence2 <= 0.4){
+    if (gesture !=='Open_Palm' && gesture2 !=='Open_Palm' || confidence <= 0.4 && confidence2 <= 0.4){
         leftActive = false;
         rightActive = false;
         pctRight = 0;
