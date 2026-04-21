@@ -46,21 +46,34 @@ function buildQRColumn(score, wrapperId) {
 }
 
 function buildMultiLayout(score1, score2) {
-    const topScore = Math.max(score1, score2);
+    const topScore = Math.max(...sessionScores.map(s => s.score));
     return `
         <div class="gameover-panel--multi">
+        
             <div class="rectangle-wrapper violet multi-player-box">
-                <div class="scoreboard__title">Score 1</div>
+                <div class="scoreboard__title">PLAYER 1</div>
+            <div class="multi-score-inner-box">
                 <div class="multi-score-value">${score1}</div>
             </div>
-            <div class="rectangle-wrapper orange multi-player-box">
-                <div class="scoreboard__title">BEST TODAY</div>
-                <div class="multi-score-value">${topScore}</div>
             </div>
+
+            <div class="multi-center-column">
+                <div class="rectangle-wrapper orange multi-player-box multi-center-box">
+                    <div class="scoreboard__title">TOP SCORE TODAY</div>
+                    <div class="multi-score-inner-box">
+                        <div class="multi-score-value">${topScore}</div>
+                    </div>
+                </div>
+                <div class="multi-wave-text"><span class="highlight-violet">WAVE</span> TO <span class="highlight-orange">PLAY AGAIN</span></div>
+            </div>
+
             <div class="rectangle-wrapper violet multi-player-box">
-                <div class="scoreboard__title">Score 2</div>
-                <div class="multi-score-value">${score2}</div>
+                <div class="scoreboard__title">PLAYER 2</div>
+                <div class="multi-score-inner-box">
+                    <div class="multi-score-value">${score2}</div>
+                </div>
             </div>
+
         </div>
     `;
 }
