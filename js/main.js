@@ -1,5 +1,5 @@
 import { initGestures, enableMultiplayer, disableMultiplayer, detectGesture, getGesture, getHandPosition } from './gestures.js';
-import { renderMenu } from './scenes/menu.js';
+import { renderMenu, leftActive, rightActive } from './scenes/menu.js';
 import { createGame } from './scenes/gameplay.js';
 import { renderGameOver, resetGameOver } from './scenes/gameover.js';
 import { createOnboarding } from './scenes/onboarding.js';
@@ -224,7 +224,7 @@ function render() {
             startMultiplayer();
         }
 
-        if (Date.now() - menuEnteredAt > (idleLoop ? 10000 : 15000)) {
+        if (Date.now() - menuEnteredAt > (idleLoop ? 10000 : 15000) && (rightActive || leftActive)) {
             enterSleeper();
         }
 

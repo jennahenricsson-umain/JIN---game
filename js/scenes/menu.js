@@ -3,8 +3,8 @@ let holdstartLeft = null;
 let holdstartRight = null;
 let pctLeft = 0;
 let pctRight = 0;
-let leftActive = false;
-let rightActive = false;
+export let leftActive = false;
+export let rightActive = false;
 let selection = null;
 
 export function renderMenu(overlay, gesture, gesture2, confidence, confidence2, handX1, handX2) {
