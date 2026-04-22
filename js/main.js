@@ -224,7 +224,7 @@ function render() {
             startMultiplayer();
         }
 
-        if (Date.now() - menuEnteredAt > (idleLoop ? 10000 : 15000) && (rightActive || leftActive)) {
+        if (Date.now() - menuEnteredAt > (idleLoop ? 10000 : 15000) && !(rightActive || leftActive)) {
             enterSleeper();
         }
 
