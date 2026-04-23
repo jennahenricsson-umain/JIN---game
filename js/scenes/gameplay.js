@@ -29,8 +29,13 @@ export function createGame(particlesEl, overlayEl, xMin, xMax) {
         targethandedness = Math.random() < 0.5 ? 'Left' : 'Right';
 
         targetSprite           = document.createElement('img');
-        targetSprite.src       = `public/assets/${targetGesture}_${targethandedness}_JIN.png`;
+        targetSprite.src       = `assets/${targetGesture.toLowerCase()}_${targethandedness.toLowerCase()}_JIN.png`;
         targetSprite.className = 'peace-target peace-target--active';
+       
+        const preload = new Image();
+        preload.src = `assets/${targetGesture.toLowerCase()}_chrome_${targethandedness.toLowerCase()}_JIN.png`;
+
+
         targetSprite.style.left = targetX + 'px';
         targetSprite.style.top  = targetY + 'px';
         particlesEl.appendChild(targetSprite);
@@ -64,7 +69,7 @@ export function createGame(particlesEl, overlayEl, xMin, xMax) {
                 lastMatchTime = Date.now();
 
                 const star = document.createElement('img');
-                star.src       = `public/assets/${targetGesture}_chrome_${targethandedness}_JIN.png`;
+                star.src       = `assets/${targetGesture.toLowerCase()}_chrome_${targethandedness.toLowerCase()}_JIN.png`;
                 star.className = 'peace-target peace-target--done';
                 star.style.left = targetX + 'px';
                 star.style.top  = targetY + 'px';
@@ -90,7 +95,7 @@ export function createGame(particlesEl, overlayEl, xMin, xMax) {
                 // const iconsEl = overlayEl.querySelector('.score-icons');
                 // if (iconsEl) {
                 //     const img = document.createElement('img');
-                //     img.src = `public/assets/${matchedGestures[matchedGestures.length - 1]}_chrome_${targethandedness}_JIN.png`;
+                //     img.src = `assets/${matchedGestures[matchedGestures.length - 1]}_chrome_${targethandedness}_JIN.png`;
                 //     img.className = 'score-icon';
                 //     iconsEl.appendChild(img);
                 //     // Remove oldest if overflowing

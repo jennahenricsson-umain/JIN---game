@@ -26,7 +26,7 @@ export function renderSleeperScreen(overlay) {
     if (!rendered) {
         rendered = true;
         overlay.innerHTML = `
-            <img src="public/assets/umain_logotype_black.png" class="sleeper-logo" alt="Umain">
+            <img src="assets/umain_logotype_black.png" class="sleeper-logo" alt="Umain">
             <div class="scene-text scene-text--scoreboard">
                 <div class="leaderboard-column">
                     <div class="rectangle-wrapper orange">

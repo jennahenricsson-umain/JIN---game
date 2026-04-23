@@ -30,7 +30,7 @@ export async function initGestures(videoElement) {
         'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0/wasm'
     );
     recognizer1 = await GestureRecognizer.createFromOptions(resolver, {
-        baseOptions: { modelAssetPath: 'public/gesture_recognizer.task', delegate: 'GPU' },
+        baseOptions: { modelAssetPath: 'gesture_recognizer.task', delegate: 'GPU' },
         runningMode: 'VIDEO',
         numHands: 2,  // two hands per player
         minHandDetectionConfidence: 0.5,
@@ -47,7 +47,7 @@ export async function initGestures(videoElement) {
 export async function enableMultiplayer() {
     if (recognizer2) return;
     recognizer2 = await GestureRecognizer.createFromOptions(resolver, {
-        baseOptions: { modelAssetPath: 'public/gesture_recognizer.task', delegate: 'GPU' },
+        baseOptions: { modelAssetPath: 'gesture_recognizer.task', delegate: 'GPU' },
         runningMode: 'VIDEO',
         numHands: 2,  // two hands per player
         minHandDetectionConfidence: 0.5,
