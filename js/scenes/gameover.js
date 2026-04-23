@@ -1,4 +1,5 @@
 import { saveScoreAndGetQR } from '../qrLogic.js';
+import { watchUsername, currentSessionId } from '../firebase.js';
 
 const RANKS = ['1ST', '2ND', '3RD'];
 let rendered = false;
@@ -11,7 +12,7 @@ function buildScoreboard(scores, finalScore) {
             <div class="rectangle-wrapper orange">
                 <div class="scoreboard__board-title">LEADERBOARD</div>
                 ${scores.map((s, i) => `
-                    <div class="scoreboard__row ${i === latestIndex ? 'scoreboard__row--highlight' : ''}">
+                    <div class="scoreboard__row ${i === latestIndex ? 'scoreboard__row--highlight' : ''}" data-session-id="${s.sessionId || ''}">
                     <div class="scoreboard__left">
 
                         <span class="scoreboard__rank">${RANKS[i]}</span>
@@ -87,7 +88,8 @@ export function renderGameOver(overlay, gesture, gesture2, confidence, confidenc
         if (isMulti) {
             sessionScores.push({ score: finalScore, player: 'P1' }, { score: finalScore2, player: 'P2' });
         } else {
-            sessionScores.push({ score: finalScore });
+            const sessionId = currentSessionId;
+            sessionScores.push({ score: finalScore, sessionId, player: '' });
         }
         const displayScores = [...sessionScores].sort((a, b) => b.score - a.score).slice(0, 3);
         while (displayScores.length < 3) displayScores.push({ score: 0 });
@@ -108,15 +110,23 @@ export function renderGameOver(overlay, gesture, gesture2, confidence, confidenc
         `;
 
         if (!isMulti) {
+            const sessionId = currentSessionId;
             saveScoreAndGetQR(finalScore, 1).then(url => {
                 const wrap = document.getElementById('qr-img-wrap-p1');
                 if (wrap && url) wrap.innerHTML = `<img src="${url}" class="qr-prompt__img" alt="QR code">`;
             });
+            if (sessionId) {
+                watchUsername(sessionId, name => {
+                    const entry = sessionScores.find(s => s.sessionId === sessionId);
+                    if (entry) entry.player = name;
+                    const row = overlay.querySelector(`[data-session-id="${sessionId}"]`);
+                    if (row) row.querySelector('.scoreboard__playertag').textContent = name;
+                });
+            }
         }
     }
 
     if ((gesture === 'Open_Palm' && confidence >= 0.7) || (gesture2 === 'Open_Palm' && confidence2 >= 0.7)) {
-        if (sessionScores.length >= 3) sessionScores = [];
         rendered = false;
         return 'play_again';
     } else if ((gesture === 'Thumb_Down' && confidence >= 0.7) || (gesture2 === 'Thumb_Down' && confidence2 >= 0.7)) {

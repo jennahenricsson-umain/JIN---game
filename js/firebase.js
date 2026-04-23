@@ -1,5 +1,5 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-import { getDatabase, ref, push, set, update, query, orderByChild, limitToLast, get } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+import { getDatabase, ref, push, set, update, query, orderByChild, limitToLast, get, onValue } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 
 const firebaseConfig = {
     apiKey: "AIzaSyDCe5jsT5vl9yeQEYHnNcomEWymgO817F8",
@@ -39,6 +39,16 @@ export function endGame(score, score2 = null) {
     if (currentSessionId2 && score2 !== null) {
         update(ref(db, `sessions/${currentSessionId2}`), { score: score2, duration });
     }
+}
+
+export function watchUsername(sessionId, callback) {
+    const unsubscribe = onValue(ref(db, `sessions/${sessionId}/username`), snapshot => {
+        const name = snapshot.val();
+        if (name && name !== 'Guest') {
+            callback(name);
+            unsubscribe();
+        }
+    });
 }
 
 export async function fetchLeaderboard(limit = 5) {
