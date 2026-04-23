@@ -253,7 +253,7 @@ function render() {
 
             if (!overlay.querySelector('.scene-text--onboarding-title')) {
                 overlay.innerHTML = `<p class="scene-text scene-text--onboarding-title">SHOW <span class="highlight-orange">BOTH</span> HANDS</span></p>
-                <p class="scene-text scene-text--back-instructions"><img src="public/assets/thumb_down_chrome_left_JIN.png" alt="Menu Image" style="height: 2em; vertical-align: middle; margin-right: 0.3em;">GO BACK</p>`;
+                <p class="scene-text scene-text--back-instructions"><img src="public/assets/thumb_down_chrome_left_JIN.png" alt="Menu Image" style="height: 3em; vertical-align: middle; margin-right: 0.3em;">GO BACK</p>`;
             }
             if (!introActive){
                 const title = overlay.querySelector('.scene-text--onboarding-title');
@@ -421,7 +421,7 @@ function render() {
             }
         } else {
             const idle = elapsed > 60000;
-            const bufferTime = elapsed < 7000;
+            const bufferTime = elapsed < 2000;
 
             if (overlay.querySelector('.scoreboard__playagain')) {
                 overlay.querySelector('.scoreboard__playagain').style.visibility = bufferTime ? 'hidden' : 'visible';

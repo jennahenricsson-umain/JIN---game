@@ -118,11 +118,9 @@ export function renderGameOver(overlay, gesture, gesture2, confidence, confidenc
     if ((gesture === 'Open_Palm' && confidence >= 0.7) || (gesture2 === 'Open_Palm' && confidence2 >= 0.7)) {
         if (sessionScores.length >= 3) sessionScores = [];
         rendered = false;
-        overlay.innerHTML = '';
         return 'play_again';
     } else if ((gesture === 'Thumb_Down' && confidence >= 0.7) || (gesture2 === 'Thumb_Down' && confidence2 >= 0.7)) {
         rendered = false;
-        overlay.innerHTML = '';
         return 'menu';
     }
     return false;
