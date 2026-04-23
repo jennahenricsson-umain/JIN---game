@@ -421,7 +421,7 @@ function render() {
             }
         } else {
             const idle = elapsed > 60000;
-            const bufferTime = elapsed < 7000;
+            const bufferTime = elapsed < 2000;
 
             if (overlay.querySelector('.scoreboard__playagain')) {
                 overlay.querySelector('.scoreboard__playagain').style.visibility = bufferTime ? 'hidden' : 'visible';
