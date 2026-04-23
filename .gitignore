@@ -65,3 +65,5 @@ node_modules/
 
 # DS_store (local mac files, not relevant to the project)
 .DS_Store
+
+.dist
