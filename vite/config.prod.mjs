@@ -6,5 +6,7 @@ export default defineConfig({
     build: {
         outDir: 'dist',
         minify: 'terser',
+        target: 'esnext',   // for deployment, stops vite from rewriting code for old browsers
+
     },
 });

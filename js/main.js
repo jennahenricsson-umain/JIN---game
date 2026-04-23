@@ -253,7 +253,7 @@ function render() {
 
             if (!overlay.querySelector('.scene-text--onboarding-title')) {
                 overlay.innerHTML = `<p class="scene-text scene-text--onboarding-title">SHOW <span class="highlight-orange">BOTH</span> HANDS</span></p>
-                <p class="scene-text scene-text--back-instructions"><img src="public/assets/thumb_down_chrome_left_JIN.png" alt="Menu Image" style="height: 3em; vertical-align: middle; margin-right: 0.3em;">GO BACK</p>`;
+                <p class="scene-text scene-text--back-instructions"><img src="assets/thumb_down_chrome_left_JIN.png" alt="Menu Image" style="height: 2em; vertical-align: middle; margin-right: 0.3em;">GO BACK</p>`;
             }
             if (!introActive){
                 const title = overlay.querySelector('.scene-text--onboarding-title');
@@ -282,7 +282,7 @@ function render() {
 
             if (!overlay.querySelector('.scene-text--onboarding-title')) {
                 overlay.innerHTML = `<p class="scene-text scene-text--onboarding-title">SHOW <span class="highlight-orange">BOTH</span> HANDS</span></p>
-                <p class="scene-text scene-text--back-instructions"><img src="public/assets/thumb_down_chrome_left_JIN.png" alt="Menu Image" style="height: 2em; vertical-align: middle; margin-right: 0.3em;">GO BACK</p>`;
+                <p class="scene-text scene-text--back-instructions"><img src="assets/thumb_down_chrome_left_JIN.png" alt="Menu Image" style="height: 2em; vertical-align: middle; margin-right: 0.3em;">GO BACK</p>`;
             }
             if (!introActive){
                 const title = overlay.querySelector('.scene-text--onboarding-title');

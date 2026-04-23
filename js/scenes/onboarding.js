@@ -17,7 +17,7 @@ export function createOnboarding(particlesEl, overlayEl, xMin, xMax) {
     function spawnAllTargets() {
         [0, 1, 2].forEach(i => {
             const el = document.createElement('img');
-            el.src = `public/assets/${gestureSequence[i]}_${handednessSequence[i]}_JIN.png`;
+            el.src = `assets/${gestureSequence[i].toLowerCase()}_${handednessSequence[i].toLowerCase()}_JIN.png`;
             el.className = 'peace-target';
             el.style.left = getTargetX(i) + 'px';
             el.style.top = targetY + 'px';
@@ -42,7 +42,7 @@ export function createOnboarding(particlesEl, overlayEl, xMin, xMax) {
     // Returns { done, step, targethandedness, label, progress }
     function tick(gesture, gesture2, confidence, confidence2, handedness, handedness2, hx1, hy1, hx2, hy2) { 
         targetSprites.forEach((sprite, i) => {
-            if (i < step)       sprite.src = `public/assets/${gestureSequence[i]}_chrome_${handednessSequence[i]}_JIN.png`, sprite.className = 'peace-target peace-target--faded';
+            if (i < step)       sprite.src = `assets/${gestureSequence[i].toLowerCase()}_chrome_${handednessSequence[i].toLowerCase()}_JIN.png`, sprite.className = 'peace-target peace-target--faded';
             else if (i === step) sprite.className = 'peace-target peace-target--active';
             else                sprite.className = 'peace-target peace-target--faded';
         });
@@ -87,7 +87,7 @@ export function createOnboarding(particlesEl, overlayEl, xMin, xMax) {
         if ((hand1Match || hand2Match) && dist < 100) {
                 //Render sucess sprite
                 const star = document.createElement('img');
-                star.src       = `public/assets/${gestureSequence[step]}_chrome_${handednessSequence[step]}_JIN.png`;
+                star.src       = `assets/${gestureSequence[step].toLowerCase()}_chrome_${handednessSequence[step].toLowerCase()}_JIN.png`;
                 star.className = 'peace-target peace-target--done';
                 star.style.left = getTargetX(step) + 'px';
                 star.style.top  = targetY + 'px';

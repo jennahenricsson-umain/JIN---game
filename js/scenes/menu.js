@@ -14,11 +14,11 @@ export function renderMenu(overlay, gesture, gesture2, confidence, confidence2, 
         <p class="scene-text scene-text--main-menu">
             CHOOSE <span class="highlight-orange">MODE</span>
         </p>
-        <img class="scene-image scene-image--left" src="public/assets/open_palm_chrome_left_JIN.png" alt="Menu Image">
+        <img class="scene-image scene-image--left" src="assets/open_palm_chrome_left_JIN.png" alt="Menu Image">
         <p class="scene-text scene-text--menu-subtitle" style="left: 25%;">
             <span style="font-size: 1.3em;">1 PLAYER</span><br>HOLD UP <span class="highlight-violet">LEFT</span> HAND
         </p>
-        <img class="scene-image scene-image--right" src="public/assets/double_hands_JIN.png" alt="Menu Image">
+        <img class="scene-image scene-image--right" src="assets/double_hands_JIN.png" alt="Menu Image">
         <p class="scene-text scene-text--menu-subtitle" style="left: 75%;">
             <span style="font-size: 1.3em;">2 PLAYERS</span><br>HOLD UP <span class="highlight-orange">RIGHT</span> HAND
         </p>
