@@ -1,9 +1,9 @@
 import { initGestures, enableMultiplayer, disableMultiplayer, detectGesture, getGesture, getHandPosition } from './gestures.js';
 import { renderMenu, leftActive, rightActive } from './scenes/menu.js';
 import { createGame } from './scenes/gameplay.js';
-import { renderGameOver, resetGameOver } from './scenes/gameover.js';
+import { renderGameOver, resetGameOver, getSessionScores } from './scenes/gameover.js';
 import { createOnboarding } from './scenes/onboarding.js';
-import { startGame, endGame, fetchLeaderboard } from './firebase.js';
+import { startGame, endGame } from './firebase.js';
 import { renderSleeperScreen, setSleeperScores, resetSleeper } from './scenes/sleeperscreen.js';
 
 // ─── DOM ──────────────────────────────────────────────────────────────────────
@@ -28,6 +28,7 @@ let gameMode  = 'single';
 let menuEnteredAt = Date.now();
 let idleLoop = false;
 let sleeperEnteredAt = 0;
+let sleeperWaveStart = null;
 
 let countdownStart    = 0;
 let onboardingStart   = 0;
@@ -67,11 +68,12 @@ function setHTML(el, html) {
 
 function enterSleeper() {
     resetSleeper();
+    sleeperWaveStart = null;
     overlay.innerHTML = '';
     gameState = 'sleeper';
     sleeperEnteredAt = Date.now();
     idleLoop = true;
-    fetchLeaderboard(5).then(scores => setSleeperScores(scores));
+    setSleeperScores(getSessionScores());
 }
 
 async function startMultiplayer() {
@@ -411,7 +413,9 @@ function render() {
         const elapsed = Date.now() - gameStartTime;
 
         if (gameMode === 'multi') {
-            if (elapsed > 20000) {
+            const bufferTime = elapsed < 2000;
+            const p2Wave = (g3 === 'Open_Palm' && c3 >= 0.7) || (g4 === 'Open_Palm' && c4 >= 0.7);
+            if (elapsed > 20000 || (!bufferTime && (result === 'play_again' || p2Wave))) {
                 resetGameOver();
                 overlay.innerHTML = '';
                 disableMultiplayer();
@@ -441,8 +445,15 @@ function render() {
     // ── Sleeper ───────────────────────────────────────────────────────────────
     } else if (gameState === 'sleeper') {
         renderSleeperScreen(overlay);
+        const waving = (g1 === 'Open_Palm' && c1 >= 0.7) || (g2 === 'Open_Palm' && c2 >= 0.7);
+        if (waving) {
+            if (sleeperWaveStart === null) sleeperWaveStart = Date.now();
+        } else {
+            sleeperWaveStart = null;
+        }
+        const heldLongEnough = sleeperWaveStart !== null && Date.now() - sleeperWaveStart >= 1000;
         // JAg bytte till 5 sekunder för annars har man inte en chans att välja mode i menyn. Kanske behöver tweekas mer senare.
-        if (Date.now() - sleeperEnteredAt > 5000) {
+        if (heldLongEnough || Date.now() - sleeperEnteredAt > 5000) {
             overlay.innerHTML = '';
             gameState = 'menu';
             menuEnteredAt = Date.now();

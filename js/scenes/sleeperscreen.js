@@ -8,7 +8,7 @@ export function setSleeperScores(newScores) {
 }
 
 function buildBoard() {
-    const display = [...scores];
+    const display = [...scores].slice(0, 3);
     while (display.length < 3) display.push({ name: '', score: 0 });
     return display.map((s, i) => `
         <div class="scoreboard__row">
@@ -27,7 +27,7 @@ export function renderSleeperScreen(overlay) {
         rendered = true;
         overlay.innerHTML = `
             <div class="scene-text scene-text--scoreboard">
-                <div class="leaderboard-column">
+                <div class="leaderboard-column sleeper-board">
                     <div class="rectangle-wrapper orange">
                         <div class="scoreboard__board-title">LEADERBOARD</div>
                         ${buildBoard()}

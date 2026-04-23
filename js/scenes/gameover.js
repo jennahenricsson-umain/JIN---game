@@ -139,3 +139,10 @@ export function renderGameOver(overlay, gesture, gesture2, confidence, confidenc
 export function resetGameOver() {
     rendered = false;
 }
+
+export function getSessionScores() {
+    return [...sessionScores]
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 3)
+        .map(s => ({ score: s.score, name: s.player || '' }));
+}
