@@ -209,7 +209,7 @@ body {
     font-size: clamp(100px, 18vw, 220px);
     top: 50%;
     transform: translate(-50%, -50%);
-    color: var(--color-violet);
+    color: var(--color-orange);
     animation: countdownPulse 1s ease-in-out forwards;
 }
 
