@@ -1,4 +1,4 @@
-const RANKS = ['1ST', '2ND', '3RD'];
+const RANKS = ['1st', '2nd', '3rd'];
 let rendered = false;
 let scores = [];
 

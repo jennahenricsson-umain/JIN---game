@@ -353,7 +353,7 @@ function render() {
             const isGo = steps[step] === 'Start!';
             overlay.innerHTML = `
                     ${!isGo ? `<p class="scene-text scene-text--countdown-label">Get ready</p>` : ''}
-                    <p class="scene-text scene-text--countdown">${steps[step]}</p>`;
+                    <p class="scene-text scene-text--countdown ${isGo ? 'scene-text--countdown--go' : ''}">${steps[step]}</p>`;
             if (isGo) setTimeout(() => enterPlay(), 600);
         }
 

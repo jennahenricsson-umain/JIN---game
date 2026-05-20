@@ -238,6 +238,10 @@ body {
     animation: countdownPulse 1s ease-in-out forwards;
 }
 
+.scene-text--countdown--go {
+    color: var(--color-almost-black);
+}
+
 .scene-text--countdown-label {
     font-size: clamp(43px, 6vw, 86px);
     top: 25%;
