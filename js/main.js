@@ -437,7 +437,7 @@ function render() {
             timebarEl.classList.add("active");
             timebarFill.style.height = pct + "%";
             timebarFill.style.background =
-                pct > 40 ? "#8d29f1" : pct > 20 ? "#ff6600" : " #ff4444";
+                pct > 40 ? "#AAE1A8" : pct > 20 ? "#F9657C" : "#D52222";
 
             if (timeLeft <= 5) {
                 let currentSecond = Math.ceil(timeLeft);
@@ -475,7 +475,7 @@ function render() {
             timebarEl.classList.add("multiplayer");
             timebarFill.style.height = pct + "%";
             timebarFill.style.background =
-                pct > 40 ? "#8d29f1" : pct > 20 ? "#ff6600" : " #ff4444";
+                pct > 40 ? "#AAE1A8" : pct > 20 ? "#F9657C" : "#D52222";
 
             if (timeLeft <= 0) {
                 timebarEl.classList.remove("active");

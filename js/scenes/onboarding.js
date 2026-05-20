@@ -62,7 +62,7 @@ export function createOnboarding(particlesEl, overlayEl, xMin, xMax) {
 
         const handInstructions = [
             'Left hand is <span class="highlight-violet">blue</span>',
-            'Right hand is <span class="highlight-orange">red</span>',
+            'Right hand is <span class="highlight-orange">pink</span>',
             'Left hand is <span class="highlight-violet">blue</span>',
         ];
 

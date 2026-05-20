@@ -46,8 +46,8 @@ body {
 
 .img-logo {
     position: absolute;
-    max-width: 15vw;
-    max-height: 7vh;
+    max-width: 20vw;
+    max-height: 15vh;
     object-fit: contain;
 }
 
