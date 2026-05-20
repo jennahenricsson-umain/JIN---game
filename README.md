@@ -59,7 +59,7 @@ Raw webcam frame (mirrored in the browser)
       sees P2 only            sees P1 only
 ```
 
-> The raw video is mirrored for display (`scaleX(-1)` in CSS), so the right half of the *raw* footage appears on the *left* side of the screen — that is P1's area.
+> The raw video is mirrored for display (`scaleX(-1)` in CSS), so the right half of the _raw_ footage appears on the _left_ side of the screen — that is P1's area.
 
 Each crop canvas is an off-screen `<canvas>` that is never displayed, only used as an input buffer for MediaPipe.
 
@@ -71,23 +71,23 @@ Recognizer 2 is **lazily initialised** — only created when the player picks mu
 
 MediaPipe returns landmark positions normalised to `[0, 1]` within the image it was given. Since each recognizer received a cropped half-frame, those coordinates need remapping to the correct half of the screen:
 
-| Mode | Formula |
-|---|---|
-| Single player | `screenX = (1 - lmX) * vw * scale - offsetX` |
+| Mode           | Formula                                              |
+| -------------- | ---------------------------------------------------- |
+| Single player  | `screenX = (1 - lmX) * vw * scale - offsetX`         |
 | Multiplayer P1 | `screenX = (0.5 - 0.5 * lmX) * vw * scale - offsetX` |
-| Multiplayer P2 | `screenX = (1 - 0.5 * lmX) * vw * scale - offsetX` |
+| Multiplayer P2 | `screenX = (1 - 0.5 * lmX) * vw * scale - offsetX`   |
 
 ### API
 
 ```js
-getGesture(playerIndex, handIndex)      // { gesture, score, handedness }
-getHandPosition(playerIndex, handIndex) // { x, y }
+getGesture(playerIndex, handIndex); // { gesture, score, handedness }
+getHandPosition(playerIndex, handIndex); // { x, y }
 
 // Both parameters default to 0 — existing single-player call sites need no changes
-getGesture()     // P1, hand 1
-getGesture(0, 1) // P1, hand 2
-getGesture(1, 0) // P2, hand 1
-getGesture(1, 1) // P2, hand 2
+getGesture(); // P1, hand 1
+getGesture(0, 1); // P1, hand 2
+getGesture(1, 0); // P2, hand 1
+getGesture(1, 1); // P2, hand 2
 ```
 
 `handedness` is `'Left'`, `'Right'`, or `''` when no hand is detected.

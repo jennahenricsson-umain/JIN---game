@@ -1,4 +1,3 @@
-
 let holdstartLeft = null;
 let holdstartRight = null;
 let pctLeft = 0;
@@ -6,10 +5,17 @@ let pctRight = 0;
 export let leftActive = false;
 export let rightActive = false;
 let selection = null;
-const secondsNeeded = 2
+const secondsNeeded = 2;
 
-export function renderMenu(overlay, gesture, gesture2, confidence, confidence2, handX1, handX2) {
-
+export function renderMenu(
+    overlay,
+    gesture,
+    gesture2,
+    confidence,
+    confidence2,
+    handX1,
+    handX2
+) {
     const html = `
         <img class="conversionista-logo conversionista-logo--menu" src="assets/Conversionista/Conversionista-Red-noBG.svg" alt="Conversionista">
         <p class="scene-text scene-text--main-menu">
@@ -26,27 +32,44 @@ export function renderMenu(overlay, gesture, gesture2, confidence, confidence2, 
         <div class="progress-bar" style="left: 25%"><div class="progress-bar__fill" id="bar-left" style="width:0%; transition:none;"></div></div>
         <div class="progress-bar" style="left: 75%"><div class="progress-bar__fill" id="bar-right" style="width:0%; transition:none;"></div></div>
     `;
-    if (!overlay.querySelector('.scene-text--main-menu')) {
+    if (!overlay.querySelector(".scene-text--main-menu")) {
         overlay.innerHTML = html;
     }
 
-    if (gesture === 'Open_Palm' && confidence >= 0.7) {
-        selection = handX1 < window.innerWidth / 2 ? 'single' : 'multi';
-    } 
+    if (gesture === "Open_Palm" && confidence >= 0.7) {
+        selection = handX1 < window.innerWidth / 2 ? "single" : "multi";
+    }
 
-    if (gesture2 === 'Open_Palm' && confidence2 >= 0.7) {
-        selection = handX2 < window.innerWidth / 2 ? 'single' : 'multi';
-    } 
+    if (gesture2 === "Open_Palm" && confidence2 >= 0.7) {
+        selection = handX2 < window.innerWidth / 2 ? "single" : "multi";
+    }
 
-    if (gesture === 'Open_Palm' && confidence >= 0.7 && handX1 <= window.innerWidth / 2 || gesture2 === 'Open_Palm' && confidence2 >= 0.7 && handX2 <= window.innerWidth / 2) {
+    if (
+        (gesture === "Open_Palm" &&
+            confidence >= 0.7 &&
+            handX1 <= window.innerWidth / 2) ||
+        (gesture2 === "Open_Palm" &&
+            confidence2 >= 0.7 &&
+            handX2 <= window.innerWidth / 2)
+    ) {
         leftActive = true;
         rightActive = false;
     }
-    if (gesture === 'Open_Palm' && confidence >= 0.7 && handX1 > window.innerWidth / 2 || gesture2 === 'Open_Palm' && confidence2 >= 0.7 && handX2 > window.innerWidth / 2) {
+    if (
+        (gesture === "Open_Palm" &&
+            confidence >= 0.7 &&
+            handX1 > window.innerWidth / 2) ||
+        (gesture2 === "Open_Palm" &&
+            confidence2 >= 0.7 &&
+            handX2 > window.innerWidth / 2)
+    ) {
         leftActive = false;
         rightActive = true;
     }
-    if (gesture !=='Open_Palm' && gesture2 !=='Open_Palm' || confidence <= 0.4 && confidence2 <= 0.4){
+    if (
+        (gesture !== "Open_Palm" && gesture2 !== "Open_Palm") ||
+        (confidence <= 0.4 && confidence2 <= 0.4)
+    ) {
         leftActive = false;
         rightActive = false;
         pctRight = 0;
@@ -58,23 +81,24 @@ export function renderMenu(overlay, gesture, gesture2, confidence, confidence2, 
         pctRight = 0;
         if (holdstartLeft === null) {
             holdstartLeft = Date.now();
-        } else if (Date.now() - holdstartLeft >= secondsNeeded*1000) {
+        } else if (Date.now() - holdstartLeft >= secondsNeeded * 1000) {
             holdstartLeft = null;
             return selection;
         }
-        pctLeft = ((Date.now() - holdstartLeft) / (secondsNeeded*1000)) * 100;
+        pctLeft = ((Date.now() - holdstartLeft) / (secondsNeeded * 1000)) * 100;
     }
     if (rightActive) {
         holdstartLeft = null;
         pctLeft = 0;
         if (holdstartRight === null) {
             holdstartRight = Date.now();
-        } else if (Date.now() - holdstartRight >= secondsNeeded*1000) {
+        } else if (Date.now() - holdstartRight >= secondsNeeded * 1000) {
             holdstartRight = null;
             return selection;
         }
-        pctRight = ((Date.now() - holdstartRight) / (secondsNeeded*1000)) * 100;
-    } 
+        pctRight =
+            ((Date.now() - holdstartRight) / (secondsNeeded * 1000)) * 100;
+    }
     if (!leftActive && !rightActive) {
         holdstartLeft = null;
         holdstartRight = null;
@@ -82,10 +106,12 @@ export function renderMenu(overlay, gesture, gesture2, confidence, confidence2, 
         pctRight = 0;
     }
 
-    const progressbarLeft = overlay.querySelector('#bar-left');
-    const progressbarRight = overlay.querySelector('#bar-right');
-    if (progressbarLeft && progressbarLeft.style.width !== pctLeft + '%') progressbarLeft.style.width = pctLeft + '%';
-    if (progressbarRight && progressbarRight.style.width !== pctRight + '%') progressbarRight.style.width = pctRight + '%';
+    const progressbarLeft = overlay.querySelector("#bar-left");
+    const progressbarRight = overlay.querySelector("#bar-right");
+    if (progressbarLeft && progressbarLeft.style.width !== pctLeft + "%")
+        progressbarLeft.style.width = pctLeft + "%";
+    if (progressbarRight && progressbarRight.style.width !== pctRight + "%")
+        progressbarRight.style.width = pctRight + "%";
 
     return null;
 }

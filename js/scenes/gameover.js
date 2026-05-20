@@ -1,27 +1,31 @@
-import { saveScoreAndGetQR } from '../qrLogic.js';
-import { watchUsername, currentSessionId } from '../firebase.js';
+import { saveScoreAndGetQR } from "../qrLogic.js";
+import { watchUsername, currentSessionId } from "../firebase.js";
 
-const RANKS = ['1st', '2nd', '3rd'];
+const RANKS = ["1st", "2nd", "3rd"];
 let rendered = false;
 let sessionScores = [];
 
 function buildScoreboard(scores, finalScore) {
-    const latestIndex = [...scores].findIndex(s => s.score === finalScore);
+    const latestIndex = [...scores].findIndex((s) => s.score === finalScore);
     return `
         <div class="leaderboard-column">
             <div class="rectangle-wrapper green">
                 <div class="scoreboard__board-title">Leaderboard</div>
-                ${scores.map((s, i) => `
-                    <div class="scoreboard__row ${i === latestIndex ? 'scoreboard__row--highlight' : ''}" data-session-id="${s.sessionId || ''}">
+                ${scores
+                    .map(
+                        (s, i) => `
+                    <div class="scoreboard__row ${i === latestIndex ? "scoreboard__row--highlight" : ""}" data-session-id="${s.sessionId || ""}">
                     <div class="scoreboard__left">
 
                         <span class="scoreboard__rank">${RANKS[i]}</span>
-                        <span class="scoreboard__playertag">${s.player || ''}</span>
+                        <span class="scoreboard__playertag">${s.player || ""}</span>
                     </div>
                         <span class="scoreboard__score">${s.score}</span>
                     </div>
 
-                `).join('')}
+                `
+                    )
+                    .join("")}
                 </div>
                     <div class="rectangle-wrapper green wave-box">
                     Wave to play again
@@ -47,7 +51,7 @@ function buildQRColumn(score, wrapperId) {
 }
 
 function buildMultiLayout(score1, score2) {
-    const topScore = Math.max(...sessionScores.map(s => s.score));
+    const topScore = Math.max(...sessionScores.map((s) => s.score));
     return `
         <div class="gameover-panel--multi">
         
@@ -79,59 +83,85 @@ function buildMultiLayout(score1, score2) {
     `;
 }
 
-
 // finalScore2 is optional — pass it in multiplayer to show both scores
-export function renderGameOver(overlay, gesture, gesture2, confidence, confidence2, finalScore, finalScore2 = null) {
+export function renderGameOver(
+    overlay,
+    gesture,
+    gesture2,
+    confidence,
+    confidence2,
+    finalScore,
+    finalScore2 = null
+) {
     if (!rendered) {
         rendered = true;
         const isMulti = finalScore2 !== null;
         if (isMulti) {
-            sessionScores.push({ score: finalScore, player: 'P1' }, { score: finalScore2, player: 'P2' });
+            sessionScores.push(
+                { score: finalScore, player: "P1" },
+                { score: finalScore2, player: "P2" }
+            );
         } else {
             const sessionId = currentSessionId;
-            sessionScores.push({ score: finalScore, sessionId, player: '' });
+            sessionScores.push({ score: finalScore, sessionId, player: "" });
         }
-        const displayScores = [...sessionScores].sort((a, b) => b.score - a.score).slice(0, 3);
+        const displayScores = [...sessionScores]
+            .sort((a, b) => b.score - a.score)
+            .slice(0, 3);
         while (displayScores.length < 3) displayScores.push({ score: 0 });
-
 
         overlay.innerHTML = `
             <div class="scene-text scene-text--scoreboard">
-                ${isMulti
-                    ? buildMultiLayout(finalScore, finalScore2)
-                    : `<div class="gameover-panel">
+                ${
+                    isMulti
+                        ? buildMultiLayout(finalScore, finalScore2)
+                        : `<div class="gameover-panel">
                         ${buildScoreboard(displayScores, finalScore)}
-                        ${buildQRColumn(finalScore, 'qr-img-wrap-p1')}
+                        ${buildQRColumn(finalScore, "qr-img-wrap-p1")}
                        </div>`
                 }
             </div>
-            ${window._savedIconsHTML || ''}
-            ${window._savedScoreHTML || ''}
+            ${window._savedIconsHTML || ""}
+            ${window._savedScoreHTML || ""}
         `;
 
         if (!isMulti) {
             const sessionId = currentSessionId;
-            saveScoreAndGetQR(finalScore, 1).then(url => {
-                const wrap = document.getElementById('qr-img-wrap-p1');
-                if (wrap && url) wrap.innerHTML = `<img src="${url}" class="qr-prompt__img" alt="QR code">`;
+            saveScoreAndGetQR(finalScore, 1).then((url) => {
+                const wrap = document.getElementById("qr-img-wrap-p1");
+                if (wrap && url)
+                    wrap.innerHTML = `<img src="${url}" class="qr-prompt__img" alt="QR code">`;
             });
             if (sessionId) {
-                watchUsername(sessionId, name => {
-                    const entry = sessionScores.find(s => s.sessionId === sessionId);
+                watchUsername(sessionId, (name) => {
+                    const entry = sessionScores.find(
+                        (s) => s.sessionId === sessionId
+                    );
                     if (entry) entry.player = name;
-                    const row = overlay.querySelector(`[data-session-id="${sessionId}"]`);
-                    if (row) row.querySelector('.scoreboard__playertag').textContent = name;
+                    const row = overlay.querySelector(
+                        `[data-session-id="${sessionId}"]`
+                    );
+                    if (row)
+                        row.querySelector(
+                            ".scoreboard__playertag"
+                        ).textContent = name;
                 });
             }
         }
     }
 
-    if ((gesture === 'Open_Palm' && confidence >= 0.7) || (gesture2 === 'Open_Palm' && confidence2 >= 0.7)) {
+    if (
+        (gesture === "Open_Palm" && confidence >= 0.7) ||
+        (gesture2 === "Open_Palm" && confidence2 >= 0.7)
+    ) {
         rendered = false;
-        return 'play_again';
-    } else if ((gesture === 'Thumb_Down' && confidence >= 0.7) || (gesture2 === 'Thumb_Down' && confidence2 >= 0.7)) {
+        return "play_again";
+    } else if (
+        (gesture === "Thumb_Down" && confidence >= 0.7) ||
+        (gesture2 === "Thumb_Down" && confidence2 >= 0.7)
+    ) {
         rendered = false;
-        return 'menu';
+        return "menu";
     }
     return false;
 }
@@ -144,5 +174,5 @@ export function getSessionScores() {
     return [...sessionScores]
         .sort((a, b) => b.score - a.score)
         .slice(0, 3)
-        .map(s => ({ score: s.score, name: s.player || '' }));
+        .map((s) => ({ score: s.score, name: s.player || "" }));
 }

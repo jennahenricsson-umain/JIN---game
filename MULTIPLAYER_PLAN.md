@@ -65,6 +65,7 @@ const p2 = createGame(canvas2, overlay2, particles2, 1, () => extendTimer());
 ```
 
 Each instance owns:
+
 - Its own overlay div for local score display
 - Its own particles div for targets and star animations
 - Its own target state (position, gesture, sprite, lastMatchTime)
@@ -92,13 +93,13 @@ A third full-width overlay sits on top of both game canvases and is owned by `ma
 
 **Responsibility split:**
 
-| Concern | Owner |
-|---|---|
-| Timer | Shared controller |
-| "Game over" signal | Shared controller → broadcasts to both instances |
-| Per-player score display | Each game instance |
-| Targets, stars, animations | Each game instance |
-| Scoreboard / game-over screen | Shared controller, full-screen |
+| Concern                       | Owner                                            |
+| ----------------------------- | ------------------------------------------------ |
+| Timer                         | Shared controller                                |
+| "Game over" signal            | Shared controller → broadcasts to both instances |
+| Per-player score display      | Each game instance                               |
+| Targets, stars, animations    | Each game instance                               |
+| Scoreboard / game-over screen | Shared controller, full-screen                   |
 
 ---
 
@@ -109,7 +110,7 @@ Both game instances run until the shared timer hits zero. On game over:
 1. Both half-canvas wrappers are **hidden** (one CSS class toggle)
 2. The layout reverts to **full-screen**
 3. The existing `renderGameOver` / scoreboard runs as in single-player
-4. Both scores get passed to the scoreboard and appear in the player color to distinguish which is which. 
+4. Both scores get passed to the scoreboard and appear in the player color to distinguish which is which.
 
 There is only ever **one rendered canvas** — `<canvas id="landmarks">` — which stays full-width throughout and draws both players' hand dots across the full screen. During multiplayer there are also two **off-screen** crop canvases alive in memory (`cropCanvas1`, `cropCanvas2`), but these are invisible input buffers fed to each recognizer, not rendered to the screen.
 
@@ -118,6 +119,7 @@ There is only ever **one rendered canvas** — `<canvas id="landmarks">` — whi
 ## Implementation Instructions
 
 ### `gestures.js`
+
 - [ ] Keep a module-level `resolver` variable and cache it inside `initGestures()` so it can be reused later
 - [ ] Create two off-screen crop canvases (`cropCanvas1`, `cropCanvas2`) — these are never added to the DOM
 - [ ] `initGestures(videoEl)` — initialises Recognizer 1 only (`numHands: 1`), sets up `cropCanvas1`, starts the webcam
@@ -125,22 +127,25 @@ There is only ever **one rendered canvas** — `<canvas id="landmarks">` — whi
 - [ ] `disableMultiplayer()` — calls `recognizer2.close()`, resets it to `null`, sets `multiplayerMode = false` so Recognizer 1 switches back to full-video input
 - [ ] `detectGesture(canvas, ctx)` — if `multiplayerMode` is false, run Recognizer 1 on the full `<video>`; if true, crop the right half of the video into `cropCanvas1` for R1 and the left half into `cropCanvas2` for R2, then run both
 - [ ] Use the following coordinate formulas when mapping landmark positions to screen pixels:
-  ```
-  Single player / full video:
-    screenX = (1 - lm.x) * videoW * scale - offsetX
 
-  P1 crop (right half of raw video → left half of screen):
-    screenX = (0.5 - 0.5 * lm.x) * videoW * scale - offsetX
+    ```
+    Single player / full video:
+      screenX = (1 - lm.x) * videoW * scale - offsetX
 
-  P2 crop (left half of raw video → right half of screen):
-    screenX = (1 - 0.5 * lm.x) * videoW * scale - offsetX
-  ```
+    P1 crop (right half of raw video → left half of screen):
+      screenX = (0.5 - 0.5 * lm.x) * videoW * scale - offsetX
+
+    P2 crop (left half of raw video → right half of screen):
+      screenX = (1 - 0.5 * lm.x) * videoW * scale - offsetX
+    ```
+
 - [ ] Draw P1 landmarks in one colour and P2 in another on the shared full-width `<canvas id="landmarks">`
 - [ ] Export `getGesture(playerIndex = 0)` and `getHandPosition(playerIndex = 0)` — defaulting to 0 keeps all existing single-player call sites unchanged
 
 ---
 
 ### `index.html`
+
 - [ ] Add a P1 overlay div and a P2 overlay div (for local score display), hidden by default
 - [ ] Add a P1 particles div and a P2 particles div (for targets and stars), hidden by default
 - [ ] Add a shared controller overlay div that sits on top of everything (for the timer and game-over screen)
@@ -149,6 +154,7 @@ There is only ever **one rendered canvas** — `<canvas id="landmarks">` — whi
 ---
 
 ### `css`
+
 - [ ] In multiplayer mode apply a side-by-side layout: P1 overlay + particles on the left half, P2 on the right half
 - [ ] Add a CSS class (e.g. `.multiplayer`) that triggers the split layout, toggled by `main.js`
 - [ ] Make sure reverting to single-player (removing the class) restores the full-screen layout cleanly
@@ -156,6 +162,7 @@ There is only ever **one rendered canvas** — `<canvas id="landmarks">` — whi
 ---
 
 ### `onboarding.js`
+
 - [ ] Refactor into a `createOnboarding(overlayEl, particlesEl, gestureIndex)` factory — same pattern as `createGame` — so the same three-step flow runs as two parallel instances in multiplayer, each on their own half
 - [ ] `spawnFixedTarget(stepIndex)` inside the factory should position targets within the correct screen half using `gestureIndex` (0 = left half, 1 = right half), using the same relative spacing as today
 - [ ] Each instance tracks its own `onboardingState` (0–3) independently
@@ -165,6 +172,7 @@ There is only ever **one rendered canvas** — `<canvas id="landmarks">` — whi
 ---
 
 ### `gameplay.js`
+
 - [ ] Refactor into a `createGame(overlayEl, particlesEl, gestureIndex, onScore)` factory function that returns a self-contained game instance with its own state (targetX, targetY, targetGesture, lastMatchTime, targetSprite)
 - [ ] `spawnTarget()` inside the factory should constrain targets to the correct screen half based on `gestureIndex` (0 = left half, 1 = right half)
 - [ ] When a match is made, call the `onScore` callback instead of directly resetting `gameStartTime` — the shared controller owns the timer
@@ -173,6 +181,7 @@ There is only ever **one rendered canvas** — `<canvas id="landmarks">` — whi
 ---
 
 ### `main.js`
+
 - [ ] Own the shared timer (`gameStartTime`)
 - [ ] `startMultiplayer()` — async, awaits `enableMultiplayer()`, then transitions to the onboarding
 - [ ] In the `'play'` state, run both game instances each frame in multiplayer; run only P1 in single-player
@@ -183,17 +192,20 @@ There is only ever **one rendered canvas** — `<canvas id="landmarks">` — whi
 ---
 
 ### `menu.js`
+
 - [ ] Display instructions for both choices (left = single player, right = multiplayer)
 - [ ] Return `'single'`, `'multi'`, or `null` based on whether a Thumb_Up is detected and which side of the screen it is on (`handX < window.innerWidth / 2`)
 
 ---
 
 ### `gameover.js`
+
 - [ ] Accept an optional second score so multiplayer results can show P1 and P2 scores separately before the shared leaderboard
 - [ ] Fall back to the existing single-score display when only one score is passed
 
 ---
 
 ### Final checks
+
 - [ ] Verify coordinate mapping is correct on different screen aspect ratios
 - [ ] Confirm that single-player mode is completely unaffected — Recognizer 2 should never be created, crop canvases should never be used

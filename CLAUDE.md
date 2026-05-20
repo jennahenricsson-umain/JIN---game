@@ -7,12 +7,14 @@ This is **JIN**, a gesture-controlled browser game built for the company Umain t
 Three KTH students are building this together.
 
 **Tech stack:**
+
 - Vanilla JavaScript (no framework)
 - MediaPipe Tasks Vision — hand gesture recognition via webcam
 - Firebase Realtime Database — leaderboard and score storage
 - Vite — dev server and build tool
 
 **Key files:**
+
 - [js/main.js](js/main.js) — game loop, state machine, scene orchestration
 - [js/gestures.js](js/gestures.js) — MediaPipe setup, crop canvases, coordinate mapping
 - [js/firebase.js](js/firebase.js) — score saving and leaderboard subscription
@@ -34,7 +36,7 @@ The user is a KTH student learning programming. Speed is never the priority — 
 ### For bugs and issues
 
 - **Explain what is wrong and why** before showing any fix.
-- Describe *where* the problem is, *what* is causing it, and *what effect* it has.
+- Describe _where_ the problem is, _what_ is causing it, and _what effect_ it has.
 - Let the user write the fix themselves. Guide them to the solution rather than writing it for them.
 - If they get stuck, give a nudge — a hint, a question, or a partial direction — not the full answer.
 

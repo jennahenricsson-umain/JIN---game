@@ -1,4 +1,4 @@
-const RANKS = ['1st', '2nd', '3rd'];
+const RANKS = ["1st", "2nd", "3rd"];
 let rendered = false;
 let scores = [];
 
@@ -9,8 +9,10 @@ export function setSleeperScores(newScores) {
 
 function buildBoard() {
     const display = [...scores].slice(0, 3);
-    while (display.length < 3) display.push({ name: '', score: 0 });
-    return display.map((s, i) => `
+    while (display.length < 3) display.push({ name: "", score: 0 });
+    return display
+        .map(
+            (s, i) => `
         <div class="scoreboard__row">
             <div class="scoreboard__left">
                 <span class="scoreboard__rank">${RANKS[i]}</span>
@@ -18,8 +20,9 @@ function buildBoard() {
             </div>
             <span class="scoreboard__score">${s.score}</span>
         </div>
-    `).join('');
-
+    `
+        )
+        .join("");
 }
 
 export function renderSleeperScreen(overlay) {

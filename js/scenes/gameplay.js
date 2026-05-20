@@ -10,114 +10,147 @@
 export function createGame(particlesEl, overlayEl, xMin, xMax) {
     const margin = 200;
     const confidenceThreshold = 0.6;
-    let targetX       = 0;
-    let targetY       = 0;
-    let targetGesture = '';
-    let targetSprite  = null;
-    let targethandedness = '';
+    let targetX = 0;
+    let targetY = 0;
+    let targetGesture = "";
+    let targetSprite = null;
+    let targethandedness = "";
     let lastMatchTime = 0;
-    let score         = 0;
+    let score = 0;
 
-    const gestures = ['Victory', 'Thumb_Up', 'Pointing_Up', 'ILoveYou', 'Closed_Fist'];
+    const gestures = [
+        "Victory",
+        "Thumb_Up",
+        "Pointing_Up",
+        "ILoveYou",
+        "Closed_Fist",
+    ];
     let matchedGestures = [];
 
     function spawnTarget() {
         targetSprite?.remove();
-        targetX       = margin + xMin + Math.random() * ((xMax - xMin) - 2 * margin);
-        targetY       = margin + Math.random() * (window.innerHeight - 2 * margin);
+        targetX = margin + xMin + Math.random() * (xMax - xMin - 2 * margin);
+        targetY = margin + Math.random() * (window.innerHeight - 2 * margin);
         targetGesture = gestures[Math.floor(Math.random() * gestures.length)];
-        targethandedness = Math.random() < 0.5 ? 'Left' : 'Right';
+        targethandedness = Math.random() < 0.5 ? "Left" : "Right";
 
-        targetSprite           = document.createElement('img');
-        targetSprite.src       = `assets/${targetGesture.toLowerCase()}_${targethandedness.toLowerCase()}_JIN.png`;
-        targetSprite.className = 'peace-target peace-target--active';
-       
+        targetSprite = document.createElement("img");
+        targetSprite.src = `assets/${targetGesture.toLowerCase()}_${targethandedness.toLowerCase()}_JIN.png`;
+        targetSprite.className = "peace-target peace-target--active";
+
         const preload = new Image();
         preload.src = `assets/${targetGesture.toLowerCase()}_chrome_${targethandedness.toLowerCase()}_JIN.png`;
 
-
-        targetSprite.style.left = targetX + 'px';
-        targetSprite.style.top  = targetY + 'px';
+        targetSprite.style.left = targetX + "px";
+        targetSprite.style.top = targetY + "px";
         particlesEl.appendChild(targetSprite);
     }
 
     // Call once to spawn the first target
     function enter() {
-        score           = 0;
-        lastMatchTime   = 0;
+        score = 0;
+        lastMatchTime = 0;
         matchedGestures = [];
         spawnTarget();
 
-        const scoreEl = document.createElement('p');
-        scoreEl.className = 'scene-text scene-text--game-score';
-        scoreEl.textContent = 'Score: 0';
+        const scoreEl = document.createElement("p");
+        scoreEl.className = "scene-text scene-text--game-score";
+        scoreEl.textContent = "Score: 0";
         overlayEl.appendChild(scoreEl);
     }
 
     // Called every frame. Checks for a gesture match and returns the current
     // score. Renders score text and which hand to use.
-    function tick(gesture, gesture2, confidence, confidence2, handedness, handedness2, hx1, hy1, hx2, hy2) {
-        const hand1Match = gesture  === targetGesture && confidence  >= confidenceThreshold && handedness  !== targethandedness;
-        const hand2Match = gesture2 === targetGesture && confidence2 >= confidenceThreshold && handedness2 !== targethandedness;
-        const dist = hand1Match ? Math.hypot(hx1 - targetX, hy1 - targetY)
-                   : hand2Match ? Math.hypot(hx2 - targetX, hy2 - targetY) : Infinity;
+    function tick(
+        gesture,
+        gesture2,
+        confidence,
+        confidence2,
+        handedness,
+        handedness2,
+        hx1,
+        hy1,
+        hx2,
+        hy2
+    ) {
+        const hand1Match =
+            gesture === targetGesture &&
+            confidence >= confidenceThreshold &&
+            handedness !== targethandedness;
+        const hand2Match =
+            gesture2 === targetGesture &&
+            confidence2 >= confidenceThreshold &&
+            handedness2 !== targethandedness;
+        const dist = hand1Match
+            ? Math.hypot(hx1 - targetX, hy1 - targetY)
+            : hand2Match
+              ? Math.hypot(hx2 - targetX, hy2 - targetY)
+              : Infinity;
 
-        if ((hand1Match || hand2Match) && dist < 100 && Date.now() - lastMatchTime > 500) {
-                targetSprite?.remove();
-                score++;
-                matchedGestures.push(targetGesture);
-                lastMatchTime = Date.now();
+        if (
+            (hand1Match || hand2Match) &&
+            dist < 100 &&
+            Date.now() - lastMatchTime > 500
+        ) {
+            targetSprite?.remove();
+            score++;
+            matchedGestures.push(targetGesture);
+            lastMatchTime = Date.now();
 
-                const star = document.createElement('img');
-                star.src       = `assets/${targetGesture.toLowerCase()}_chrome_${targethandedness.toLowerCase()}_JIN.png`;
-                star.className = 'peace-target peace-target--done';
-                star.style.left = targetX + 'px';
-                star.style.top  = targetY + 'px';
-                star.style.setProperty('--duration', (500 + Math.random() * 1000) + 'ms');
-                star.onanimationend = () => star.remove();
-                particlesEl.appendChild(star);
+            const star = document.createElement("img");
+            star.src = `assets/${targetGesture.toLowerCase()}_chrome_${targethandedness.toLowerCase()}_JIN.png`;
+            star.className = "peace-target peace-target--done";
+            star.style.left = targetX + "px";
+            star.style.top = targetY + "px";
+            star.style.setProperty(
+                "--duration",
+                500 + Math.random() * 1000 + "ms"
+            );
+            star.onanimationend = () => star.remove();
+            particlesEl.appendChild(star);
 
-                if (!overlayEl.querySelector('.scene-text--game-score')) {
-                    const scoreEl = document.createElement('p');
-                    scoreEl.className = 'scene-text scene-text--game-score';
-                    scoreEl.textContent = `Score: ${score}`;
-                    overlayEl.appendChild(scoreEl);
-                } else {
-                    overlayEl.querySelector('.scene-text--game-score').textContent = `Score: ${score}`;
-                }
+            if (!overlayEl.querySelector(".scene-text--game-score")) {
+                const scoreEl = document.createElement("p");
+                scoreEl.className = "scene-text scene-text--game-score";
+                scoreEl.textContent = `Score: ${score}`;
+                overlayEl.appendChild(scoreEl);
+            } else {
+                overlayEl.querySelector(".scene-text--game-score").textContent =
+                    `Score: ${score}`;
+            }
 
-                // if (!overlayEl.querySelector('.score-icons')) {
-                //     const iconsEl = document.createElement('div');
-                //     iconsEl.className = 'score-icons';
-                //     overlayEl.appendChild(iconsEl);
-                // }
+            // if (!overlayEl.querySelector('.score-icons')) {
+            //     const iconsEl = document.createElement('div');
+            //     iconsEl.className = 'score-icons';
+            //     overlayEl.appendChild(iconsEl);
+            // }
 
-                // const iconsEl = overlayEl.querySelector('.score-icons');
-                // if (iconsEl) {
-                //     const img = document.createElement('img');
-                //     img.src = `assets/${matchedGestures[matchedGestures.length - 1]}_chrome_${targethandedness}_JIN.png`;
-                //     img.className = 'score-icon';
-                //     iconsEl.appendChild(img);
-                //     // Remove oldest if overflowing
-                //     while (iconsEl.scrollWidth > iconsEl.clientWidth && iconsEl.children.length > 1) {
-                //         iconsEl.removeChild(iconsEl.firstChild);
-                //     }
-                // }
+            // const iconsEl = overlayEl.querySelector('.score-icons');
+            // if (iconsEl) {
+            //     const img = document.createElement('img');
+            //     img.src = `assets/${matchedGestures[matchedGestures.length - 1]}_chrome_${targethandedness}_JIN.png`;
+            //     img.className = 'score-icon';
+            //     iconsEl.appendChild(img);
+            //     // Remove oldest if overflowing
+            //     while (iconsEl.scrollWidth > iconsEl.clientWidth && iconsEl.children.length > 1) {
+            //         iconsEl.removeChild(iconsEl.firstChild);
+            //     }
+            // }
 
-                spawnTarget();
+            spawnTarget();
         }
-        
+
         return { score };
     }
 
     function reset() {
         targetSprite?.remove();
-        targetSprite    = null;
-        score           = 0;
-        lastMatchTime   = 0;
+        targetSprite = null;
+        score = 0;
+        lastMatchTime = 0;
         matchedGestures = [];
-        particlesEl.innerHTML = '';
-        overlayEl.innerHTML = '';
+        particlesEl.innerHTML = "";
+        overlayEl.innerHTML = "";
     }
 
     return { enter, tick, reset };
