@@ -26,14 +26,15 @@ export function renderSleeperScreen(overlay) {
     if (!rendered) {
         rendered = true;
         overlay.innerHTML = `
+            <img class="conversionista-logo" src="assets/Conversionista/Conversionista-Red-noBG.svg" alt="Conversionista">
             <div class="scene-text scene-text--scoreboard">
                 <div class="leaderboard-column sleeper-board">
-                    <div class="rectangle-wrapper orange">
-                        <div class="scoreboard__board-title">LEADERBOARD</div>
+                    <div class="rectangle-wrapper green">
+                        <div class="scoreboard__board-title">Leaderboard</div>
                         ${buildBoard()}
                     </div>
-                    <div class="rectangle-wrapper orange wave-box">
-                        WAVE TO PLAY AGAIN
+                    <div class="rectangle-wrapper green wave-box">
+                        Wave to play again
                     </div>
                 </div>
             </div>

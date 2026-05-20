@@ -1,7 +1,7 @@
 import { saveScoreAndGetQR } from '../qrLogic.js';
 import { watchUsername, currentSessionId } from '../firebase.js';
 
-const RANKS = ['1ST', '2ND', '3RD'];
+const RANKS = ['1st', '2nd', '3rd'];
 let rendered = false;
 let sessionScores = [];
 
@@ -9,8 +9,8 @@ function buildScoreboard(scores, finalScore) {
     const latestIndex = [...scores].findIndex(s => s.score === finalScore);
     return `
         <div class="leaderboard-column">
-            <div class="rectangle-wrapper orange">
-                <div class="scoreboard__board-title">LEADERBOARD</div>
+            <div class="rectangle-wrapper green">
+                <div class="scoreboard__board-title">Leaderboard</div>
                 ${scores.map((s, i) => `
                     <div class="scoreboard__row ${i === latestIndex ? 'scoreboard__row--highlight' : ''}" data-session-id="${s.sessionId || ''}">
                     <div class="scoreboard__left">
@@ -23,8 +23,8 @@ function buildScoreboard(scores, finalScore) {
 
                 `).join('')}
                 </div>
-                    <div class="rectangle-wrapper orange wave-box">
-                    WAVE TO PLAY AGAIN
+                    <div class="rectangle-wrapper green wave-box">
+                    Wave to play again
                 </div>
         </div>
     `;
@@ -33,14 +33,14 @@ function buildScoreboard(scores, finalScore) {
 function buildQRColumn(score, wrapperId) {
     return `
         <div class="qr-column">
-            <div class="rectangle-wrapper violet qr-score-box">
-                <div class="scoreboard__title">YOUR SCORE </div>
+            <div class="rectangle-wrapper blue qr-score-box">
+                <div class="scoreboard__title">Your score</div>
                 <div class="your-score-value">${score}</div>
 
             </div>
-            <div class="rectangle-wrapper violet qr-panel">
+            <div class="rectangle-wrapper blue qr-panel">
                 <div id="${wrapperId}" class="qr-img-wrap">Loading…</div>
-                <div class="qr-label">SCAN TO JOIN</div>
+                <div class="qr-label">Scan to join</div>
             </div>
         </div>
     `;
@@ -52,7 +52,7 @@ function buildMultiLayout(score1, score2) {
         <div class="gameover-panel--multi">
         
             <div class="rectangle-wrapper violet multi-player-box">
-                <div class="scoreboard__title">PLAYER 1</div>
+                <div class="scoreboard__title">Player 1</div>
             <div class="multi-score-inner-box">
                 <div class="multi-score-value">${score1}</div>
             </div>
@@ -60,16 +60,16 @@ function buildMultiLayout(score1, score2) {
 
             <div class="multi-center-column">
                 <div class="rectangle-wrapper orange multi-player-box multi-center-box">
-                    <div class="scoreboard__title">TOP SCORE TODAY</div>
+                    <div class="scoreboard__title">Top score today</div>
                     <div class="multi-score-inner-box">
                         <div class="multi-score-value">${topScore}</div>
                     </div>
                 </div>
-                <div class="multi-wave-text"><span class="highlight-violet">WAVE</span> TO <span class="highlight-orange">PLAY AGAIN</span></div>
+                <div class="multi-wave-text"><span class="highlight-violet">Wave</span> to <span class="highlight-orange">play again</span></div>
             </div>
 
             <div class="rectangle-wrapper violet multi-player-box">
-                <div class="scoreboard__title">PLAYER 2</div>
+                <div class="scoreboard__title">Player 2</div>
                 <div class="multi-score-inner-box">
                     <div class="multi-score-value">${score2}</div>
                 </div>
