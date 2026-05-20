@@ -48,9 +48,9 @@ export function createOnboarding(particlesEl, overlayEl, xMin, xMax) {
         });
 
         const handInstructions = [
-            'LEFT HAND IS <span class="highlight-violet">VIOLET</span>',
-            'RIGHT HAND IS <span class="highlight-orange">ORANGE</span>',
-            'LEFT HAND IS <span class="highlight-violet">VIOLET</span>'
+            'Left hand is <span class="highlight-violet">blue</span>',
+            'Right hand is <span class="highlight-orange">red</span>',
+            'Left hand is <span class="highlight-violet">blue</span>'
         ];
 
         if (!overlayEl.querySelector('.scene-text--onboarding-instruction')) {

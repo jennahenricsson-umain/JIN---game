@@ -27,6 +27,7 @@ let gameState = 'menu'; // 'menu'|'loading'|'onboarding'|'countdown'|'play'|'ove
 let gameMode  = 'single';
 let menuEnteredAt = Date.now();
 let idleLoop = false;
+let isFading = false;
 let sleeperEnteredAt = 0;
 let sleeperWaveStart = null;
 
@@ -65,6 +66,20 @@ function setHTML(el, html) {
 }
 
 // ─── State transitions ────────────────────────────────────────────────────────
+
+function fadeTransition(callback) {
+    isFading = true;
+    overlay.classList.add('fade-out');
+    setTimeout(() => {
+        overlay.classList.remove('fade-out');
+        callback();
+        overlay.classList.add('fade-in');
+        setTimeout(() => {
+            overlay.classList.remove('fade-in');
+            isFading = false;
+        }, 1000);
+    }, 1000);
+}
 
 function enterSleeper() {
     resetSleeper();
@@ -230,8 +245,8 @@ function render() {
             menuEnteredAt = Date.now();
         }
 
-        if (Date.now() - menuEnteredAt > (idleLoop ? 10000 : 15000) && !(rightActive || leftActive)) {
-            enterSleeper();
+        if (Date.now() - menuEnteredAt > (idleLoop ? 10000 : 15000) && !(rightActive || leftActive) && !isFading) {
+            fadeTransition(() => enterSleeper());
         }
 
     // ── Loading ───────────────────────────────────────────────────────────────
@@ -258,8 +273,8 @@ function render() {
                 : p1Onboarding.tick(g1, g2, c1, c2, h1, h2, hx1, hy1, hx2, hy2);
 
             if (!overlay.querySelector('.scene-text--onboarding-title')) {
-                overlay.innerHTML = `<p class="scene-text scene-text--onboarding-title">SHOW <span class="highlight-orange">BOTH</span> HANDS</span></p>
-                <p class="scene-text scene-text--back-instructions"><img src="assets/thumb_down_chrome_left_JIN.png" alt="Menu Image" style="height: 2em; vertical-align: middle; margin-right: 0.3em;">GO BACK</p>`;
+                overlay.innerHTML = `<p class="scene-text scene-text--onboarding-title">Show <span class="highlight-orange">both</span> hands</span></p>
+                <p class="scene-text scene-text--back-instructions"><img src="assets/thumb_down_chrome_left_JIN.png" alt="Menu Image" style="height: 2em; vertical-align: middle; margin-right: 0.3em;">Go back</p>`;
             }
             if (!introActive){
                 const title = overlay.querySelector('.scene-text--onboarding-title');
@@ -287,8 +302,8 @@ function render() {
                 : p2Onboarding.tick(g3, g4, c3, c4, h3, h4, hx3, hy3, hx4, hy4);
 
             if (!overlay.querySelector('.scene-text--onboarding-title')) {
-                overlay.innerHTML = `<p class="scene-text scene-text--onboarding-title">SHOW <span class="highlight-orange">BOTH</span> HANDS</span></p>
-                <p class="scene-text scene-text--back-instructions"><img src="assets/thumb_down_chrome_left_JIN.png" alt="Menu Image" style="height: 2em; vertical-align: middle; margin-right: 0.3em;">GO BACK</p>`;
+                overlay.innerHTML = `<p class="scene-text scene-text--onboarding-title">Show <span class="highlight-orange">both</span> hands</span></p>
+                <p class="scene-text scene-text--back-instructions"><img src="assets/thumb_down_chrome_left_JIN.png" alt="Menu Image" style="height: 2em; vertical-align: middle; margin-right: 0.3em;">Go back</p>`;
             }
             if (!introActive){
                 const title = overlay.querySelector('.scene-text--onboarding-title');
@@ -297,13 +312,13 @@ function render() {
             if (p1done && !p2done) {
                 overlayP1.innerHTML = '';
                 if (!overlayP2.querySelector('.scene-text--waiting')) {
-                    overlayP2.innerHTML = '<p class="scene-text scene-text--waiting" style="left: 25%">WAITING FOR PLAYER 2...</p>';
+                    overlayP2.innerHTML = '<p class="scene-text scene-text--waiting" style="left: 25%">Waiting for player 2...</p>';
                 }
             }
 
             if (!p1done && p2done) {
                 if (!overlayP2.querySelector('.scene-text--waiting')) {
-                    overlayP2.innerHTML = '<p class="scene-text scene-text--waiting">WAITING FOR PLAYER 1...</p>';
+                    overlayP2.innerHTML = '<p class="scene-text scene-text--waiting">Waiting for player 1...</p>';
                 }
             }
 
@@ -331,14 +346,14 @@ function render() {
     } else if (gameState === 'countdown') {
         const elapsed = Date.now() - countdownStart;
         const step    = Math.floor(elapsed / 1000);
-        const steps   = ['3', '2', '1', 'START!'];
+        const steps   = ['3', '2', '1', 'Start!'];
 
         if (step < steps.length && overlay.dataset.countdownStep !== String(step)) {
             overlay.dataset.countdownStep = step;
-            const isGo = steps[step] === 'START!';
+            const isGo = steps[step] === 'Start!';
             overlay.innerHTML = `
-                    ${!isGo ? `<p class="scene-text scene-text--countdown-label">GET READY</p>` : ''}
-                    <p class="scene-text scene-text--countdown">${steps[step]}</p>`;
+                    ${!isGo ? `<p class="scene-text scene-text--countdown-label">Get ready</p>` : ''}
+                    <p class="scene-text scene-text--countdown ${isGo ? 'scene-text--countdown--go' : ''}">${steps[step]}</p>`;
             if (isGo) setTimeout(() => enterPlay(), 600);
         }
 
@@ -457,10 +472,12 @@ function render() {
         }
         const heldLongEnough = sleeperWaveStart !== null && Date.now() - sleeperWaveStart >= 1000;
         // JAg bytte till 5 sekunder för annars har man inte en chans att välja mode i menyn. Kanske behöver tweekas mer senare.
-        if (heldLongEnough || Date.now() - sleeperEnteredAt > 5000) {
-            overlay.innerHTML = '';
-            gameState = 'menu';
-            menuEnteredAt = Date.now();
+        if ((heldLongEnough || Date.now() - sleeperEnteredAt > 5000) && !isFading) {
+            fadeTransition(() => {
+                overlay.innerHTML = '';
+                gameState = 'menu';
+                menuEnteredAt = Date.now();
+            });
         }
     }
 
