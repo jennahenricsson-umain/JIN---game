@@ -1,5 +1,5 @@
 import { saveScoreAndGetQR } from "../qrLogic.js";
-import { watchUsername, currentSessionId } from "../firebase.js";
+import { watchUsername, currentSessionId, currentSessionId2 } from "../firebase.js";
 
 const RANKS = ["1st", "2nd", "3rd"];
 let rendered = false;
@@ -20,7 +20,7 @@ function buildScoreboard(scores, finalScore) {
                         <span class="scoreboard__rank">${RANKS[i]}</span>
                         <span class="scoreboard__playertag">${s.player || ""}</span>
                     </div>
-                        <span class="scoreboard__score">${s.score}</span>
+                        <span class="scoreboard__score">${s.player ? s.score : ""}</span>
                     </div>
 
                 `
@@ -51,34 +51,51 @@ function buildQRColumn(score, wrapperId) {
 }
 
 function buildMultiLayout(score1, score2) {
-    const topScore = Math.max(...sessionScores.map((s) => s.score));
+    const displayScores = [...sessionScores]
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 3);
+    while (displayScores.length < 3) displayScores.push({ score: 0, player: "" });
+    const rows = displayScores
+        .map(
+            (s, i) => `
+        <div class="scoreboard__row" data-session-id="${s.sessionId || ''}">
+            <div class="scoreboard__left">
+                <span class="scoreboard__rank">${RANKS[i]}</span>
+                <span class="scoreboard__playertag">${s.player || ""}</span>
+            </div>
+            <span class="scoreboard__score">${s.player ? s.score : ""}</span>
+        </div>`
+        )
+        .join("");
     return `
         <div class="gameover-panel--multi">
-        
-            <div class="rectangle-wrapper violet multi-player-box">
-                <div class="scoreboard__title">Player 1</div>
-            <div class="multi-score-inner-box">
-                <div class="multi-score-value">${score1}</div>
-            </div>
-            </div>
-
-            <div class="multi-center-column">
-                <div class="rectangle-wrapper orange multi-player-box multi-center-box">
-                    <div class="scoreboard__title">Top score today</div>
-                    <div class="multi-score-inner-box">
-                        <div class="multi-score-value">${topScore}</div>
-                    </div>
+            <div class="qr-column">
+                <div class="rectangle-wrapper blue qr-score-box">
+                    <div class="scoreboard__title">Player 1</div>
+                    <div class="multi-score-value">${score1}</div>
                 </div>
-                <div class="multi-wave-text"><span class="highlight-violet">Wave</span> to <span class="highlight-orange">play again</span></div>
+                <div class="rectangle-wrapper blue qr-panel">
+                    <div id="qr-img-wrap-p1" class="qr-img-wrap">Loading…</div>
+                    <div class="qr-label">Scan to join the leaderboard</div>
+                </div>
             </div>
-
-            <div class="rectangle-wrapper violet multi-player-box">
-                <div class="scoreboard__title">Player 2</div>
-                <div class="multi-score-inner-box">
+            <div class="leaderboard-column">
+                <div class="rectangle-wrapper green">
+                    <div class="scoreboard__board-title">Scoreboard</div>
+                    ${rows}
+                </div>
+                <div class="rectangle-wrapper green wave-box">Wave to play again</div>
+            </div>
+            <div class="qr-column">
+                <div class="rectangle-wrapper blue qr-score-box">
+                    <div class="scoreboard__title">Player 2</div>
                     <div class="multi-score-value">${score2}</div>
                 </div>
+                <div class="rectangle-wrapper blue qr-panel">
+                    <div id="qr-img-wrap-p2" class="qr-img-wrap">Loading…</div>
+                    <div class="qr-label">Scan to join the leaderboard</div>
+                </div>
             </div>
-
         </div>
     `;
 }
@@ -98,8 +115,8 @@ export function renderGameOver(
         const isMulti = finalScore2 !== null;
         if (isMulti) {
             sessionScores.push(
-                { score: finalScore, player: "P1" },
-                { score: finalScore2, player: "P2" }
+                { score: finalScore, player: "", sessionId: currentSessionId },
+                { score: finalScore2, player: "", sessionId: currentSessionId2 }
             );
         } else {
             const sessionId = currentSessionId;
@@ -125,7 +142,40 @@ export function renderGameOver(
             ${window._savedScoreHTML || ""}
         `;
 
-        if (!isMulti) {
+        if (isMulti) {
+            saveScoreAndGetQR(finalScore, 1).then((url) => {
+                const wrap = document.getElementById("qr-img-wrap-p1");
+                if (wrap && url)
+                    wrap.innerHTML = `<img src="${url}" class="qr-prompt__img" alt="QR code">`;
+            });
+            saveScoreAndGetQR(finalScore2, 2).then((url) => {
+                const wrap = document.getElementById("qr-img-wrap-p2");
+                if (wrap && url)
+                    wrap.innerHTML = `<img src="${url}" class="qr-prompt__img" alt="QR code">`;
+            });
+            if (currentSessionId) {
+                watchUsername(currentSessionId, (name) => {
+                    const entry = sessionScores.find((s) => s.sessionId === currentSessionId);
+                    if (entry) entry.player = name;
+                    const row = overlay.querySelector(`[data-session-id="${currentSessionId}"]`);
+                    if (row) {
+                        row.querySelector(".scoreboard__playertag").textContent = name;
+                        row.querySelector(".scoreboard__score").textContent = entry ? entry.score : "";
+                    }
+                });
+            }
+            if (currentSessionId2) {
+                watchUsername(currentSessionId2, (name) => {
+                    const entry = sessionScores.find((s) => s.sessionId === currentSessionId2);
+                    if (entry) entry.player = name;
+                    const row = overlay.querySelector(`[data-session-id="${currentSessionId2}"]`);
+                    if (row) {
+                        row.querySelector(".scoreboard__playertag").textContent = name;
+                        row.querySelector(".scoreboard__score").textContent = entry ? entry.score : "";
+                    }
+                });
+            }
+        } else {
             const sessionId = currentSessionId;
             saveScoreAndGetQR(finalScore, 1).then((url) => {
                 const wrap = document.getElementById("qr-img-wrap-p1");
@@ -141,10 +191,10 @@ export function renderGameOver(
                     const row = overlay.querySelector(
                         `[data-session-id="${sessionId}"]`
                     );
-                    if (row)
-                        row.querySelector(
-                            ".scoreboard__playertag"
-                        ).textContent = name;
+                    if (row) {
+                        row.querySelector(".scoreboard__playertag").textContent = name;
+                        row.querySelector(".scoreboard__score").textContent = entry ? entry.score : "";
+                    }
                 });
             }
         }

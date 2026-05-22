@@ -15,13 +15,13 @@ import {
 const firebaseConfig = {
     apiKey: "AIzaSyDCe5jsT5vl9yeQEYHnNcomEWymgO817F8",
     authDomain: "jin-gesturegame.firebaseapp.com",
-    databaseURL:
-        "https://jin-gesturegame-default-rtdb.europe-west1.firebasedatabase.app",
+    databaseURL: "https://jin-gesturegame-default-rtdb.europe-west1.firebasedatabase.app",
     projectId: "jin-gesturegame",
     storageBucket: "jin-gesturegame.firebasestorage.app",
     messagingSenderId: "470580967492",
-    appId: "1:470580967492:web:399614ecd28a8839b02411",
-};
+    appId: "1:470580967492:web:00928b5bcad38534b02411",
+    measurementId: "G-1HYSV9MFBH"
+  };
 
 const db = getDatabase(initializeApp(firebaseConfig));
 

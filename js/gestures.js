@@ -11,6 +11,9 @@ let recognizer2; // Created only when the player picks multiplayer
 
 let video;
 let multiplayerMode = false;
+let showDivider = true;
+
+export function setShowDivider(val) { showDivider = val; }
 
 // Off-screen canvases fed to each recognizer in multiplayer — never in the DOM
 let cropCanvas1, cropCtx1;
@@ -122,15 +125,17 @@ export function detectGesture(canvas, ctx) {
         runRecognizer(recognizer2, cropCanvas2, 1, ctx);
 
         // Visual divider between the two player areas
-        ctx.save();
-        ctx.strokeStyle = "rgba(255,255,255,0.35)";
-        ctx.lineWidth = 2;
-        ctx.setLineDash([12, 8]);
-        ctx.beginPath();
-        ctx.moveTo(canvas.width / 2, 0);
-        ctx.lineTo(canvas.width / 2, canvas.height);
-        ctx.stroke();
-        ctx.restore();
+        if (showDivider) {
+            ctx.save();
+            ctx.strokeStyle = "rgba(255,255,255,0.35)";
+            ctx.lineWidth = 2;
+            ctx.setLineDash([12, 8]);
+            ctx.beginPath();
+            ctx.moveTo(canvas.width / 2, 0);
+            ctx.lineTo(canvas.width / 2, canvas.height);
+            ctx.stroke();
+            ctx.restore();
+        }
     }
 }
 

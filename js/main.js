@@ -5,6 +5,7 @@ import {
     detectGesture,
     getGesture,
     getHandPosition,
+    setShowDivider,
 } from "./gestures.js";
 import { renderMenu, leftActive, rightActive } from "./scenes/menu.js";
 import { createGame } from "./scenes/gameplay.js";
@@ -175,6 +176,7 @@ function enterCountdown() {
 }
 
 function enterPlay() {
+    setShowDivider(true);
     const margin = 120;
     const hw = window.innerWidth / 2;
     score1 = 0;
@@ -221,6 +223,7 @@ function enterPlay() {
 }
 
 function enterGameOver() {
+    setShowDivider(false);
     app.classList.remove("multiplayer");
     timebarEl.classList.remove("active", "multiplayer");
     timebarEl.style.display = "none";
@@ -528,7 +531,7 @@ function render() {
             }
 
             if (!bufferTime) {
-                if (result === "play_again" || idle) {
+                if (result === "play_again" || result === "menu" || idle) {
                     resetGameOver();
                     overlay.innerHTML = "";
                     gameMode = "single";

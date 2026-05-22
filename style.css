@@ -441,8 +441,16 @@ body {
     display: flex;
     flex-direction: row;
     gap: 16px;
-    align-items: center;
-    width: 70vw;
+    align-items: flex-start;
+    width: 80vw;
+}
+
+.gameover-panel--multi .qr-column {
+    flex: 1;
+}
+
+.gameover-panel--multi .leaderboard-column {
+    flex: 2;
 }
 
 .multi-player-box {
