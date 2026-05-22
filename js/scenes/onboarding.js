@@ -1,12 +1,11 @@
 export function createOnboarding(particlesEl, overlayEl, xMin, xMax) {
-    const gestureSequence    = ['Thumb_Up', 'Open_Palm', 'ILoveYou'];
-    const handednessSequence = ['Left', 'Right', 'Left'];
-    const gestureLabels      = ['Open Palm', 'Thumbs Up', 'I Love You'];
+    const gestureSequence = ["Thumb_Up", "Open_Palm", "ILoveYou"];
+    const handednessSequence = ["Left", "Right", "Left"];
+    const gestureLabels = ["Open Palm", "Thumbs Up", "I Love You"];
     const targetY = window.innerHeight / 2;
-    let step         = 0;
+    let step = 0;
     let targetSprites = [];
-    let done         = false;
-
+    let done = false;
 
     function getTargetX(stepIndex) {
         const centre = (xMin + xMax) / 2;
@@ -15,12 +14,12 @@ export function createOnboarding(particlesEl, overlayEl, xMin, xMax) {
     }
 
     function spawnAllTargets() {
-        [0, 1, 2].forEach(i => {
-            const el = document.createElement('img');
+        [0, 1, 2].forEach((i) => {
+            const el = document.createElement("img");
             el.src = `assets/${gestureSequence[i].toLowerCase()}_${handednessSequence[i].toLowerCase()}_JIN.png`;
-            el.className = 'peace-target';
-            el.style.left = getTargetX(i) + 'px';
-            el.style.top = targetY + 'px';
+            el.className = "peace-target";
+            el.style.left = getTargetX(i) + "px";
+            el.style.top = targetY + "px";
             particlesEl.appendChild(el);
             targetSprites.push(el);
         });
@@ -28,10 +27,10 @@ export function createOnboarding(particlesEl, overlayEl, xMin, xMax) {
 
     function reset() {
         step = 0;
-        targetSprites.forEach(s => s.remove());
+        targetSprites.forEach((s) => s.remove());
         targetSprites = [];
-        overlayEl.innerHTML = '';
-        particlesEl.innerHTML = '';
+        overlayEl.innerHTML = "";
+        particlesEl.innerHTML = "";
     }
 
     function spawn() {
@@ -40,77 +39,109 @@ export function createOnboarding(particlesEl, overlayEl, xMin, xMax) {
 
     // Called every frame.
     // Returns { done, step, targethandedness, label, progress }
-    function tick(gesture, gesture2, confidence, confidence2, handedness, handedness2, hx1, hy1, hx2, hy2) { 
+    function tick(
+        gesture,
+        gesture2,
+        confidence,
+        confidence2,
+        handedness,
+        handedness2,
+        hx1,
+        hy1,
+        hx2,
+        hy2
+    ) {
         targetSprites.forEach((sprite, i) => {
-            if (i < step)       sprite.src = `assets/${gestureSequence[i].toLowerCase()}_chrome_${handednessSequence[i].toLowerCase()}_JIN.png`, sprite.className = 'peace-target peace-target--faded';
-            else if (i === step) sprite.className = 'peace-target peace-target--active';
-            else                sprite.className = 'peace-target peace-target--faded';
+            if (i < step)
+                ((sprite.src = `assets/${gestureSequence[i].toLowerCase()}_chrome_${handednessSequence[i].toLowerCase()}_JIN.png`),
+                    (sprite.className = "peace-target peace-target--faded"));
+            else if (i === step)
+                sprite.className = "peace-target peace-target--active";
+            else sprite.className = "peace-target peace-target--faded";
         });
 
         const handInstructions = [
-            'LEFT HAND IS <span class="highlight-violet">VIOLET</span>',
-            'RIGHT HAND IS <span class="highlight-orange">ORANGE</span>',
-            'LEFT HAND IS <span class="highlight-violet">VIOLET</span>'
+            'Left hand is <span class="highlight-violet">blue</span>',
+            'Right hand is <span class="highlight-orange">pink</span>',
+            'Left hand is <span class="highlight-violet">blue</span>',
         ];
 
-        if (!overlayEl.querySelector('.scene-text--onboarding-instruction')) {
-            const instrEl = document.createElement('p');
-            instrEl.className = 'scene-text scene-text--onboarding-instruction';
+        if (!overlayEl.querySelector(".scene-text--onboarding-instruction")) {
+            const instrEl = document.createElement("p");
+            instrEl.className = "scene-text scene-text--onboarding-instruction";
             overlayEl.appendChild(instrEl);
         }
         if (step < gestureSequence.length) {
-            const instrEl = overlayEl.querySelector('.scene-text--onboarding-instruction');
+            const instrEl = overlayEl.querySelector(
+                ".scene-text--onboarding-instruction"
+            );
             instrEl.innerHTML = handInstructions[step];
         }
 
         const pct = (step / 3) * 100;
-        
 
-        if (!overlayEl.querySelector('.progress-bar')) {
-            const bar = document.createElement('div');
-            bar.className = 'progress-bar';
+        if (!overlayEl.querySelector(".progress-bar")) {
+            const bar = document.createElement("div");
+            bar.className = "progress-bar";
             bar.innerHTML = `<div class="progress-bar__fill" style="width:0%"></div>`;
             overlayEl.appendChild(bar);
             requestAnimationFrame(() => {
-                const fill = overlayEl.querySelector('.progress-bar__fill');
-                if (fill) fill.style.width = pct + '%';
+                const fill = overlayEl.querySelector(".progress-bar__fill");
+                if (fill) fill.style.width = pct + "%";
             });
         } else {
-            const fill = overlayEl.querySelector('.progress-bar__fill');
-            if (fill && fill.style.width !== pct + '%') fill.style.width = pct + '%';
+            const fill = overlayEl.querySelector(".progress-bar__fill");
+            if (fill && fill.style.width !== pct + "%")
+                fill.style.width = pct + "%";
         }
 
-        const hand1Match = gesture  === gestureSequence[step] && confidence  >= 0.6 && handedness  !== handednessSequence[step];
-        const hand2Match = gesture2 === gestureSequence[step] && confidence2 >= 0.6 && handedness2 !== handednessSequence[step];
-        const dist = hand1Match ? Math.hypot(hx1 - getTargetX(step), hy1 - targetY)
-                   : hand2Match ? Math.hypot(hx2 - getTargetX(step), hy2 - targetY) : Infinity;
+        const hand1Match =
+            gesture === gestureSequence[step] &&
+            confidence >= 0.6 &&
+            handedness !== handednessSequence[step];
+        const hand2Match =
+            gesture2 === gestureSequence[step] &&
+            confidence2 >= 0.6 &&
+            handedness2 !== handednessSequence[step];
+        const dist = hand1Match
+            ? Math.hypot(hx1 - getTargetX(step), hy1 - targetY)
+            : hand2Match
+              ? Math.hypot(hx2 - getTargetX(step), hy2 - targetY)
+              : Infinity;
         if ((hand1Match || hand2Match) && dist < 100) {
-                //Render sucess sprite
-                const star = document.createElement('img');
-                star.src       = `assets/${gestureSequence[step].toLowerCase()}_chrome_${handednessSequence[step].toLowerCase()}_JIN.png`;
-                star.className = 'peace-target peace-target--done';
-                star.style.left = getTargetX(step) + 'px';
-                star.style.top  = targetY + 'px';
-                star.style.setProperty('--duration', (500 + Math.random() * 1000) + 'ms');
-                star.onanimationend = () => star.remove();
-                particlesEl.appendChild(star);
+            //Render sucess sprite
+            const star = document.createElement("img");
+            star.src = `assets/${gestureSequence[step].toLowerCase()}_chrome_${handednessSequence[step].toLowerCase()}_JIN.png`;
+            star.className = "peace-target peace-target--done";
+            star.style.left = getTargetX(step) + "px";
+            star.style.top = targetY + "px";
+            star.style.setProperty(
+                "--duration",
+                500 + Math.random() * 1000 + "ms"
+            );
+            star.onanimationend = () => star.remove();
+            particlesEl.appendChild(star);
 
-                step++;
-                done = step >= gestureSequence.length;
+            step++;
+            done = step >= gestureSequence.length;
 
-                    particlesEl.appendChild(star);
+            particlesEl.appendChild(star);
 
-                if (done) {
-                    targetSprites.forEach(s => s.className = 'peace-target peace-target--faded')
+            if (done) {
+                targetSprites.forEach(
+                    (s) => (s.className = "peace-target peace-target--faded")
+                );
 
-                    const fill = overlayEl.querySelector('.progress-bar__fill');
-                    if (fill) fill.style.width = '100%';
-                }
+                const fill = overlayEl.querySelector(".progress-bar__fill");
+                if (fill) fill.style.width = "100%";
+            }
         }
 
         done = step >= gestureSequence.length;
-        const progress = gestureSequence.map((_, i) => i < step ? '●' : '○').join(' ');
-        const label = step < gestureSequence.length ? gestureLabels[step] : '';
+        const progress = gestureSequence
+            .map((_, i) => (i < step ? "●" : "○"))
+            .join(" ");
+        const label = step < gestureSequence.length ? gestureLabels[step] : "";
         return { done, step };
     }
 

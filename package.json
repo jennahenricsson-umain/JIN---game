@@ -10,7 +10,7 @@
     },
     "dependencies": {
         "@mediapipe/tasks-vision": "^0.10.32",
-        "firebase": "^12.10.0"
+        "firebase": "^12.13.0"
     },
     "devDependencies": {
         "terser": "^5.28.1",

@@ -26,19 +26,21 @@
 Replace the config in **TWO files**:
 
 ### File 1: `js/firebase.js`
+
 ```javascript
 const firebaseConfig = {
     apiKey: "YOUR_API_KEY",
     authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-    databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",  // Important!
+    databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com", // Important!
     projectId: "YOUR_PROJECT_ID",
     storageBucket: "YOUR_PROJECT_ID.appspot.com",
     messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-    appId: "YOUR_APP_ID"
+    appId: "YOUR_APP_ID",
 };
 ```
 
 ### File 2: `analytics.html`
+
 Same config as above (around line 75)
 
 ## 5. Set Database Rules (Optional - for production)
@@ -47,21 +49,21 @@ In Firebase Console > Realtime Database > Rules:
 
 ```json
 {
-  "rules": {
-    "sessions": {
-      ".read": true,
-      ".write": true
-    },
-    "games": {
-      ".read": true,
-      ".write": true,
-      ".indexOn": ["score", "timestamp"]
-    },
-    "metrics": {
-      ".read": true,
-      ".write": true
+    "rules": {
+        "sessions": {
+            ".read": true,
+            ".write": true
+        },
+        "games": {
+            ".read": true,
+            ".write": true,
+            ".indexOn": ["score", "timestamp"]
+        },
+        "metrics": {
+            ".read": true,
+            ".write": true
+        }
     }
-  }
 }
 ```
 
