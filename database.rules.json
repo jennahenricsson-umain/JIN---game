@@ -2,7 +2,10 @@
     "rules": {
         "sessions": {
             ".read": true,
-            ".write": true
+            ".write": true,
+            "$date": {
+                ".indexOn": ["score"]
+            }
         },
         "games": {
             ".read": true,

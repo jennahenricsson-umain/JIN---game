@@ -1,12 +1,10 @@
 import { saveScoreAndGetQR } from "../qrLogic.js";
-import { watchUsername, currentSessionId, currentSessionId2 } from "../firebase.js";
+import { watchUsername, currentSessionId, currentSessionId2, fetchLeaderboard } from "../firebase.js";
 
 const RANKS = ["1st", "2nd", "3rd"];
-let rendered = false;
-let sessionScores = [];
+let initializing = false;
 
-function buildScoreboard(scores, finalScore) {
-    const latestIndex = [...scores].findIndex((s) => s.score === finalScore);
+function buildScoreboard(scores) {
     return `
         <div class="leaderboard-column">
             <div class="rectangle-wrapper green">
@@ -14,13 +12,13 @@ function buildScoreboard(scores, finalScore) {
                 ${scores
                     .map(
                         (s, i) => `
-                    <div class="scoreboard__row ${i === latestIndex ? "scoreboard__row--highlight" : ""}" data-session-id="${s.sessionId || ""}">
+                    <div class="scoreboard__row">
                     <div class="scoreboard__left">
 
                         <span class="scoreboard__rank">${RANKS[i]}</span>
-                        <span class="scoreboard__playertag">${s.player || ""}</span>
+                        <span class="scoreboard__playertag">${s.name || ""}</span>
                     </div>
-                        <span class="scoreboard__score">${s.player ? s.score : ""}</span>
+                        <span class="scoreboard__score">${s.name ? s.score : ""}</span>
                     </div>
 
                 `
@@ -50,20 +48,17 @@ function buildQRColumn(score, wrapperId) {
     `;
 }
 
-function buildMultiLayout(score1, score2) {
-    const displayScores = [...sessionScores]
-        .sort((a, b) => b.score - a.score)
-        .slice(0, 3);
-    while (displayScores.length < 3) displayScores.push({ score: 0, player: "" });
+function buildMultiLayout(score1, score2, displayScores) {
+    while (displayScores.length < 3) displayScores.push({ score: 0, name: "" });
     const rows = displayScores
         .map(
             (s, i) => `
-        <div class="scoreboard__row" data-session-id="${s.sessionId || ''}">
+        <div class="scoreboard__row">
             <div class="scoreboard__left">
                 <span class="scoreboard__rank">${RANKS[i]}</span>
-                <span class="scoreboard__playertag">${s.player || ""}</span>
+                <span class="scoreboard__playertag">${s.name || ""}</span>
             </div>
-            <span class="scoreboard__score">${s.player ? s.score : ""}</span>
+            <span class="scoreboard__score">${s.name ? s.score : ""}</span>
         </div>`
         )
         .join("");
@@ -100,40 +95,22 @@ function buildMultiLayout(score1, score2) {
     `;
 }
 
-// finalScore2 is optional — pass it in multiplayer to show both scores
-export function renderGameOver(
-    overlay,
-    gesture,
-    gesture2,
-    confidence,
-    confidence2,
-    finalScore,
-    finalScore2 = null
-) {
-    if (!rendered) {
-        rendered = true;
+export async function initGameOver(overlay, finalScore, finalScore2) {
+        initializing = true;
+        const sessionScores = await fetchLeaderboard(3);
         const isMulti = finalScore2 !== null;
-        if (isMulti) {
-            sessionScores.push(
-                { score: finalScore, player: "", sessionId: currentSessionId },
-                { score: finalScore2, player: "", sessionId: currentSessionId2 }
-            );
-        } else {
-            const sessionId = currentSessionId;
-            sessionScores.push({ score: finalScore, sessionId, player: "" });
-        }
         const displayScores = [...sessionScores]
             .sort((a, b) => b.score - a.score)
             .slice(0, 3);
-        while (displayScores.length < 3) displayScores.push({ score: 0 });
+        while (displayScores.length < 3) displayScores.push({ score: 0, name: "" });
 
         overlay.innerHTML = `
             <div class="scene-text scene-text--scoreboard">
                 ${
                     isMulti
-                        ? buildMultiLayout(finalScore, finalScore2)
+                        ? buildMultiLayout(finalScore, finalScore2, displayScores)
                         : `<div class="gameover-panel">
-                        ${buildScoreboard(displayScores, finalScore)}
+                        ${buildScoreboard(displayScores)}
                         ${buildQRColumn(finalScore, "qr-img-wrap-p1")}
                        </div>`
                 }
@@ -154,25 +131,17 @@ export function renderGameOver(
                     wrap.innerHTML = `<img src="${url}" class="qr-prompt__img" alt="QR code">`;
             });
             if (currentSessionId) {
-                watchUsername(currentSessionId, (name) => {
-                    const entry = sessionScores.find((s) => s.sessionId === currentSessionId);
-                    if (entry) entry.player = name;
-                    const row = overlay.querySelector(`[data-session-id="${currentSessionId}"]`);
-                    if (row) {
-                        row.querySelector(".scoreboard__playertag").textContent = name;
-                        row.querySelector(".scoreboard__score").textContent = entry ? entry.score : "";
-                    }
+                watchUsername(currentSessionId, async (name) => {
+                    const newScores = await fetchLeaderboard(3);
+                    const leaderboardEl = overlay.querySelector(".leaderboard-column");
+                    if (leaderboardEl) leaderboardEl.outerHTML = buildScoreboard(newScores);
                 });
             }
             if (currentSessionId2) {
-                watchUsername(currentSessionId2, (name) => {
-                    const entry = sessionScores.find((s) => s.sessionId === currentSessionId2);
-                    if (entry) entry.player = name;
-                    const row = overlay.querySelector(`[data-session-id="${currentSessionId2}"]`);
-                    if (row) {
-                        row.querySelector(".scoreboard__playertag").textContent = name;
-                        row.querySelector(".scoreboard__score").textContent = entry ? entry.score : "";
-                    }
+                watchUsername(currentSessionId2, async (name) => {
+                    const newScores = await fetchLeaderboard(3);
+                    const leaderboardEl = overlay.querySelector(".leaderboard-column");
+                    if (leaderboardEl) leaderboardEl.outerHTML = buildScoreboard(newScores);
                 });
             }
         } else {
@@ -183,46 +152,42 @@ export function renderGameOver(
                     wrap.innerHTML = `<img src="${url}" class="qr-prompt__img" alt="QR code">`;
             });
             if (sessionId) {
-                watchUsername(sessionId, (name) => {
-                    const entry = sessionScores.find(
-                        (s) => s.sessionId === sessionId
-                    );
-                    if (entry) entry.player = name;
-                    const row = overlay.querySelector(
-                        `[data-session-id="${sessionId}"]`
-                    );
-                    if (row) {
-                        row.querySelector(".scoreboard__playertag").textContent = name;
-                        row.querySelector(".scoreboard__score").textContent = entry ? entry.score : "";
-                    }
+                watchUsername(sessionId, async (name) => {
+                    const newScores = await fetchLeaderboard(3);
+                    const leaderboardEl = overlay.querySelector(".leaderboard-column");
+                    if (leaderboardEl) leaderboardEl.outerHTML = buildScoreboard(newScores);
                 });
             }
         }
-    }
+        initializing = false;
+}
 
+// finalScore2 is optional — pass it in multiplayer to show both scores
+export function renderGameOver(
+    overlay,
+    gesture,
+    gesture2,
+    confidence,
+    confidence2,
+    finalScore,
+    finalScore2 = null
+) {
+    if (initializing) return false;
     if (
         (gesture === "Open_Palm" && confidence >= 0.7) ||
         (gesture2 === "Open_Palm" && confidence2 >= 0.7)
     ) {
-        rendered = false;
         return "play_again";
     } else if (
         (gesture === "Thumb_Down" && confidence >= 0.7) ||
         (gesture2 === "Thumb_Down" && confidence2 >= 0.7)
     ) {
-        rendered = false;
         return "menu";
     }
     return false;
 }
 
 export function resetGameOver() {
-    rendered = false;
+    initializing = false;
 }
 
-export function getSessionScores() {
-    return [...sessionScores]
-        .sort((a, b) => b.score - a.score)
-        .slice(0, 3)
-        .map((s) => ({ score: s.score, name: s.player || "" }));
-}
