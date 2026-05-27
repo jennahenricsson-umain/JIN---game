@@ -12,10 +12,10 @@ import { createGame } from "./scenes/gameplay.js";
 import {
     renderGameOver,
     resetGameOver,
-    getSessionScores,
+    initGameOver,
 } from "./scenes/gameover.js";
 import { createOnboarding } from "./scenes/onboarding.js";
-import { startGame, endGame } from "./firebase.js";
+import { startGame, endGame, fetchLeaderboard } from "./firebase.js";
 import {
     renderSleeperScreen,
     setSleeperScores,
@@ -97,14 +97,14 @@ function fadeTransition(callback) {
     }, 1000);
 }
 
-function enterSleeper() {
+async function enterSleeper() {
     resetSleeper();
     sleeperWaveStart = null;
     overlay.innerHTML = "";
     gameState = "sleeper";
     sleeperEnteredAt = Date.now();
     idleLoop = true;
-    setSleeperScores(getSessionScores());
+    setSleeperScores(await fetchLeaderboard(5));
 }
 
 async function startMultiplayer() {
@@ -222,7 +222,8 @@ function enterPlay() {
     gameState = "play";
 }
 
-function enterGameOver() {
+async function enterGameOver() {
+
     setShowDivider(false);
     app.classList.remove("multiplayer");
     timebarEl.classList.remove("active", "multiplayer");
@@ -240,10 +241,11 @@ function enterGameOver() {
     particlesP2.innerHTML = "";
     particles.innerHTML = "";
 
-    endGame(score1, gameMode === "multi" ? score2 : null);
-
     finalScore1 = score1;
     finalScore2 = score2;
+    await initGameOver(overlay, finalScore1, gameMode === "multi" ? finalScore2 : null );
+    endGame(score1, gameMode === "multi" ? score2 : null);
+
     gameState = "over";
     gameStartTime = Date.now();
 }
