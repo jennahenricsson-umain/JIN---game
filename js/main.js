@@ -230,7 +230,7 @@ async function enterGameOver() {
     timebarEl.style.display = "none";
 
     const iconsEl = overlay.querySelector(".score-icons");
-    const scoreNumEl = overlay.querySelector(".game-score");
+    const scoreNumEl = overlay.querySelector(".scene-text--game-score");
     window._savedIconsHTML = iconsEl ? iconsEl.outerHTML : "";
     window._savedScoreHTML = scoreNumEl ? scoreNumEl.outerHTML : "";
 
@@ -243,11 +243,10 @@ async function enterGameOver() {
 
     finalScore1 = score1;
     finalScore2 = score2;
-    await initGameOver(overlay, finalScore1, gameMode === "multi" ? finalScore2 : null );
-    endGame(score1, gameMode === "multi" ? score2 : null);
-
     gameState = "over";
     gameStartTime = Date.now();
+    await initGameOver(overlay, finalScore1, gameMode === "multi" ? finalScore2 : null );
+    endGame(score1, gameMode === "multi" ? score2 : null);
 }
 
 // ─── Detection loop ───────────────────────────────────────────────────────────

@@ -16,7 +16,7 @@ function buildBoard() {
                 <span class="scoreboard__rank">${RANKS[i]}</span>
                 <span class="scoreboard__playertag">${s.name}</span>
             </div>
-            <span class="scoreboard__score">${s.score}</span>
+            <span class="scoreboard__score">${s.name ? s.score : ""}</span>
         </div>
     `).join('');
 
