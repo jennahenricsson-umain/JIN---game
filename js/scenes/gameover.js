@@ -1,7 +1,7 @@
 import { saveScoreAndGetQR } from "../qrLogic.js";
 import { watchUsername, currentSessionId, currentSessionId2 } from "../firebase.js";
 
-const RANKS = ["1st", "2nd", "3rd"];
+const RANKS = ["1ST", "2ND", "3RD"];
 let rendered = false;
 let sessionScores = [];
 
@@ -9,8 +9,8 @@ function buildScoreboard(scores, finalScore) {
     const latestIndex = [...scores].findIndex((s) => s.score === finalScore);
     return `
         <div class="leaderboard-column">
-            <div class="rectangle-wrapper green">
-                <div class="scoreboard__board-title">Leaderboard</div>
+            <div class="rectangle-wrapper orange">
+                <div class="scoreboard__board-title">LEADERBOARD</div>
                 ${scores
                     .map(
                         (s, i) => `
@@ -27,8 +27,8 @@ function buildScoreboard(scores, finalScore) {
                     )
                     .join("")}
                 </div>
-                    <div class="rectangle-wrapper green wave-box">
-                    Wave to play again
+                    <div class="rectangle-wrapper orange wave-box">
+                    WAVE TO PLAY AGAIN
                 </div>
         </div>
     `;
@@ -37,14 +37,14 @@ function buildScoreboard(scores, finalScore) {
 function buildQRColumn(score, wrapperId) {
     return `
         <div class="qr-column">
-            <div class="rectangle-wrapper blue qr-score-box">
-                <div class="scoreboard__title">Your score</div>
+            <div class="rectangle-wrapper violet qr-score-box">
+                <div class="scoreboard__title">YOUR SCORE</div>
                 <div class="your-score-value">${score}</div>
 
             </div>
-            <div class="rectangle-wrapper blue qr-panel">
+            <div class="rectangle-wrapper violet qr-panel">
                 <div id="${wrapperId}" class="qr-img-wrap">Loading…</div>
-                <div class="qr-label">Scan to join</div>
+                <div class="qr-label">SCAN TO JOIN</div>
             </div>
         </div>
     `;
@@ -70,30 +70,30 @@ function buildMultiLayout(score1, score2) {
     return `
         <div class="gameover-panel--multi">
             <div class="qr-column">
-                <div class="rectangle-wrapper blue qr-score-box">
-                    <div class="scoreboard__title">Player 1</div>
+                <div class="rectangle-wrapper violet qr-score-box">
+                    <div class="scoreboard__title">PLAYER 1</div>
                     <div class="multi-score-value">${score1}</div>
                 </div>
-                <div class="rectangle-wrapper blue qr-panel">
+                <div class="rectangle-wrapper violet qr-panel">
                     <div id="qr-img-wrap-p1" class="qr-img-wrap">Loading…</div>
-                    <div class="qr-label">Scan to join the leaderboard</div>
+                    <div class="qr-label">SCAN TO JOIN THE LEADERBOARD</div>
                 </div>
             </div>
             <div class="leaderboard-column">
-                <div class="rectangle-wrapper green">
-                    <div class="scoreboard__board-title">Scoreboard</div>
+                <div class="rectangle-wrapper orange">
+                    <div class="scoreboard__board-title">SCOREBOARD</div>
                     ${rows}
                 </div>
-                <div class="rectangle-wrapper green wave-box">Wave to play again</div>
+                <div class="rectangle-wrapper orange wave-box">WAVE TO PLAY AGAIN</div>
             </div>
             <div class="qr-column">
-                <div class="rectangle-wrapper blue qr-score-box">
-                    <div class="scoreboard__title">Player 2</div>
+                <div class="rectangle-wrapper violet qr-score-box">
+                    <div class="scoreboard__title">PLAYER 2</div>
                     <div class="multi-score-value">${score2}</div>
                 </div>
-                <div class="rectangle-wrapper blue qr-panel">
+                <div class="rectangle-wrapper violet qr-panel">
                     <div id="qr-img-wrap-p2" class="qr-img-wrap">Loading…</div>
-                    <div class="qr-label">Scan to join the leaderboard</div>
+                    <div class="qr-label">SCAN TO JOIN THE LEADERBOARD</div>
                 </div>
             </div>
         </div>

@@ -416,6 +416,10 @@ function render() {
                     <p class="scene-text scene-text--countdown ${isGo ? "scene-text--countdown--go" : ""}">${steps[step]}</p>`;
             if (isGo) setTimeout(() => enterPlay(), 600);
         }
+        if (step >= steps.length && overlay.dataset.countdownStep != "done") {
+            overlay.dataset.countdownStep = "done";
+            enterPlay();
+        }
 
         // ── Play ──────────────────────────────────────────────────────────────────
     } else if (gameState === "play") {
@@ -440,7 +444,7 @@ function render() {
             timebarEl.classList.add("active");
             timebarFill.style.height = pct + "%";
             timebarFill.style.background =
-                pct > 40 ? "#AAE1A8" : pct > 20 ? "#F9657C" : "#D52222";
+                pct > 40 ? "#8d29f1" : pct > 20 ? "#ff6600" : "#ff4444";
 
             if (timeLeft <= 5) {
                 let currentSecond = Math.ceil(timeLeft);
@@ -478,7 +482,7 @@ function render() {
             timebarEl.classList.add("multiplayer");
             timebarFill.style.height = pct + "%";
             timebarFill.style.background =
-                pct > 40 ? "#AAE1A8" : pct > 20 ? "#F9657C" : "#D52222";
+                pct > 40 ? "#8d29f1" : pct > 20 ? "#ff6600" : "#ff4444";
 
             if (timeLeft <= 0) {
                 timebarEl.classList.remove("active");

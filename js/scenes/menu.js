@@ -17,17 +17,16 @@ export function renderMenu(
     handX2
 ) {
     const html = `
-        <img class="conversionista-logo conversionista-logo--menu" src="assets/Conversionista/Conversionista-Red-noBG.svg" alt="Conversionista">
         <p class="scene-text scene-text--main-menu">
-            Choose mode
+            CHOOSE <span class="highlight-orange">MODE</span>
         </p>
         <img class="scene-image scene-image--left" src="assets/open_palm_chrome_left_JIN.png" alt="Menu Image">
-        <p class="scene-text scene-text--menu-subtitle" style="left: 25%;">
-            <span style="font-size: 1.3em;">1 player</span><br>Hold up <span class="highlight-violet">left</span> hand
+        <p class="scene-text scene-text--menu-subtitle" style="left: 0; right: 50%; transform: none;">
+            <span style="font-size: 1.3em;">1 PLAYER</span><br>HOLD UP <span class="highlight-violet">LEFT</span> HAND
         </p>
         <img class="scene-image scene-image--right" src="assets/double_hands_JIN.png" alt="Menu Image">
-        <p class="scene-text scene-text--menu-subtitle" style="left: 75%;">
-            <span style="font-size: 1.3em;">2 players</span><br>Hold up <span class="highlight-orange">right</span> hand
+        <p class="scene-text scene-text--menu-subtitle" style="left: 50%; right: 0; transform: none;">
+            <span style="font-size: 1.3em;">2 PLAYERS</span><br>HOLD UP <span class="highlight-orange">RIGHT</span> HAND
         </p>
         <div class="progress-bar" style="left: 25%"><div class="progress-bar__fill" id="bar-left" style="width:0%; transition:none;"></div></div>
         <div class="progress-bar" style="left: 75%"><div class="progress-bar__fill" id="bar-right" style="width:0%; transition:none;"></div></div>
