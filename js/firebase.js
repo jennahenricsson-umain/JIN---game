@@ -73,7 +73,7 @@ export function watchUsername(sessionId, callback) {
 
 export async function fetchLeaderboard(limit = 5) {
     const q = query(
-        ref(db, `sessions/${gameStartDate}`),
+        ref(db, `sessions/${new Date().toISOString().slice(0,10)}`),
         orderByChild("score"),
         limitToLast(limit)
     );
