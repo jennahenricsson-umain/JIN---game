@@ -1,5 +1,8 @@
 {
-    "projects": {
-        "default": "jin-gesturegame"
-    }
+  "projects": {
+    "default": "jin-gesturegame",
+    "JIN---game": "jin-gesturegame"
+  },
+  "targets": {},
+  "etags": {}
 }

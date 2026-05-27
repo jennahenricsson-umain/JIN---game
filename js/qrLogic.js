@@ -10,7 +10,7 @@ export async function saveScoreAndGetQR(score, player = 1) {
         player === 2 ? firebase.currentSessionId2 : firebase.currentSessionId;
     if (!sessionId) return null;
 
-    await fetch(`${DB_URL}/sessions/${sessionId}.json`, {
+    await fetch(`${DB_URL}/sessions/${firebase.gameStartDate}/${sessionId}.json`, {
         method: "PATCH",
         body: JSON.stringify({ totalScore: score, username: "Guest" }),
     });
