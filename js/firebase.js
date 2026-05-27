@@ -7,7 +7,6 @@ import {
     update,
     query,
     orderByChild,
-    limitToLast,
     get,
     onValue,
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
@@ -74,8 +73,7 @@ export function watchUsername(sessionId, callback) {
 export async function fetchLeaderboard(limit = 5) {
     const q = query(
         ref(db, `sessions/${new Date().toISOString().slice(0,10)}`),
-        orderByChild("score"),
-        limitToLast(limit)
+        orderByChild("score")
     );
     const snapshot = await get(q);
     const results = [];
@@ -84,5 +82,5 @@ export async function fetchLeaderboard(limit = 5) {
         if (val.score != null && val.username != null)
             results.push({ score: val.score, name: val.username || "" });
     });
-    return results.sort((a, b) => b.score - a.score);
+    return results.sort((a, b) => b.score - a.score).slice(0, limit);
 }
