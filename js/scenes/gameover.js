@@ -35,12 +35,12 @@ function buildScoreboard(scores) {
 function buildQRColumn(score, wrapperId) {
     return `
         <div class="qr-column">
-            <div class="rectangle-wrapper blue qr-score-box">
+            <div class="rectangle-wrapper violet qr-score-box">
                 <div class="scoreboard__title">Your score</div>
                 <div class="your-score-value">${score}</div>
 
             </div>
-            <div class="rectangle-wrapper blue qr-panel">
+            <div class="rectangle-wrapper violet qr-panel">
                 <div id="${wrapperId}" class="qr-img-wrap">Loading…</div>
                 <div class="qr-label">Scan to join</div>
             </div>
@@ -65,11 +65,11 @@ function buildMultiLayout(score1, score2, displayScores) {
     return `
         <div class="gameover-panel--multi">
             <div class="qr-column">
-                <div class="rectangle-wrapper blue qr-score-box">
+                <div class="rectangle-wrapper violet qr-score-box">
                     <div class="scoreboard__title">Player 1</div>
                     <div class="multi-score-value">${score1}</div>
                 </div>
-                <div class="rectangle-wrapper blue qr-panel">
+                <div class="rectangle-wrapper violet qr-panel">
                     <div id="qr-img-wrap-p1" class="qr-img-wrap">Loading…</div>
                     <div class="qr-label">Scan to join the leaderboard</div>
                 </div>
@@ -82,11 +82,11 @@ function buildMultiLayout(score1, score2, displayScores) {
                 <div class="rectangle-wrapper orange wave-box">WAVE TO PLAY AGAIN</div>
             </div>
             <div class="qr-column">
-                <div class="rectangle-wrapper blue qr-score-box">
+                <div class="rectangle-wrapper violet qr-score-box">
                     <div class="scoreboard__title">Player 2</div>
                     <div class="multi-score-value">${score2}</div>
                 </div>
-                <div class="rectangle-wrapper blue qr-panel">
+                <div class="rectangle-wrapper violet qr-panel">
                     <div id="qr-img-wrap-p2" class="qr-img-wrap">Loading…</div>
                     <div class="qr-label">Scan to join the leaderboard</div>
                 </div>
