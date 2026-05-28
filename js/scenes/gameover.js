@@ -174,10 +174,10 @@ export function renderGameOver(
 ) {
     if (initializing) return false;
     if (
-        (gesture === "Open_Palm" && confidence >= 0.7) ||
-        (gesture2 === "Open_Palm" && confidence2 >= 0.7)
+        (gesture === "Open_Palm" && confidence >= 0.6) ||
+        (gesture2 === "Open_Palm" && confidence2 >= 0.6)
     ) {
-        return "play_again";
+        return "menu";
     } else if (
         (gesture === "Thumb_Down" && confidence >= 0.7) ||
         (gesture2 === "Thumb_Down" && confidence2 >= 0.7)

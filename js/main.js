@@ -246,6 +246,7 @@ async function enterGameOver() {
     gameState = "over";
     gameStartTime = Date.now();
     await initGameOver(overlay, finalScore1, gameMode === "multi" ? finalScore2 : null );
+    gameStartTime = Date.now();
     endGame(score1, gameMode === "multi" ? score2 : null);
 }
 
@@ -508,11 +509,11 @@ function render() {
         if (gameMode === "multi") {
             const bufferTime = elapsed < 2000;
             const p2Wave =
-                (g3 === "Open_Palm" && c3 >= 0.7) ||
-                (g4 === "Open_Palm" && c4 >= 0.7);
+                (g3 === "Open_Palm" && c3 >= 0.6) ||
+                (g4 === "Open_Palm" && c4 >= 0.6);
             if (
-                elapsed > 20000 ||
-                (!bufferTime && (result === "play_again" || p2Wave))
+                elapsed > 40000 ||
+                (!bufferTime && ( result === "menu" || p2Wave))
             ) {
                 resetGameOver();
                 overlay.innerHTML = "";
