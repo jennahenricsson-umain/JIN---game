@@ -510,12 +510,12 @@ function render() {
         const elapsed = Date.now() - gameStartTime;
 
         if (gameMode === "multi") {
-            const bufferTime = elapsed < 2000;
+            const bufferTime = elapsed < 20000;
             const p2Wave =
                 (g3 === "Open_Palm" && c3 >= 0.7) ||
                 (g4 === "Open_Palm" && c4 >= 0.7);
             if (
-                elapsed > 20000 ||
+                elapsed > 60000 ||
                 (!bufferTime && (result === "play_again" || p2Wave))
             ) {
                 resetGameOver();
@@ -527,7 +527,7 @@ function render() {
             }
         } else {
             const idle = elapsed > 60000;
-            const bufferTime = elapsed < 2000;
+            const bufferTime = elapsed < 20000;
 
             if (overlay.querySelector(".scoreboard__playagain")) {
                 overlay.querySelector(

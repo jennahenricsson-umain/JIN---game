@@ -32,9 +32,6 @@ export function renderSleeperScreen(overlay) {
                         <div class="scoreboard__board-title">LEADERBOARD</div>
                         ${buildBoard()}
                     </div>
-                    <div class="rectangle-wrapper orange wave-box">
-                        WAVE TO PLAY AGAIN
-                    </div>
                 </div>
             </div>
         `;
