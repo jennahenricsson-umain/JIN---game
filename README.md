@@ -19,7 +19,7 @@ The webcam feed is displayed full-screen in the background. MediaPipe tracks you
 
 **Game flow:** Main Menu → Onboarding (tutorial) → Play → Game Over → repeat
 
-**Scoring:** Match the gesture shown on screen and move your hand close to the target. Each match scores a point and adds time to the clock.
+**Scoring:** Match the gesture shown on screen and move your hand close to the target. Each match scores a point. Each round is 30seconds long.
 
 **Gestures:** Open_Palm, Thumb_Up, Pointing_Up, ILoveYou, Victory, Closed_Fist, Thumb_Down (quits)
 
